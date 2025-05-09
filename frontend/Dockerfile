@@ -3,7 +3,7 @@
 FROM node:lts-alpine as build
 WORKDIR /bookcars/frontend
 COPY ./frontend ./
-COPY ./frontend/.env.docker .env
+COPY ./.env.docker .env
 COPY ./packages /bookcars/packages
 RUN npm install --force
 RUN npm run build
