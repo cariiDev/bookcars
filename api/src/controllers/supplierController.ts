@@ -79,6 +79,7 @@ export const update = async (req: Request, res: Response) => {
         priceChangeRate,
         supplierCarLimit,
         notifyAdminOnNewCar,
+        blacklisted,
       } = body
       supplier.fullName = fullName
       supplier.phone = phone
@@ -90,6 +91,7 @@ export const update = async (req: Request, res: Response) => {
       supplier.priceChangeRate = priceChangeRate
       supplier.supplierCarLimit = supplierCarLimit
       supplier.notifyAdminOnNewCar = notifyAdminOnNewCar
+      supplier.blacklisted = !!blacklisted
 
       await supplier.save()
       res.json({
@@ -106,6 +108,7 @@ export const update = async (req: Request, res: Response) => {
         priceChangeRate: supplier.priceChangeRate,
         supplierCarLimit: supplier.supplierCarLimit,
         notifyAdminOnNewCar: supplier.notifyAdminOnNewCar,
+        blacklisted: supplier.blacklisted,
       })
       return
     }
@@ -154,7 +157,14 @@ export const deleteSupplier = async (req: Request, res: Response) => {
 
       await NotificationCounter.deleteMany({ user: id })
       await Notification.deleteMany({ user: id })
-      const additionalDrivers = (await Booking.find({ supplier: id, _additionalDriver: { $ne: null } }, { _id: 0, _additionalDriver: 1 })).map((b) => b._additionalDriver)
+      const additionalDrivers = (
+        await Booking
+          .find(
+            { supplier: id, _additionalDriver: { $ne: null } },
+          )
+          .select('_additionalDriver -_id')
+          .lean()
+      ).map((b) => b._additionalDriver)
       await AdditionalDriver.deleteMany({ _id: { $in: additionalDrivers } })
       await Booking.deleteMany({ supplier: id })
       const cars = await Car.find({ supplier: id })
@@ -217,6 +227,7 @@ export const getSupplier = async (req: Request, res: Response) => {
       priceChangeRate,
       supplierCarLimit,
       notifyAdminOnNewCar,
+      blacklisted,
     } = user
 
     res.json({
@@ -234,6 +245,7 @@ export const getSupplier = async (req: Request, res: Response) => {
       priceChangeRate,
       supplierCarLimit,
       notifyAdminOnNewCar,
+      blacklisted,
     })
   } catch (err) {
     logger.error(`[supplier.getSupplier] ${i18n.t('DB_ERROR')} ${id}`, err)
@@ -280,13 +292,13 @@ export const getSuppliers = async (req: Request, res: Response) => {
             as: 'car',
           },
         },
-        { $unwind: { path: '$car', preserveNullAndEmptyArrays: false } },
+        { $unwind: { path: '$car', preserveNullAndEmptyArrays: true } },
         {
           $group: {
             _id: '$_id',
             fullName: { $first: '$fullName' },
             avatar: { $first: '$avatar' },
-            carCount: { $sum: 1 },
+            carCount: { $sum: { $cond: [{ $ifNull: ['$car', false] }, 1, 0] } },
           },
         },
         {
@@ -449,7 +461,8 @@ export const getFrontendSuppliers = async (req: Request, res: Response) => {
             pipeline: [
               {
                 $match: {
-                  $expr: { $eq: ['$_id', '$$userId'] },
+                  // $expr: { $eq: ['$_id', '$$userId'] },
+                  $and: [{ $expr: { $eq: ['$_id', '$$userId'] } }, { blacklisted: false }]
                 },
               },
             ],

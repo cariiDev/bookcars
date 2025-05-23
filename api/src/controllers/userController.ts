@@ -804,14 +804,24 @@ export const deletePushToken = async (req: Request, res: Response) => {
  */
 export const validateEmail = async (req: Request, res: Response) => {
   const { body }: { body: bookcarsTypes.ValidateEmailPayload } = req
-  const { email } = body
+  const { email, appType } = body
 
   try {
     if (!helper.isValidEmail(email)) {
       throw new Error('body.email is not valid')
     }
 
-    const exists = await User.exists({ email })
+    const _appType = appType || bookcarsTypes.AppType.Frontend
+    const types = _appType === bookcarsTypes.AppType.Frontend
+      ? [bookcarsTypes.UserType.User, bookcarsTypes.UserType.Admin, bookcarsTypes.UserType.Supplier]
+      : [bookcarsTypes.UserType.Admin, bookcarsTypes.UserType.Supplier]
+
+    const exists = await User.exists(
+      {
+        email,
+        type: { $in: types }
+      }
+    )
 
     if (exists) {
       res.sendStatus(204)
@@ -999,6 +1009,7 @@ export const update = async (req: Request, res: Response) => {
       priceChangeRate,
       supplierCarLimit,
       notifyAdminOnNewCar,
+      blacklisted,
     } = body
 
     if (fullName) {
@@ -1012,6 +1023,7 @@ export const update = async (req: Request, res: Response) => {
     user.priceChangeRate = priceChangeRate
     user.supplierCarLimit = supplierCarLimit
     user.notifyAdminOnNewCar = notifyAdminOnNewCar
+    user.blacklisted = !!blacklisted
     if (type) {
       user.type = type as bookcarsTypes.UserType
     }
@@ -1531,7 +1543,14 @@ export const deleteUsers = async (req: Request, res: Response) => {
         }
 
         if (user.type === bookcarsTypes.UserType.Supplier) {
-          const additionalDrivers = (await Booking.find({ supplier: id, _additionalDriver: { $ne: null } }, { _id: 0, _additionalDriver: 1 })).map((b) => b._additionalDriver)
+          const additionalDrivers = (
+            await Booking
+              .find(
+                { supplier: id, _additionalDriver: { $ne: null } },
+              )
+              .select('_additionalDriver -_id')
+              .lean()
+          ).map((b) => b._additionalDriver)
           await AdditionalDriver.deleteMany({ _id: { $in: additionalDrivers } })
           await Booking.deleteMany({ supplier: id })
           const cars = await Car.find({ supplier: id })

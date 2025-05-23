@@ -110,6 +110,7 @@ export const create = async (req: Request, res: Response) => {
     names,
     image,
     parkingSpots: _parkingSpots,
+    supplier,
   } = body
 
   try {
@@ -145,6 +146,7 @@ export const create = async (req: Request, res: Response) => {
       latitude,
       values,
       parkingSpots,
+      supplier,
     })
     await location.save()
 
@@ -362,6 +364,7 @@ export const getLocation = async (req: Request, res: Response) => {
           model: 'LocationValue',
         },
       })
+      .populate<{ supplier: env.UserInfo }>('supplier')
       .lean()
 
     if (location) {
@@ -375,6 +378,10 @@ export const getLocation = async (req: Request, res: Response) => {
         }
       }
       const name = (location.values as env.LocationValue[]).filter((value) => value.language === req.params.language)[0].value
+      if (location.supplier) {
+        const { _id, fullName, avatar } = location.supplier
+        location.supplier = { _id, fullName, avatar }
+      }
       const l = { ...location, name }
       res.json(l)
       return
@@ -461,6 +468,30 @@ export const getLocations = async (req: Request, res: Response) => {
           },
         },
         { $unwind: { path: '$country', preserveNullAndEmptyArrays: true } },
+
+        {
+          $lookup: {
+            from: 'User',
+            let: { supplier: '$supplier' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$_id', '$$supplier'] },
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  fullName: 1,
+                  avatar: 1,
+                },
+              }
+            ],
+            as: 'supplier',
+          },
+        },
+        { $unwind: { path: '$supplier', preserveNullAndEmptyArrays: true } },
+
         {
           $project: {
             parkingSpots: 0,

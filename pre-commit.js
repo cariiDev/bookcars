@@ -9,28 +9,35 @@ import chalk from 'chalk'
 
 const execAsync = promisify(exec)
 
+// pre-commit check types
+const checkTypes = Object.freeze({
+  lint: Symbol('lint'),
+  typeCheck: Symbol('typeCheck'),
+  sizeCheck: Symbol('sizeCheck'),
+})
+
 // Configuration for the pre-commit checks
 const config = {
   projects: {
     api: {
       folder: 'api',
       container: 'bc-dev-api',
-      checks: ['lint', 'typeCheck', 'sizeCheck'],
+      checks: [checkTypes.lint, checkTypes.typeCheck, checkTypes.sizeCheck],
     },
     backend: {
       folder: 'backend',
       container: 'bc-dev-backend',
-      checks: ['lint', 'typeCheck', 'sizeCheck'],
+      checks: [checkTypes.lint, checkTypes.typeCheck, checkTypes.sizeCheck],
     },
     frontend: {
       folder: 'frontend',
       container: 'bc-dev-frontend',
-      checks: ['lint', 'typeCheck', 'sizeCheck'],
+      checks: [checkTypes.lint, checkTypes.typeCheck, checkTypes.sizeCheck],
     },
     mobile: {
       folder: 'mobile',
       container: null, // Mobile does not have a container
-      checks: ['lint', 'typeCheck', 'sizeCheck'],
+      checks: [checkTypes.lint, checkTypes.typeCheck, checkTypes.sizeCheck],
     },
   },
   timeout: 2000, // Timeout for Docker commands in milliseconds
@@ -120,7 +127,7 @@ const git = {
       const { stdout } = await execAsync(`git diff --cached --name-only --diff-filter=ACM ${folder}/`)
       return stdout.trim().split('\n').filter(Boolean).map((file) => file.replace(`${folder}/`, ''))
     } catch (err) {
-      logProjectError(project, '❌ Failed to get changed files:', err)
+      logger.logProjectError(project, '❌ Failed to get changed files:', err)
       return []
     }
   }
@@ -299,11 +306,11 @@ const checks = {
     const targets = processFiles.filterFiles(files, config.typeCheckFilter)
 
     if (targets.length === 0) {
-      logger.logProject(project, `ℹ️ No TypeScript files to check.`)
+      logger.logProject(project, 'ℹ️ No TypeScript files to check.')
       return
     }
 
-    logger.logProject(project, `🔍 Running TypeScript check...`)
+    logger.logProject(project, '🔍 Running TypeScript check...')
 
     try {
       await cmd.runInContext(
@@ -313,7 +320,7 @@ const checks = {
       )
       logger.logProject(project, `${chalk.green('✅ TypeScript check passed.')}`)
     } catch (err) {
-      logger.logProjectError(project, `❌ TypeScript check failed.`)
+      logger.logProjectError(project, '❌ TypeScript check failed.')
       throw err
     }
   },
@@ -324,7 +331,7 @@ const checks = {
     }
 
     const { folder } = project
-    logger.logProject(project, `📏 Checking file sizes...`)
+    logger.logProject(project, '📏 Checking file sizes...')
 
     const oversizedFiles = []
 
@@ -421,15 +428,15 @@ const main = async () => {
 
       const projectTasks = []
 
-      if (projectChecks.includes('lint')) {
+      if (projectChecks.includes(checkTypes.lint)) {
         projectTasks.push(checks.lint(project, files, runInDocker))
       }
 
-      if (projectChecks.includes('typeCheck')) {
+      if (projectChecks.includes(checkTypes.typeCheck)) {
         projectTasks.push(checks.typeCheck(project, files, runInDocker))
       }
 
-      if (projectChecks.includes('sizeCheck')) {
+      if (projectChecks.includes(checkTypes.sizeCheck)) {
         projectTasks.push(checks.sizeCheck(project, files))
       }
 
