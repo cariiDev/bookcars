@@ -1,0 +1,11 @@
+name: build-and-deploy-images
+on: 
+  workflow_dispatch:
+    
+jobs:
+  build:
+    runs-on: [self-hosted, linux, x64]
+
+    steps:
+      - uses: actions/checkout@v4
+  
