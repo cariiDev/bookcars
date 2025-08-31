@@ -1,4 +1,5 @@
 name: deploy
+
 on:
   workflow_run:
     workflows: ["containerize"]
@@ -12,6 +13,8 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: restart-k3s-deployments
+        env:
+          KUBECONFIG: /home/ansible/.kube/config
         run: |
           sudo kubectl rollout restart deployment/bc-frontend -n bookcars
           sudo kubectl rollout restart deployment/bc-backend  -n bookcars
