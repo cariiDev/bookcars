@@ -25,7 +25,7 @@ jobs:
         uses: 1password/load-secrets-action@v2
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          ENV_DOCKER: op://carii-${{ github.event.inputs.environment }}/env-docker-${{ matrix.component }}/text
+          ENV_DOCKER: op://carii-${{ github.event.inputs.environment }}/env-docker-${{ matrix.component }}/notesPlain
         with:
           export-env: true
 
