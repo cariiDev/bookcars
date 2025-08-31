@@ -2,6 +2,11 @@ name: containerize
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "dev/prod"
+        required: true
+        default: "dev"
 
 jobs:
   build:
@@ -16,9 +21,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: create-env-files
+      - name: load-env-var-${{ matrix.component }}
+        uses: 1password/load-secrets-action@v2
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          ENV_DOCKER: op://carii-${{ github.event.inputs.environment }}/env-docker-${{ matrix.component }}/text
+        with:
+          export-env: true
+
+      - name: write-env-docker-file
         run: |
-          cp ${{ matrix.component }}/.env.docker.example ${{ matrix.component }}/.env.docker
+          echo "$ENV_DOCKER" > ${{ matrix.component }}/.env.docker
 
       - name: login-ghcr
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
