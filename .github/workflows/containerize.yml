@@ -21,7 +21,7 @@ jobs:
 
       - name: build-docker-image
         run: |
-          docker build -t $REPO_PREFIX:${{ github.sha }} -f ${{ matrix.component }}/Dockerfile
+          docker build -t $REPO_PREFIX:${{ github.sha }} -f ${{ matrix.component }}/Dockerfile .
           docker push $REPO_PREFIX:${{ github.sha }}
           docker tag $REPO_PREFIX:${{ github.sha }} $REPO_PREFIX:latest
           docker push $REPO_PREFIX:latest
