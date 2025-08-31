@@ -13,6 +13,6 @@ jobs:
     steps:
       - name: restart-k3s-deployments
         run: |
-          kubectl rollout restart deployment/bc-frontend -n bookcars
-          kubectl rollout restart deployment/bc-backend  -n bookcars
-          kubectl rollout restart deployment/bc-admin -n bookcars
+          sudo kubectl rollout restart deployment/bc-frontend -n bookcars
+          sudo kubectl rollout restart deployment/bc-backend  -n bookcars
+          sudo kubectl rollout restart deployment/bc-admin -n bookcars
