@@ -45,8 +45,8 @@ export const connect = async (uri: string, ssl: boolean, debug: boolean): Promis
   const options: ConnectOptions = ssl
     ? {
       tls: true,
-      tlsCertificateKeyFile: env.DB_SSL_CERT,
-      tlsCAFile: env.DB_SSL_CA,
+      ...(env.DB_SSL_CERT && { tlsCertificateKeyFile: env.DB_SSL_CERT }),
+      ...(env.DB_SSL_CA && { tlsCAFile: env.DB_SSL_CA }),
     }
     : {}
 

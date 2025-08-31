@@ -114,14 +114,14 @@ export const DB_SSL = helper.StringToBoolean(__env__('BC_DB_SSL', false, 'false'
  *
  * @type {string}
  */
-export const DB_SSL_CERT = __env__('BC_DB_SSL_CERT', DB_SSL)
+export const DB_SSL_CERT = __env__('BC_DB_SSL_CERT', false)
 
 /**
  * MongoDB SSL CA certificate filepath.
  *
  * @type {string}
  */
-export const DB_SSL_CA = __env__('BC_DB_SSL_CA', DB_SSL)
+export const DB_SSL_CA = __env__('BC_DB_SSL_CA', false)
 
 /**
  * Indicate whether MongoDB debug is enabled or not.
