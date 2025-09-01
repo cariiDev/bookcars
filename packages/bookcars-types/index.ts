@@ -78,6 +78,7 @@ export enum RecordType {
 export enum PaymentGateway {
   PayPal = 'payPal',
   Stripe = 'stripe',
+  BayarCash = 'bayarCash',
 }
 
 export interface Booking {
@@ -105,6 +106,7 @@ export interface Booking {
   expireAt?: Date
   isDeposit?: boolean
   paypalOrderId?: string
+  bayarcashPaymentId?: string
 }
 
 export interface CheckoutPayload {
@@ -577,6 +579,27 @@ export interface CreatePayPalOrderPayload {
   currency: string
   name: string
   description: string
+}
+
+export interface CreateBayarcashPaymentPayload {
+  // Required BayarCash fields
+  payment_channel: number        // Payment channel (5 for FPX, etc.)
+  order_number: string          // Your booking ID
+  amount: number               // Amount in ringgit (not cents like Stripe)
+  payer_name: string           // Customer name
+  payer_email: string          // Customer email
+
+  // Optional but recommended
+  payer_telephone_number?: string  // Malaysia phone number
+  payer_bank_code?: string        // Bank code if known
+  payer_bank_name?: string        // Bank name if known
+  return_url?: string             // Browser redirect URL
+  callback_url?: string           // Server webhook URL
+
+  // Internal BookCars fields (following existing pattern)
+  bookingId: string              // Internal booking reference
+  currency: string               // Currency code (MYR)
+  description?: string           // Payment description
 }
 
 export interface PaymentResult {
