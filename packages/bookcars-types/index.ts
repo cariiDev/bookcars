@@ -118,6 +118,8 @@ export interface CheckoutPayload {
   paymentIntentId?: string
   customerId?: string
   payPal?: boolean
+  bayarCash?: boolean
+  bayarCashPaymentId?: string
 }
 
 export interface Filter {
