@@ -5,6 +5,7 @@ import mongoose from 'mongoose'
 import validator from 'validator'
 import Stripe from 'stripe'
 import { nanoid } from 'nanoid'
+import crypto from 'crypto'
 
 /**
  * Convert string to boolean.
@@ -259,3 +260,85 @@ export const safeStringify = (obj: any) => {
  */
 export const days = (from?: Date, to?: Date) =>
   (from && to && Math.ceil(((new Date(to)).getTime() - (new Date(from)).getTime()) / (1000 * 3600 * 24))) || 0
+
+/**
+ * Format Malaysian phone number for BayarCash API.
+ * Converts various Malaysian phone formats to the required format.
+ *
+ * Examples:
+ * +601234567890  -> 601234567890
+ * 01234567890    -> 601234567890
+ * 1234567890     -> 601234567890
+ * 60123456789    -> 60123456789 (already correct)
+ *
+ * @export
+ * @param {string} phone
+ * @returns {string}
+ */
+export const formatMalaysianPhone = (phone: string): string => {
+  if (!phone) {
+    return ''
+  }
+
+  // Remove all non-digits
+  const digits = phone.replace(/\D/g, '')
+
+  // If already starts with 60 (Malaysia country code)
+  if (digits.startsWith('60')) {
+    return digits
+  }
+
+  // If starts with 0 (local format), remove 0 and add 60
+  if (digits.startsWith('0')) {
+    return '60' + digits.substring(1)
+  }
+
+  // If doesn't start with 60 or 0, assume it's missing country code
+  // Add 60 prefix
+  return '60' + digits
+}
+
+export const validateChecksum = (callbackData: any, secretKey: string, debug = false): boolean => {
+  try {
+    if (!callbackData || !secretKey) {
+      if (debug) {
+        console.log('Missing callbackData or secretKey')
+      }
+      return false
+    }
+    const receivedChecksum = callbackData.checksum
+    if (!receivedChecksum) {
+      if (debug) {
+        console.log('No checksum in callback data')
+      }
+      return false
+    }
+    // Create payload without checksum
+    const payloadData = { ...callbackData }
+    delete payloadData.checksum
+    // Sort and process
+    const sortedKeys = Object.keys(payloadData).sort()
+    const sortedValues = sortedKeys.map(key => {
+      const value = payloadData[key]
+      return typeof value === 'string' ? value.trim() : String(value)
+    })
+    const concatenatedString = sortedValues.join('|')
+    if (debug) {
+      console.log('Sorted keys:', sortedKeys)
+      console.log('Sorted values:', sortedValues)
+      console.log('Concatenated string:', concatenatedString)
+    }
+    const calculatedChecksum = crypto
+      .createHmac('sha256', secretKey)
+      .update(concatenatedString)
+      .digest('hex')
+    if (debug) {
+      console.log('Received checksum:', receivedChecksum)
+      console.log('Calculated checksum:', calculatedChecksum)
+    }
+    return receivedChecksum.toLowerCase() === calculatedChecksum.toLowerCase()
+  } catch (error) {
+    console.error('Checksum validation error:', error)
+    return false
+  }
+}

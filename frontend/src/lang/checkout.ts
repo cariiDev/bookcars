@@ -79,6 +79,10 @@ const strings = new LocalizedStrings({
     PICK_UP_CHECKLIST_ARRIVE_ON_TIME_CONTENT: "Rental companies only allow you to get your keys at your allocated pick-up time, they'll usually hold your car for a limited time after you're due to pick it up - then it's likely to be passed to another customer.",
     PICK_UP_CHECKLIST_DOCUMENTS_TITLE: 'What you bring with you',
     PICK_UP_CHECKLIST_DOCUMENTS_CONTENT: "When you pick the car up, you'll need a passport or national ID card and a driver's license.",
+    BAYARCASH_PAYMENT: 'Pay with BayarCash (FPX)',
+    BAYARCASH_REDIRECTING: 'Redirecting to BayarCash...',
+    BAYARCASH_ERROR: 'BayarCash payment failed. Please try again.',
+    BAYARCASH_SUCCESS: 'Payment completed successfully!',
   },
   es: {
     BOOKING_HEADING: 'Reservar ahora',
