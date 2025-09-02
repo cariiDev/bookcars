@@ -23,6 +23,7 @@ interface CheckoutOptionsProps {
   language: string
   clientSecret: string | null
   payPalLoaded: boolean
+  bayarCashLoaded: boolean
   onPriceChange: (value: number) => void
   onAdManuallyCheckedChange: (value: boolean) => void
   onCancellationChange: (value: boolean) => void
@@ -40,6 +41,7 @@ const CheckoutOptions = ({
   language,
   clientSecret,
   payPalLoaded,
+  bayarCashLoaded,
   onPriceChange,
   onAdManuallyCheckedChange,
   onCancellationChange,
@@ -224,7 +226,7 @@ const CheckoutOptions = ({
       <div className="checkout-options">
         <FormControl fullWidth margin="dense">
           <FormControlLabel
-            disabled={car.cancellation === -1 || car.cancellation === 0 || !!clientSecret || payPalLoaded}
+            disabled={car.cancellation === -1 || car.cancellation === 0 || !!clientSecret || payPalLoaded || bayarCashLoaded}
             control={<Switch checked={cancellation} onChange={handleCancellationChange} color="primary" />}
             label={(
               <span>
@@ -237,7 +239,7 @@ const CheckoutOptions = ({
 
         <FormControl fullWidth margin="dense">
           <FormControlLabel
-            disabled={car.amendments === -1 || car.amendments === 0 || !!clientSecret || payPalLoaded}
+            disabled={car.amendments === -1 || car.amendments === 0 || !!clientSecret || payPalLoaded || bayarCashLoaded}
             control={<Switch checked={amendments} onChange={handleAmendmentsChange} color="primary" />}
             label={(
               <span>
@@ -250,7 +252,7 @@ const CheckoutOptions = ({
 
         <FormControl fullWidth margin="dense">
           <FormControlLabel
-            disabled={car.theftProtection === -1 || car.theftProtection === 0 || !!clientSecret || payPalLoaded}
+            disabled={car.theftProtection === -1 || car.theftProtection === 0 || !!clientSecret || payPalLoaded || bayarCashLoaded}
             control={<Switch checked={theftProtection} onChange={handleTheftProtectionChange} color="primary" />}
             label={(
               <span>
@@ -263,7 +265,7 @@ const CheckoutOptions = ({
 
         <FormControl fullWidth margin="dense">
           <FormControlLabel
-            disabled={car.collisionDamageWaiver === -1 || car.collisionDamageWaiver === 0 || !!clientSecret || payPalLoaded}
+            disabled={car.collisionDamageWaiver === -1 || car.collisionDamageWaiver === 0 || !!clientSecret || payPalLoaded || bayarCashLoaded}
             control={<Switch checked={collisionDamageWaiver} onChange={handleCollisionDamageWaiverChange} color="primary" />}
             label={(
               <span>
@@ -276,7 +278,7 @@ const CheckoutOptions = ({
 
         <FormControl fullWidth margin="dense">
           <FormControlLabel
-            disabled={car.fullInsurance === -1 || car.fullInsurance === 0 || !!clientSecret || payPalLoaded}
+            disabled={car.fullInsurance === -1 || car.fullInsurance === 0 || !!clientSecret || payPalLoaded || bayarCashLoaded}
             control={<Switch checked={fullInsurance} onChange={handleFullInsuranceChange} color="primary" />}
             label={(
               <span>
@@ -289,7 +291,7 @@ const CheckoutOptions = ({
 
         <FormControl fullWidth margin="dense">
           <FormControlLabel
-            disabled={car.additionalDriver === -1 || car.additionalDriver === 0 || !!clientSecret || payPalLoaded}
+            disabled={car.additionalDriver === -1 || car.additionalDriver === 0 || !!clientSecret || payPalLoaded || bayarCashLoaded}
             control={<Switch checked={additionalDriver} onChange={handleAdditionalDriverChange} color="primary" />}
             label={(
               <span>

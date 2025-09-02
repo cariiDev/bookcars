@@ -52,6 +52,10 @@ const CURRENCIES: Currency[] = [
     code: 'AUD',
     symbol: '$',
   },
+  {
+    code: 'MYR',
+    symbol: 'RM',
+  },
 ]
 
 const getPaymentGateway = () => {
@@ -59,6 +63,10 @@ const getPaymentGateway = () => {
 
   if (paymentGateway === 'PAYPAL') {
     return bookcarsTypes.PaymentGateway.PayPal
+  }
+
+  if (paymentGateway === 'BAYARCASH') {
+    return bookcarsTypes.PaymentGateway.BayarCash
   }
 
   // Default is Stripe
