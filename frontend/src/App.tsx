@@ -25,6 +25,7 @@ const Search = lazy(() => import('@/pages/Search'))
 const Checkout = lazy(() => import('@/pages/Checkout'))
 const CheckoutSession = lazy(() => import('@/pages/CheckoutSession'))
 const CheckoutReturn = lazy(() => import('@/pages/CheckoutReturn'))
+const BayarCashPopupReturn = lazy(() => import('@/pages/BayarCashPopupReturn'))
 const Bookings = lazy(() => import('@/pages/Bookings'))
 const Booking = lazy(() => import('@/pages/Booking'))
 const Settings = lazy(() => import('@/pages/Settings'))
@@ -83,6 +84,7 @@ const router = createBrowserRouter([
       { path: 'search', element: <Search /> },
       { path: 'checkout', element: <Checkout /> },
       { path: 'checkout-session/:sessionId', element: <CheckoutSession /> },
+      { path: 'bayarcash-popup-return', element: <BayarCashPopupReturn /> },
       { path: 'checkout-return', element: <CheckoutReturn /> },
       { path: 'bookings', element: <Bookings /> },
       { path: 'booking', element: <Booking /> },
