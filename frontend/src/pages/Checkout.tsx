@@ -250,6 +250,8 @@ const Checkout = () => {
       //
       let _customerId: string | undefined
       let _sessionId: string | undefined
+      let _bayarCashPaymentId: string | undefined
+
       if (!payLater) {
         if (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.Stripe) {
           const name = bookcarsHelper.truncateString(`${env.WEBSITE_NAME} - ${car.name}`, StripeService.ORDER_NAME_MAX_LENGTH)
@@ -299,6 +301,7 @@ const Checkout = () => {
           try {
             const result = await BayarCashService.createPaymentIntent(bayarCashPayload)
             setBayarCashPaymentUrl(result.url)
+            _bayarCashPaymentId = result.id
             setBayarCashLoaded(true)
           } catch (error) {
             console.error('BayarCash payment creation failed:', error)
@@ -318,6 +321,8 @@ const Checkout = () => {
         sessionId: _sessionId,
         customerId: _customerId,
         payPal: env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.PayPal,
+        bayarCash: env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash,
+        bayarCashPaymentId: _bayarCashPaymentId,
       }
 
       const { status, bookingId: _bookingId } = await BookingService.checkout(payload)
