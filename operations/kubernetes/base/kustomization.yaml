@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - certificate.yaml
+  - pvc.yaml
+  - backend/deployment.yaml
+  - backend/service.yaml
+  - backend/ingress.yaml
+  - backend/hpa.yaml
+  - backend/pdb.yaml
+  - frontend/deployment.yaml
+  - frontend/service.yaml
+  - frontend/ingress.yaml
+  - frontend/hpa.yaml
+  - frontend/pdb.yaml
+  - admin/deployment.yaml
+  - admin/service.yaml
+  - admin/ingress.yaml
+  - admin/hpa.yaml
+  - admin/pdb.yaml
+
+commonLabels:
+  app.kubernetes.io/name: bookcars
+  app.kubernetes.io/component: web-service
+  app.kubernetes.io/managed-by: kustomize
+
+images:
+  - name: ghcr.io/cariidev/bookcars/backend
+    newTag: latest
+  - name: ghcr.io/cariidev/bookcars/frontend
+    newTag: latest
+  - name: ghcr.io/cariidev/bookcars/admin
+    newTag: latest

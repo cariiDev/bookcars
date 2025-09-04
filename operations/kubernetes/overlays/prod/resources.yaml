@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bc-backend
+  namespace: bookcars
+spec:
+  template:
+    spec:
+      containers:
+      - name: bc-backend
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bc-frontend
+  namespace: bookcars
+spec:
+  template:
+    spec:
+      containers:
+      - name: bc-frontend
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bc-admin
+  namespace: bookcars
+spec:
+  template:
+    spec:
+      containers:
+      - name: bc-admin
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi

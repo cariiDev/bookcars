@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+commonLabels:
+  environment: prod
+
+# Use specific version tags for production
+images:
+  - name: ghcr.io/cariidev/bookcars/backend
+    newTag: v1.0.0
+  - name: ghcr.io/cariidev/bookcars/frontend
+    newTag: v1.0.0
+  - name: ghcr.io/cariidev/bookcars/admin
+    newTag: v1.0.0
+
+# Increase replicas for production
+replicas:
+  - name: bc-backend
+    count: 5
+  - name: bc-frontend
+    count: 5
+  - name: bc-admin
+    count: 3
+
+patchesStrategicMerge:
+  - backend-ingress.yaml
+  - frontend-ingress.yaml
+  - admin-ingress.yaml
+  - resources.yaml

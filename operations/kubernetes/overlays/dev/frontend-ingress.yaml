@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bookcars-frontend-ingress
+  namespace: bookcars
+spec:
+  tls:
+    - hosts:
+        - book-dev.carii.org
+      secretName: wildcard-secret
+  rules:
+    - host: book-dev.carii.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bc-frontend
+                port:
+                  number: 80

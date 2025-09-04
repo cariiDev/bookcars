@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bookcars-admin-ingress
+  namespace: bookcars
+spec:
+  tls:
+    - hosts:
+        - admin-dev.carii.org
+      secretName: wildcard-secret
+  rules:
+    - host: admin-dev.carii.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bc-admin
+                port:
+                  number: 3001
