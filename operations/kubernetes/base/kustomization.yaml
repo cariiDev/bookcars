@@ -5,21 +5,17 @@ resources:
   - namespace.yaml
   - certificate.yaml
   - pvc.yaml
+  - hpa.yaml
+  - pdb.yaml
   - backend/deployment.yaml
   - backend/service.yaml
   - backend/ingress.yaml
-  - backend/hpa.yaml
-  - backend/pdb.yaml
   - frontend/deployment.yaml
   - frontend/service.yaml
   - frontend/ingress.yaml
-  - frontend/hpa.yaml
-  - frontend/pdb.yaml
   - admin/deployment.yaml
   - admin/service.yaml
   - admin/ingress.yaml
-  - admin/hpa.yaml
-  - admin/pdb.yaml
 
 labels:
   - pairs:

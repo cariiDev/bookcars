@@ -1,7 +1,0 @@
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: bc-admin-pdb
-  namespace: bookcars
-spec:
-  minAvailable: 1
