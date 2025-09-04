@@ -3,8 +3,6 @@ kind: Service
 metadata:
   name: bc-frontend
   namespace: bookcars
-  labels:
-    app: bc-frontend
 spec:
   type: ClusterIP
   ports:
@@ -14,5 +12,3 @@ spec:
     - port: 443
       targetPort: https
       name: https
-  selector:
-    app: bc-frontend

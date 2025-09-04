@@ -4,8 +4,9 @@ kind: Kustomization
 resources:
   - ../../base
 
-commonLabels:
-  environment: prod
+labels:
+  - pairs:
+      environment: prod
 
 # Use specific version tags for production
 images:
@@ -25,8 +26,8 @@ replicas:
   - name: bc-admin
     count: 3
 
-patchesStrategicMerge:
-  - backend-ingress.yaml
-  - frontend-ingress.yaml
-  - admin-ingress.yaml
-  - resources.yaml
+patches:
+  - path: backend-ingress.yaml
+  - path: frontend-ingress.yaml
+  - path: admin-ingress.yaml
+  - path: resources.yaml

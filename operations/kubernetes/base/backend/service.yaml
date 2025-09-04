@@ -3,13 +3,9 @@ kind: Service
 metadata:
   name: bc-backend
   namespace: bookcars
-  labels:
-    app: bc-backend
 spec:
   type: ClusterIP
   ports:
     - port: 4002
       targetPort: 4002
       protocol: TCP
-  selector:
-    app: bc-backend
