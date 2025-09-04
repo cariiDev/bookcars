@@ -3,38 +3,12 @@ kind: Deployment
 metadata:
   name: bc-backend
   namespace: bookcars
-  labels:
-    app: bc-backend
 spec:
   replicas: 3
-  selector:
-    matchLabels:
-      app: bc-backend
   strategy:
     type: Recreate
   template:
-    metadata:
-      labels:
-        app: bc-backend
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: node-role.kubernetes.io/control-plane
-                operator: DoesNotExist
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - bc-backend
-              topologyKey: kubernetes.io/hostname
       imagePullSecrets:
         - name: registry-credentials
       containers:

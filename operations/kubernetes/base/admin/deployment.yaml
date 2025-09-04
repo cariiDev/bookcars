@@ -3,38 +3,12 @@ kind: Deployment
 metadata:
   name: bc-admin
   namespace: bookcars
-  labels:
-    app: bc-admin
 spec:
   replicas: 3
-  selector:
-    matchLabels:
-      app: bc-admin
   strategy:
     type: Recreate
   template:
-    metadata:
-      labels:
-        app: bc-admin
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: node-role.kubernetes.io/control-plane
-                operator: DoesNotExist
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - bc-admin
-              topologyKey: kubernetes.io/hostname
       imagePullSecrets:
         - name: registry-credentials
       containers:
