@@ -14,17 +14,7 @@ const LANGUAGES: Language[] = [
     code: 'en',
     countryCode: 'us',
     label: 'English',
-  },
-  {
-    code: 'fr',
-    countryCode: 'fr',
-    label: 'Français',
-  },
-  {
-    code: 'es',
-    countryCode: 'es',
-    label: 'Español',
-  },
+  }
 ]
 
 type Currency = { code: string, symbol: string }
@@ -36,6 +26,10 @@ type Currency = { code: string, symbol: string }
  * @type {Currency[]}
  */
 const CURRENCIES: Currency[] = [
+   {
+    code: 'MYR',
+    symbol: 'RM',
+  },
   {
     code: 'USD',
     symbol: '$',
