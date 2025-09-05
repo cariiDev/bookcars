@@ -7,7 +7,6 @@ on:
       - dev
     paths-ignore:
       - "README.md"
-      - "operations/**"
   workflow_dispatch:
     inputs:
       environment:
