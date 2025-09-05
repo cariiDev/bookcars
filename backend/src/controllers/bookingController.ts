@@ -297,7 +297,8 @@ export const checkout = async (req: Request, res: Response) => {
         let expireAt = new Date()
         expireAt.setSeconds(expireAt.getSeconds() + env.BOOKING_EXPIRE_AT)
 
-        body.booking.sessionId = !payPal ? body.sessionId : undefined
+        body.booking.sessionId = !payPal && !bayarCash ? body.sessionId : undefined
+        body.booking.bayarcashPaymentId = bayarCash ? bayarCashPaymentId : undefined
         body.booking.status = bookcarsTypes.BookingStatus.Void
         body.booking.expireAt = expireAt
 
