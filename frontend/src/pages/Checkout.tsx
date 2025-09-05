@@ -291,7 +291,7 @@ const Checkout = () => {
             payer_name: name,
             payer_email: (!authenticated ? driver?.email : user?.email) || '',
             payer_telephone_number: (!authenticated ? driver?.phone : user?.phone) || '',
-            return_url: `${window.location.origin}/bayarcash-popup-return`,
+            return_url: `${window.location.origin}/checkout-return`,
             callback_url: `${env.API_HOST}/api/bayarcash-callback`,
             bookingId: tempBookingId,
             currency: 'MYR',

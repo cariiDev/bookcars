@@ -15,43 +15,21 @@ const CheckoutReturn = () => {
   useEffect(() => {
     const checkPaymentStatus = async () => {
       try {
-        // Handle both regular parameters and BayarCash parameters
-        const paymentId = searchParams.get('payment_id') || searchParams.get('transaction_id')
-        const orderId = searchParams.get('order_id') || searchParams.get('order_number')
-        const bayarCashStatus = searchParams.get('status')
+        const paymentId = searchParams.get('payment_id')
+        const orderId = searchParams.get('order_id')
 
-        // If BayarCash status is provided and is successful, skip API check
-        if (bayarCashStatus === '3') {
-          setStatus('success')
-          setLoading(false)
-          setTimeout(() => {
-            navigate('/checkout-success')
-          }, 3000)
-          return
-        }
-
-        // If BayarCash status indicates failure
-        if (bayarCashStatus && bayarCashStatus !== '3') {
-          setStatus('failed')
-          setLoading(false)
-          setTimeout(() => {
-            navigate('/checkout-failed')
-          }, 3000)
-          return
-        }
-
-        // No payment/order ID found
         if (!paymentId && !orderId) {
           setStatus('failed')
           setLoading(false)
           return
         }
 
-        // Check payment status via API (for other gateways or verification)
+        // Check payment status with BayarCash
         const statusResponse = await BayarCashService.checkPaymentStatus(paymentId || orderId || '')
 
         if (statusResponse === 200) {
           setStatus('success')
+          // Redirect to success page after showing confirmation
           setTimeout(() => {
             navigate('/checkout-success')
           }, 3000)
@@ -92,7 +70,7 @@ const CheckoutReturn = () => {
         <div style={{ textAlign: 'center', padding: '2rem' }}>
           <SuccessIcon color="success" style={{ fontSize: '4rem' }} />
           <Typography variant="h5" color="success" style={{ margin: '1rem 0' }}>
-            {strings.BAYARCASH_SUCCESS || 'Payment Successful!'}
+            {strings.BAYARCASH_SUCCESS}
           </Typography>
           <Typography variant="body1">
             Redirecting to confirmation page...
@@ -105,7 +83,7 @@ const CheckoutReturn = () => {
       <div style={{ textAlign: 'center', padding: '2rem' }}>
         <ErrorIcon color="error" style={{ fontSize: '4rem' }} />
         <Typography variant="h5" color="error" style={{ margin: '1rem 0' }}>
-          {strings.BAYARCASH_ERROR || 'Payment Failed'}
+          {strings.BAYARCASH_ERROR}
         </Typography>
         <Typography variant="body1">
           Redirecting to payment page...
