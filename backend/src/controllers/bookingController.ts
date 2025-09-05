@@ -265,14 +265,10 @@ export const checkout = async (req: Request, res: Response) => {
     }
 
     if (!body.payLater) {
-      const { payPal, paymentIntentId, sessionId, bayarCash, bayarCashPaymentId } = body
+      const { payPal, paymentIntentId, sessionId } = body
 
-      if (!payPal && !bayarCash && !paymentIntentId && !sessionId) {
-        throw new Error('Payment gateway information not found')
-      }
-
-      if (bayarCash && !bayarCashPaymentId) {
-        throw new Error('BayarCash payment ID not found')
+      if (!payPal && !paymentIntentId && !sessionId) {
+        throw new Error('paymentIntentId and sessionId not found')
       }
 
       if (!payPal) {
