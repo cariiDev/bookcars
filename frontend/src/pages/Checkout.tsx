@@ -112,7 +112,6 @@ const Checkout = () => {
   const [payPalInit, setPayPalInit] = useState(false)
   const [payPalProcessing, setPayPalProcessing] = useState(false)
   const [bayarCashPaymentUrl, setBayarCashPaymentUrl] = useState<string | null>(null)
-  const [bayarCashPaymentId, setBayarCashPaymentId] = useState<string | null>(null)
   const [bayarCashLoaded, setBayarCashLoaded] = useState(false)
 
   const birthDateRef = useRef<HTMLInputElement | null>(null)
@@ -303,7 +302,6 @@ const Checkout = () => {
             const result = await BayarCashService.createPaymentIntent(bayarCashPayload)
             setBayarCashPaymentUrl(result.url)
             _bayarCashPaymentId = result.id
-            setBayarCashPaymentId(_bayarCashPaymentId)
             setBayarCashLoaded(true)
           } catch (error) {
             console.error('BayarCash payment creation failed:', error)
@@ -928,25 +926,12 @@ const Checkout = () => {
                             <div className="payment-options-container">
                               <BayarCashButton
                                 paymentUrl={bayarCashPaymentUrl}
-                                onSuccess={async () => {
-                                  try {
-                                    // Call backend to check and update payment status
-                                    const status = await BayarCashService.checkPaymentStatus(bayarCashPaymentId!)
-                                    
-                                    if (status === 200) {
-                                      setVisible(false)
-                                      setSuccess(true)
-                                    } else {
-                                      setPaymentFailed(true)
-                                    }
-                                  } catch (err) {
-                                    console.error('BayarCash payment verification failed:', err)
-                                    setPaymentFailed(true)
-                                  }
+                                onSuccess={() => {
+                                  setSuccess(true)
+                                  setVisible(false)
                                 }}
                                 onError={(error) => {
                                   console.error('BayarCash payment error:', error)
-                                  setPaymentFailed(true)
                                 }}
                                 disabled={isSubmitting}
                               />
