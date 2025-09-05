@@ -146,8 +146,12 @@ export const handleCallback = async (req: Request, res: Response) => {
     const callbackData = req.body
 
     // Validate checksum for security
+    console.log('BayarCash callback data:', JSON.stringify(callbackData))
     if (!bayarcash.validateChecksum(callbackData)) {
-      logger.error('[bayarcash.handleCallback] Invalid checksum')
+      // Add debug parameter to understand why validation failed
+      const helper = await import('../utils/helper.js')
+      helper.validateChecksum(callbackData, env.BAYARCASH_SECRET_KEY, true)
+      logger.error('[bayarcash.handleCallback] Invalid checksum - Debug info printed to console')
       res.status(400).send('Invalid checksum')
       return
     }
