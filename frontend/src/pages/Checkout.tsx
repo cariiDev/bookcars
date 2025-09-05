@@ -64,6 +64,7 @@ import ViewOnMapButton from '@/components/ViewOnMapButton'
 import MapDialog from '@/components/MapDialog'
 import Backdrop from '@/components/SimpleBackdrop'
 import Unauthorized from '@/components/Unauthorized'
+import BayarCashButton from '@/components/BayarCashButton'
 
 import '@/assets/css/checkout.css'
 
@@ -109,6 +110,8 @@ const Checkout = () => {
   const [payPalLoaded, setPayPalLoaded] = useState(false)
   const [payPalInit, setPayPalInit] = useState(false)
   const [payPalProcessing, setPayPalProcessing] = useState(false)
+  const [bayarCashLoaded, setBayarCashLoaded] = useState(false)
+  const [bayarCashProcessing, setBayarCashProcessing] = useState(false)
 
   const birthDateRef = useRef<HTMLInputElement | null>(null)
   const additionalDriverBirthDateRef = useRef<HTMLInputElement | null>(null)
@@ -129,7 +132,8 @@ const Checkout = () => {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting },
+    getValues,
+    formState: { errors, isSubmitting, isValid },
     clearErrors,
     setFocus,
     trigger,
@@ -242,7 +246,7 @@ const Checkout = () => {
       }
 
       //
-      // Stripe Payment Gateway
+      // Payment Gateway Setup
       //
       let _customerId: string | undefined
       let _sessionId: string | undefined
@@ -265,9 +269,10 @@ const Checkout = () => {
           setClientSecret(res.clientSecret)
           _sessionId = res.sessionId
           _customerId = res.customerId
-
-        } else {
+        } else if (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.PayPal) {
           setPayPalLoaded(true)
+        } else if (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash) {
+          setBayarCashLoaded(true)
         }
       }
 
@@ -281,6 +286,7 @@ const Checkout = () => {
         sessionId: _sessionId,
         customerId: _customerId,
         payPal: env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.PayPal,
+        bayarCash: env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash,
       }
 
       const { status, bookingId: _bookingId } = await BookingService.checkout(payload)
@@ -445,6 +451,7 @@ const Checkout = () => {
                       language={language}
                       clientSecret={clientSecret}
                       payPalLoaded={payPalLoaded}
+                      bayarCashLoaded={bayarCashLoaded}
                       onPriceChange={(value) => setPrice(value)}
                       onAdManuallyCheckedChange={(value) => setAdManuallyChecked(value)}
                       onCancellationChange={(value) => setValue('cancellation', value)}
@@ -877,7 +884,7 @@ const Checkout = () => {
                             </div>
                           )
                         )
-                        : payPalLoaded ? (
+                        : env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.PayPal && payPalLoaded ? (
                           <div className="payment-options-container">
                             <PayPalButtons
                               createOrder={async () => {
@@ -918,22 +925,46 @@ const Checkout = () => {
                               }}
                             />
                           </div>
+                        ) : env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash && bayarCashLoaded ? (
+                          <BayarCashButton
+                            car={car}
+                            user={user}
+                            pickupLocation={pickupLocation}
+                            dropOffLocation={dropOffLocation}
+                            from={from}
+                            to={to}
+                            authenticated={authenticated}
+                            price={price}
+                            depositPrice={depositPrice}
+                            payDeposit={payDeposit || false}
+                            daysLabel={daysLabel || ''}
+                            license={license}
+                            additionalDriver={additionalDriver}
+                            formData={getValues()}
+                            additionalDriverRequired={adRequired}
+                            isFormValid={isValid}
+                            onError={(error) => {
+                              helper.error(error)
+                              setBayarCashProcessing(false)
+                            }}
+                          />
                         ) : null
                     )}
                     <div className="checkout-buttons">
                       {(
                         (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.Stripe && !clientSecret)
                         || (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.PayPal && !payPalInit)
+                        || (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash && !bayarCashLoaded)
                         || payLater) && (
                           <Button
                             type="submit"
                             variant="contained"
                             className="btn-checkout btn-margin-bottom"
                             aria-label="Checkout"
-                            disabled={isSubmitting || (payPalLoaded && !payPalInit)}
+                            disabled={isSubmitting || (payPalLoaded && !payPalInit) || (bayarCashLoaded && bayarCashProcessing)}
                           >
                             {
-                              (isSubmitting || (payPalLoaded && !payPalInit))
+                              (isSubmitting || (payPalLoaded && !payPalInit) || (bayarCashLoaded && bayarCashProcessing))
                                 ? <CircularProgress color="inherit" size={24} />
                                 : strings.BOOK
                             }

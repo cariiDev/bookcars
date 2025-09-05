@@ -265,13 +265,13 @@ export const checkout = async (req: Request, res: Response) => {
     }
 
     if (!body.payLater) {
-      const { payPal, paymentIntentId, sessionId } = body
+      const { payPal, paymentIntentId, sessionId, bayarCash } = body
 
-      if (!payPal && !paymentIntentId && !sessionId) {
+      if (!payPal && !bayarCash && !paymentIntentId && !sessionId) {
         throw new Error('paymentIntentId and sessionId not found')
       }
 
-      if (!payPal) {
+      if (!payPal && !bayarCash) {
         body.booking.customerId = body.customerId
       }
 
@@ -293,7 +293,7 @@ export const checkout = async (req: Request, res: Response) => {
         let expireAt = new Date()
         expireAt.setSeconds(expireAt.getSeconds() + env.BOOKING_EXPIRE_AT)
 
-        body.booking.sessionId = !payPal ? body.sessionId : undefined
+        body.booking.sessionId = !payPal && !bayarCash ? body.sessionId : undefined
         body.booking.status = bookcarsTypes.BookingStatus.Void
         body.booking.expireAt = expireAt
 
