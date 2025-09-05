@@ -61,6 +61,10 @@ const getPaymentGateway = () => {
     return bookcarsTypes.PaymentGateway.PayPal
   }
 
+  if (paymentGateway === 'BAYARCASH') {
+    return bookcarsTypes.PaymentGateway.BayarCash
+  }
+
   // Default is Stripe
   return bookcarsTypes.PaymentGateway.Stripe
 }
@@ -115,6 +119,7 @@ const env = {
   STRIPE_PUBLISHABLE_KEY: String(import.meta.env.VITE_BC_STRIPE_PUBLISHABLE_KEY),
   PAYPAL_CLIENT_ID: String(import.meta.env.VITE_BC_PAYPAL_CLIENT_ID),
   PAYPAL_DEBUG: (import.meta.env.VITE_BC_PAYPAL_DEBUG && import.meta.env.VITE_BC_PAYPAL_DEBUG.toLowerCase()) === 'true',
+  BAYARCASH_PAYMENT_CHANNEL: Number.parseInt(String(import.meta.env.VITE_BC_BAYARCASH_PAYMENT_CHANNEL), 10) || 1,
   SET_LANGUAGE_FROM_IP: (import.meta.env.VITE_BC_SET_LANGUAGE_FROM_IP && import.meta.env.VITE_BC_SET_LANGUAGE_FROM_IP.toLowerCase()) === 'true',
   GOOGLE_ANALYTICS_ENABLED: (import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ENABLED && import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ENABLED.toLowerCase()) === 'true',
   GOOGLE_ANALYTICS_ID: String(import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ID),
