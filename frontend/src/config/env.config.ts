@@ -52,6 +52,10 @@ const CURRENCIES: Currency[] = [
     code: 'AUD',
     symbol: '$',
   },
+  {
+    code: 'MYR',
+    symbol: 'RM',
+  },
 ]
 
 const getPaymentGateway = () => {
