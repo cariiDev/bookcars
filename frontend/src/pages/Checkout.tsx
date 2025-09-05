@@ -29,7 +29,6 @@ import {
 } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { PayPalButtons } from '@paypal/react-paypal-js'
-import BayarCashButton from '@/components/BayarCashButton'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import validator from 'validator'
@@ -49,7 +48,6 @@ import * as LocationService from '@/services/LocationService'
 import * as PaymentService from '@/services/PaymentService'
 import * as StripeService from '@/services/StripeService'
 import * as PayPalService from '@/services/PayPalService'
-import * as BayarCashService from '@/services/BayarCashService'
 import { useRecaptchaContext, RecaptchaContextType } from '@/context/RecaptchaContext'
 import Layout from '@/components/Layout'
 import Error from '@/components/Error'
@@ -111,8 +109,6 @@ const Checkout = () => {
   const [payPalLoaded, setPayPalLoaded] = useState(false)
   const [payPalInit, setPayPalInit] = useState(false)
   const [payPalProcessing, setPayPalProcessing] = useState(false)
-  const [bayarCashPaymentUrl, setBayarCashPaymentUrl] = useState<string | null>(null)
-  const [bayarCashLoaded, setBayarCashLoaded] = useState(false)
 
   const birthDateRef = useRef<HTMLInputElement | null>(null)
   const additionalDriverBirthDateRef = useRef<HTMLInputElement | null>(null)
@@ -271,41 +267,7 @@ const Checkout = () => {
           setClientSecret(res.clientSecret)
           _sessionId = res.sessionId
           _customerId = res.customerId
-        } else if (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash) {
-          const name = bookcarsHelper.truncateString(
-            (!authenticated ? driver?.fullName : user?.fullName) || '',
-            BayarCashService.ORDER_NAME_MAX_LENGTH
-          )
-          const description = bookcarsHelper.truncateString(
-            `${env.WEBSITE_NAME} - ${car.name} - ${daysLabel}`,
-            BayarCashService.ORDER_DESCRIPTION_MAX_LENGTH
-          )
 
-          // Create a temporary booking ID for BayarCash
-          const tempBookingId = new Date().getTime().toString()
-
-          const bayarCashPayload: bookcarsTypes.CreateBayarcashPaymentPayload = {
-            payment_channel: 1, // FPX payment channel
-            order_number: tempBookingId,
-            amount: Math.round(payDeposit ? depositPrice : price),
-            payer_name: name,
-            payer_email: (!authenticated ? driver?.email : user?.email) || '',
-            payer_telephone_number: (!authenticated ? driver?.phone : user?.phone) || '',
-            return_url: `${window.location.origin}/checkout-return`,
-            callback_url: `${env.API_HOST}/api/bayarcash-callback`,
-            bookingId: tempBookingId,
-            currency: 'MYR',
-            description,
-          }
-
-          try {
-            const result = await BayarCashService.createPaymentIntent(bayarCashPayload)
-            setBayarCashPaymentUrl(result.url)
-            _bayarCashPaymentId = result.id
-            setBayarCashLoaded(true)
-          } catch (error) {
-            console.error('BayarCash payment creation failed:', error)
-          }
         } else {
           setPayPalLoaded(true)
         }
@@ -487,7 +449,6 @@ const Checkout = () => {
                       language={language}
                       clientSecret={clientSecret}
                       payPalLoaded={payPalLoaded}
-                      bayarCashLoaded={bayarCashLoaded}
                       onPriceChange={(value) => setPrice(value)}
                       onAdManuallyCheckedChange={(value) => setAdManuallyChecked(value)}
                       onCancellationChange={(value) => setValue('cancellation', value)}
@@ -920,24 +881,6 @@ const Checkout = () => {
                             </div>
                           )
                         )
-                        : env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash
-                        ? (
-                          bayarCashPaymentUrl && (
-                            <div className="payment-options-container">
-                              <BayarCashButton
-                                paymentUrl={bayarCashPaymentUrl}
-                                onSuccess={() => {
-                                  setSuccess(true)
-                                  setVisible(false)
-                                }}
-                                onError={(error) => {
-                                  console.error('BayarCash payment error:', error)
-                                }}
-                                disabled={isSubmitting}
-                              />
-                            </div>
-                          )
-                        )
                         : payPalLoaded ? (
                           <div className="payment-options-container">
                             <PayPalButtons
@@ -985,14 +928,13 @@ const Checkout = () => {
                       {(
                         (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.Stripe && !clientSecret)
                         || (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.PayPal && !payPalInit)
-                        || (env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash && !bayarCashPaymentUrl)
                         || payLater) && (
                           <Button
                             type="submit"
                             variant="contained"
                             className="btn-checkout btn-margin-bottom"
                             aria-label="Checkout"
-                            disabled={isSubmitting || (payPalLoaded && !payPalInit) || (bayarCashLoaded && !bayarCashPaymentUrl)}
+                            disabled={isSubmitting || (payPalLoaded && !payPalInit)}
                           >
                             {
                               (isSubmitting || (payPalLoaded && !payPalInit))

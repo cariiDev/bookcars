@@ -388,14 +388,6 @@ export const PAYPAL_CLIENT_ID = __env__('BC_PAYPAL_CLIENT_ID', false, 'PAYPAL_CL
  */
 export const PAYPAL_CLIENT_SECRET = __env__('BC_PAYPAL_CLIENT_SECRET', false, 'PAYPAL_CLIENT_SECRET')
 
-export const BAYARCASH_PORTAL_KEY = __env__('BC_BAYARCASH_PORTAL_KEY', false, 'BAYARCASH_PORTAL_KEY')
-
-export const BAYARCASH_ACCESS_TOKEN = __env__('BC_BAYARCASH_ACCESS_TOKEN', false, 'BAYARCASH_ACCESS_TOKEN')
-
-export const BAYARCASH_SANDBOX = helper.StringToBoolean(__env__('BC_BAYARCASH_SANDBOX', false, 'true'))
-
-export const BAYARCASH_SECRET_KEY = __env__('BC_BAYARCASH_SECRET_KEY', false, 'BAYARCASH_SECRET_KEY')
-
 /**
  * Booking expiration in seconds.
  * Bookings created from checkout with Stripe are temporary and are automatically deleted if the payment checkout session expires.
@@ -596,7 +588,6 @@ export interface Booking extends Document {
   expireAt?: Date
   isDeposit: boolean
   paypalOrderId?: string
-  bayarcashPaymentId?: string
 }
 
 /**
