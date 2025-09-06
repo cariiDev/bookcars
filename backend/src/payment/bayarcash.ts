@@ -38,13 +38,31 @@ export const TRANSACTION_STATUS = {
  * Generate checksum for payload validation
  */
 export const generateChecksum = (payload: Record<string, any>): string => {
-  // Based on PHP SDK - only include these specific fields in checksum
-  const checksumData = {
-    payment_channel: payload.payment_channel,
-    order_number: payload.order_number,
-    amount: payload.amount,
-    payer_name: payload.payer_name,
-    payer_email: payload.payer_email,
+  let checksumData: Record<string, any>
+  
+  // Different fields for payment intent vs transaction callback
+  if (payload.record_type === 'transaction') {
+    // For v3 transaction callbacks - based on BayarCash documentation
+    checksumData = {
+      transaction_id: payload.transaction_id,
+      exchange_reference_number: payload.exchange_reference_number,
+      exchange_transaction_id: payload.exchange_transaction_id,
+      order_number: payload.order_number,
+      currency: payload.currency,
+      amount: payload.amount,
+      payer_bank_name: payload.payer_bank_name,
+      status: payload.status,
+      status_description: payload.status_description,
+    }
+  } else {
+    // For payment intent creation - original fields
+    checksumData = {
+      payment_channel: payload.payment_channel,
+      order_number: payload.order_number,
+      amount: payload.amount,
+      payer_name: payload.payer_name,
+      payer_email: payload.payer_email,
+    }
   }
   
   // Sort keys and create pipe-separated string
@@ -54,6 +72,7 @@ export const generateChecksum = (payload: Record<string, any>): string => {
   
   // Debug logging
   console.log('[generateChecksum] Debug info:', {
+    recordType: payload.record_type || 'payment_intent',
     checksumData,
     sortedKeys,
     values,
@@ -69,28 +88,21 @@ export const generateChecksum = (payload: Record<string, any>): string => {
  * Validate checksum from callback data
  */
 export const validateChecksum = (payload: Record<string, any>, receivedChecksum: string): boolean => {
-  // Check if this is a pre_transaction callback which doesn't have full payment data
+  // Skip validation for pre_transaction callbacks as they don't have checksum fields
   if (payload.record_type === 'pre_transaction') {
     console.log('[validateChecksum] Skipping validation for pre_transaction callback')
-    return true // Skip validation for pre-transaction callbacks
+    return true
   }
 
   const calculatedChecksum = generateChecksum(payload)
   
-  // Debug logging for production troubleshooting
+  // Debug logging for production troubleshooting  
   console.log('[validateChecksum] Debug info:', {
     recordType: payload.record_type,
     receivedChecksum,
     calculatedChecksum,
     match: calculatedChecksum === receivedChecksum,
-    payload: JSON.stringify(payload, null, 2),
-    checksumFields: {
-      payment_channel: payload.payment_channel,
-      order_number: payload.order_number,
-      amount: payload.amount,
-      payer_name: payload.payer_name,
-      payer_email: payload.payer_email,
-    }
+    payload: JSON.stringify(payload, null, 2)
   })
   
   return calculatedChecksum === receivedChecksum
