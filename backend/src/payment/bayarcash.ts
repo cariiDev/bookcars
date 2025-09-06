@@ -42,7 +42,7 @@ export const generateChecksum = (payload: Record<string, any>): string => {
   
   // Different fields for payment intent vs transaction callback
   if (payload.record_type === 'transaction') {
-    // BayarCash v3 API actually sends v2-style callbacks with additional fields
+    // BayarCash v3 API callbacks with additional fields
     checksumData = {
       record_type: payload.record_type,
       transaction_id: payload.transaction_id,
@@ -74,15 +74,6 @@ export const generateChecksum = (payload: Record<string, any>): string => {
   const values = sortedKeys.map(key => checksumData[key as keyof typeof checksumData])
   const concatenated = values.join('|')
   
-  // Debug logging
-  console.log('[generateChecksum] Debug info:', {
-    recordType: payload.record_type || 'payment_intent',
-    checksumData,
-    sortedKeys,
-    values,
-    concatenated,
-    secretKeyLength: env.BAYARCASH_API_SECRET?.length || 0,
-  })
   
   // Generate HMAC-SHA256 checksum
   return crypto.createHmac('sha256', env.BAYARCASH_API_SECRET).update(concatenated).digest('hex')
@@ -94,21 +85,10 @@ export const generateChecksum = (payload: Record<string, any>): string => {
 export const validateChecksum = (payload: Record<string, any>, receivedChecksum: string): boolean => {
   // Skip validation for pre_transaction callbacks as they don't have checksum fields
   if (payload.record_type === 'pre_transaction') {
-    console.log('[validateChecksum] Skipping validation for pre_transaction callback')
     return true
   }
 
   const calculatedChecksum = generateChecksum(payload)
-  
-  // Debug logging for production troubleshooting  
-  console.log('[validateChecksum] Debug info:', {
-    recordType: payload.record_type,
-    receivedChecksum,
-    calculatedChecksum,
-    match: calculatedChecksum === receivedChecksum,
-    payload: JSON.stringify(payload, null, 2)
-  })
-  
   return calculatedChecksum === receivedChecksum
 }
 
