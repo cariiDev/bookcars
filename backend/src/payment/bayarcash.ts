@@ -35,10 +35,10 @@ export const TRANSACTION_STATUS = {
 } as const
 
 /**
- * Generate checksum for payload validation (Payment Intent Creation)
+ * Generate checksum for payload validation
  */
 export const generateChecksum = (payload: Record<string, any>): string => {
-  // Payment intent fields - only include these specific fields in checksum
+  // Based on PHP SDK - only include these specific fields in checksum
   const checksumData = {
     payment_channel: payload.payment_channel,
     order_number: payload.order_number,
@@ -66,45 +66,10 @@ export const generateChecksum = (payload: Record<string, any>): string => {
 }
 
 /**
- * Generate checksum for callback validation (Transaction Callback)
- */
-export const generateCallbackChecksum = (payload: Record<string, any>): string => {
-  // v3 callback fields - based on BayarCash documentation
-  const checksumData = {
-    transaction_id: payload.transaction_id,
-    exchange_reference_number: payload.exchange_reference_number,
-    exchange_transaction_id: payload.exchange_transaction_id,
-    order_number: payload.order_number,
-    currency: payload.currency,
-    amount: payload.amount,
-    payer_bank_name: payload.payer_bank_name,
-    status: payload.status,
-    status_description: payload.status_description,
-  }
-  
-  // Sort keys and create pipe-separated string
-  const sortedKeys = Object.keys(checksumData).sort()
-  const values = sortedKeys.map(key => checksumData[key as keyof typeof checksumData])
-  const concatenated = values.join('|')
-  
-  // Debug logging
-  console.log('[generateCallbackChecksum] Debug info:', {
-    checksumData,
-    sortedKeys,
-    values,
-    concatenated,
-    secretKeyLength: env.BAYARCASH_API_SECRET?.length || 0,
-  })
-  
-  // Generate HMAC-SHA256 checksum
-  return crypto.createHmac('sha256', env.BAYARCASH_API_SECRET).update(concatenated).digest('hex')
-}
-
-/**
  * Validate checksum from callback data
  */
 export const validateChecksum = (payload: Record<string, any>, receivedChecksum: string): boolean => {
-  const calculatedChecksum = generateCallbackChecksum(payload)
+  const calculatedChecksum = generateChecksum(payload)
   
   // Debug logging for production troubleshooting
   console.log('[validateChecksum] Debug info:', {
@@ -113,15 +78,11 @@ export const validateChecksum = (payload: Record<string, any>, receivedChecksum:
     match: calculatedChecksum === receivedChecksum,
     payload: JSON.stringify(payload, null, 2),
     checksumFields: {
-      transaction_id: payload.transaction_id,
-      exchange_reference_number: payload.exchange_reference_number,
-      exchange_transaction_id: payload.exchange_transaction_id,
+      payment_channel: payload.payment_channel,
       order_number: payload.order_number,
-      currency: payload.currency,
       amount: payload.amount,
-      payer_bank_name: payload.payer_bank_name,
-      status: payload.status,
-      status_description: payload.status_description,
+      payer_name: payload.payer_name,
+      payer_email: payload.payer_email,
     }
   })
   
