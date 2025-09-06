@@ -99,13 +99,30 @@ export const handleBayarCashCallback = async (req: Request, res: Response) => {
     }
 
     //
-    // 2. Retrieve Booking
+    // 2. Retrieve Booking (check for both temporary and already-processed bookings)
     //
-    const booking = await Booking.findOne({ _id: bookingId, expireAt: { $ne: null } })
+    let booking = await Booking.findOne({ _id: bookingId, expireAt: { $ne: null } })
+    
     if (!booking) {
-      const msg = `Booking with id ${bookingId} not found`
-      logger.info(`[bayarcash.handleBayarCashCallback] ${msg}`)
-      res.status(204).send(msg)
+      // Check if booking already exists but was processed (expireAt removed)
+      booking = await Booking.findOne({ _id: bookingId })
+      
+      if (!booking) {
+        const msg = `Booking with id ${bookingId} not found`
+        logger.info(`[bayarcash.handleBayarCashCallback] ${msg}`)
+        res.status(204).send(msg)
+        return
+      }
+      
+      // Booking exists but was already processed
+      if (booking.bayarcashTransactionId === transactionId) {
+        logger.info(`[bayarcash.handleBayarCashCallback] Booking ${bookingId} already processed with transaction ${transactionId}`)
+        res.sendStatus(200) // Acknowledge duplicate callback
+        return
+      }
+      
+      logger.warn(`[bayarcash.handleBayarCashCallback] Booking ${bookingId} found but already processed with different transaction ID`)
+      res.sendStatus(200) // Still acknowledge to prevent retries
       return
     }
 
