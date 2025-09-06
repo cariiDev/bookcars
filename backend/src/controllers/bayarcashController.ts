@@ -84,9 +84,15 @@ export const handleBayarCashCallback = async (req: Request, res: Response) => {
     } = callbackData
 
     //
-    // 1. Validate checksum for security
+    // 1. Validate checksum for security (skip for pre_transaction callbacks)
     //
-    if (checksum && !bayarcash.validateChecksum(callbackData, checksum)) {
+    const recordType = callbackData.record_type
+    
+    if (recordType === 'pre_transaction') {
+      // Pre-transaction callbacks don't contain the full payment data for checksum validation
+      // We'll validate the transaction when we get the final callback
+      logger.info(`[bayarcash.handleBayarCashCallback] Pre-transaction callback received for booking ${bookingId}, skipping checksum validation`)
+    } else if (checksum && !bayarcash.validateChecksum(callbackData, checksum)) {
       logger.warn(`[bayarcash.handleBayarCashCallback] Invalid checksum for booking ${bookingId}`)
       res.status(400).send('Invalid checksum')
       return
