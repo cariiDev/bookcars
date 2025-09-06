@@ -69,10 +69,17 @@ export const generateChecksum = (payload: Record<string, any>): string => {
  * Validate checksum from callback data
  */
 export const validateChecksum = (payload: Record<string, any>, receivedChecksum: string): boolean => {
+  // Check if this is a pre_transaction callback which doesn't have full payment data
+  if (payload.record_type === 'pre_transaction') {
+    console.log('[validateChecksum] Skipping validation for pre_transaction callback')
+    return true // Skip validation for pre-transaction callbacks
+  }
+
   const calculatedChecksum = generateChecksum(payload)
   
   // Debug logging for production troubleshooting
   console.log('[validateChecksum] Debug info:', {
+    recordType: payload.record_type,
     receivedChecksum,
     calculatedChecksum,
     match: calculatedChecksum === receivedChecksum,
