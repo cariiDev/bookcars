@@ -52,6 +52,15 @@ export const generateChecksum = (payload: Record<string, any>): string => {
   const values = sortedKeys.map(key => checksumData[key as keyof typeof checksumData])
   const concatenated = values.join('|')
   
+  // Debug logging
+  console.log('[generateChecksum] Debug info:', {
+    checksumData,
+    sortedKeys,
+    values,
+    concatenated,
+    secretKeyLength: env.BAYARCASH_API_SECRET?.length || 0,
+  })
+  
   // Generate HMAC-SHA256 checksum
   return crypto.createHmac('sha256', env.BAYARCASH_API_SECRET).update(concatenated).digest('hex')
 }
@@ -61,6 +70,22 @@ export const generateChecksum = (payload: Record<string, any>): string => {
  */
 export const validateChecksum = (payload: Record<string, any>, receivedChecksum: string): boolean => {
   const calculatedChecksum = generateChecksum(payload)
+  
+  // Debug logging for production troubleshooting
+  console.log('[validateChecksum] Debug info:', {
+    receivedChecksum,
+    calculatedChecksum,
+    match: calculatedChecksum === receivedChecksum,
+    payload: JSON.stringify(payload, null, 2),
+    checksumFields: {
+      payment_channel: payload.payment_channel,
+      order_number: payload.order_number,
+      amount: payload.amount,
+      payer_name: payload.payer_name,
+      payer_email: payload.payer_email,
+    }
+  })
+  
   return calculatedChecksum === receivedChecksum
 }
 
