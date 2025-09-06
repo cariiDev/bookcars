@@ -42,17 +42,21 @@ export const generateChecksum = (payload: Record<string, any>): string => {
   
   // Different fields for payment intent vs transaction callback
   if (payload.record_type === 'transaction') {
-    // For v3 transaction callbacks - based on BayarCash documentation
+    // BayarCash v3 API actually sends v2-style callbacks with additional fields
     checksumData = {
+      record_type: payload.record_type,
       transaction_id: payload.transaction_id,
       exchange_reference_number: payload.exchange_reference_number,
       exchange_transaction_id: payload.exchange_transaction_id,
       order_number: payload.order_number,
       currency: payload.currency,
       amount: payload.amount,
+      payer_name: payload.payer_name,
+      payer_email: payload.payer_email,
       payer_bank_name: payload.payer_bank_name,
       status: payload.status,
       status_description: payload.status_description,
+      datetime: payload.datetime,
     }
   } else {
     // For payment intent creation - original fields
