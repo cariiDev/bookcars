@@ -34,6 +34,7 @@ import {
   CalendarMonth as SchedulerIcon,
   AccountBalance as BankDetailsIcon,
   MonetizationOn as PricingIcon,
+  LocalOffer as VouchersIcon,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import * as bookcarsTypes from ':bookcars-types'
@@ -374,6 +375,17 @@ const Header = ({
                   <ListItemIcon><PricingIcon /></ListItemIcon>
                   <ListItemText primary={strings.PRICING} />
                 </ListItem>
+                {helper.admin(user) && (
+                  <ListItem
+                    onClick={() => {
+                      navigate('/vouchers')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><VouchersIcon /></ListItemIcon>
+                    <ListItemText primary={strings.VOUCHERS} />
+                  </ListItem>
+                )}
                 {bankDetails?.showBankDetailsPage && (
                   <ListItem
                     onClick={() => {

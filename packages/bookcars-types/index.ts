@@ -81,6 +81,17 @@ export enum PaymentGateway {
   BayarCash = 'bayarCash',
 }
 
+export enum VoucherDiscountType {
+  Percentage = 'percentage',
+  FixedAmount = 'fixedAmount',
+}
+
+export enum VoucherFundingType {
+  Platform = 'platform',
+  Supplier = 'supplier',
+  CoFunded = 'coFunded',
+}
+
 export interface Booking {
   _id?: string
   supplier: string | User
@@ -100,6 +111,9 @@ export interface Booking {
   _additionalDriver?: string | AdditionalDriver
   cancelRequest?: boolean
   price?: number
+  originalPrice?: number
+  voucher?: string | Voucher
+  voucherDiscount?: number
   sessionId?: string
   paymentIntentId?: string
   customerId?: string
@@ -676,4 +690,89 @@ export interface CarOptions {
   collisionDamageWaiver?: boolean
   fullInsurance?: boolean
   additionalDriver?: boolean
+}
+
+export interface Voucher {
+  _id?: string
+  code: string
+  discountType: VoucherDiscountType
+  discountValue: number
+  fundingType: VoucherFundingType
+  minimumAmount?: number
+  usageLimit?: number
+  usageCount: number
+  validFrom: Date
+  validTo: Date
+  isActive: boolean
+  supplier?: string | User
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export interface VoucherUsage {
+  _id?: string
+  voucher: string | Voucher
+  booking: string | Booking
+  user: string | User
+  discountApplied: number
+  usedAt: Date
+}
+
+export interface CreateVoucherPayload {
+  code: string
+  discountType: VoucherDiscountType
+  discountValue: number
+  fundingType: VoucherFundingType
+  minimumAmount?: number
+  usageLimit?: number
+  validFrom: Date
+  validTo: Date
+  supplier?: string
+}
+
+export interface UpdateVoucherPayload extends CreateVoucherPayload {
+  _id: string
+  isActive?: boolean
+}
+
+export interface ValidateVoucherPayload {
+  code: string
+  bookingAmount: number
+  userId?: string
+}
+
+export interface VoucherValidationResult {
+  valid: boolean
+  voucher?: Voucher
+  discountAmount?: number
+  message?: string
+}
+
+export interface ApplyVoucherPayload {
+  voucherCode: string
+  bookingId: string
+  userId: string
+}
+
+export interface GetVouchersPayload {
+  suppliers?: string[]
+  isActive?: boolean
+  fundingType?: VoucherFundingType
+}
+
+export interface ValidateVoucherResult {
+  valid: boolean
+  voucher?: Voucher
+  discountAmount?: number
+  message?: string
+}
+
+export interface VoucherUsageResult {
+  voucher: Voucher
+  usages: VoucherUsage[]
+  statistics: {
+    totalUsages: number
+    totalDiscountGiven: number
+    remainingUsages: number | null
+  }
 }

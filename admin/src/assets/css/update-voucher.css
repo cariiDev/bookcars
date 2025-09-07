@@ -1,0 +1,62 @@
+/* Update Voucher */
+div.update-voucher {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  align-items: center;
+  transform: translate3d(0, 0, 0);
+}
+
+.voucher-form-wrapper {
+  margin: 32px 0;
+}
+
+.voucher-form-title {
+  text-align: center;
+  text-transform: capitalize;
+  color: #121212;
+}
+
+.voucher-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.voucher-switch {
+  margin-top: 10px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.btn-margin-bottom {
+  margin-bottom: 10px;
+}
+
+.required::after {
+  content: " *";
+  color: #f44336;
+}
+
+/* Device width is less than or equal to 960px */
+
+@media only screen and (width <= 960px) {
+  .voucher-form {
+    width: 360px;
+    padding: 30px;
+  }
+}
+
+/* Device width is greater than or equal to 960px */
+
+@media only screen and (width >= 960px) {
+  .voucher-form {
+    width: 550px;
+    padding: 30px;
+  }
+}

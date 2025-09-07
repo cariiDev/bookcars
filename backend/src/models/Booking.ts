@@ -85,6 +85,17 @@ const bookingSchema = new Schema<env.Booking>(
       type: Number,
       required: [true, "can't be blank"],
     },
+    originalPrice: {
+      type: Number,
+    },
+    voucher: {
+      type: Schema.Types.ObjectId,
+      ref: 'Voucher',
+    },
+    voucherDiscount: {
+      type: Number,
+      min: [0, 'Voucher discount cannot be negative'],
+    },
     cancelRequest: {
       type: Boolean,
       default: false,
