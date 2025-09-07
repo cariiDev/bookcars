@@ -1,48 +1,132 @@
 .voucher-info {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .voucher-card {
-  border-radius: 8px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s ease-in-out;
+  overflow: hidden;
+}
+
+.voucher-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .voucher-info-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .voucher-code {
-  font-weight: 600;
+  font-weight: 700;
   color: #1976d2;
+  font-size: 1.25rem;
+  font-family: 'Courier New', monospace;
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .voucher-actions {
   display: flex;
-  gap: 4px;
+  gap: 6px;
+}
+
+.voucher-actions .MuiIconButton-root {
+  background: rgba(25, 118, 210, 0.08);
+  transition: all 0.2s ease;
+}
+
+.voucher-actions .MuiIconButton-root:hover {
+  background: rgba(25, 118, 210, 0.16);
+  transform: scale(1.05);
 }
 
 .voucher-info-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  gap: 16px;
 }
 
 .voucher-info-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 8px 0;
+}
+
+.voucher-info-row:not(:last-child) {
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.voucher-info-row .MuiTypography-root:first-child {
+  font-weight: 600;
+  color: #666;
+  min-width: 120px;
+}
+
+.voucher-info-row .MuiTypography-root:last-child {
+  font-weight: 500;
+  color: #333;
+  text-align: right;
 }
 
 .voucher-pager {
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .empty-list {
   margin: 20px 0;
   text-align: center;
   padding: 40px;
+}
+
+/* Status chip improvements */
+.voucher-info-row:last-child {
+  border-bottom: none;
+  padding-top: 16px;
+}
+
+.voucher-info-row .MuiChip-root {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.voucher-info-row .MuiChip-colorSuccess {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.voucher-info-row .MuiChip-colorError {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Discount value highlighting */
+.voucher-info-row:nth-child(1) .MuiTypography-root:last-child {
+  font-weight: 700;
+  color: #1976d2;
+  font-size: 1.1rem;
+}
+
+/* Funding type styling */
+.voucher-info-row:nth-child(2) .MuiTypography-root:last-child {
+  color: #7b1fa2;
+  font-weight: 600;
+}
+
+/* Usage count highlighting */
+.voucher-info-row:nth-child(3) .MuiTypography-root:last-child {
+  color: #f57c00;
+  font-weight: 600;
 }
 
 @media (max-width: 600px) {

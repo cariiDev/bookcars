@@ -81,32 +81,38 @@ div.vouchers {
   div.vouchers div.col-1 .cl-supplier-filter,
   div.vouchers div.col-1 .cl-active-status-filter,
   div.vouchers div.col-1 .cl-voucher-funding-type-filter {
-    margin: 10px 10px 10px 0;
+    width: 265px;
+    margin-left: 5px;
+    margin-bottom: 10px;
     background-color: #fafafa;
   }
 
-  div.vouchers div.col-1 .cl-active-status-filter,
-  div.vouchers div.col-1 .cl-voucher-funding-type-filter {
-    margin-bottom: 10px;
-  }
 
   div.vouchers div.col-1 .cl-new-voucher {
     width: 265px;
     margin-left: 5px;
+    margin-top: 15px;
   }
 
   div.vouchers div.col-1 .search {
-    width: 265px;
+    width: 280px;
     margin: 15px 5px 5px;
   }
 
   div.vouchers div.col-1 .voucher-count {
     width: 265px;
-    margin: 5px 5px 10px;
+    margin-left: 5px;
+    margin-bottom: 10px;
   }
 
   div.vouchers div.col-2 {
     position: absolute;
-    inset: 0 0 0 300px;
+    top: 0;
+    bottom: 0;
+    left: 300px;
+    right: 0;
+    padding: 20px;
+    background-color: #fafafa;
+    overflow-y: auto;
   }
 }

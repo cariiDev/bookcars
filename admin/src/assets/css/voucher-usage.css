@@ -1,7 +1,10 @@
 .voucher-usage {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  align-items: center;
+  transform: translate3d(0, 0, 0);
+  margin: 45px 0;
 }
 
 .voucher-usage-header {
@@ -9,12 +12,16 @@
   align-items: center;
   gap: 20px;
   margin-bottom: 30px;
+  width: 100%;
+  justify-content: flex-start;
 }
 
 .voucher-usage-title {
-  color: #333;
+  color: #121212;
   font-weight: 500;
   flex: 1;
+  text-align: center;
+  text-transform: capitalize;
 }
 
 .back-button {
@@ -26,16 +33,18 @@
 .statistics-paper,
 .usage-history-paper,
 .no-usage-paper {
-  padding: 25px;
-  margin-bottom: 25px;
+  padding: 30px;
+  margin: 32px 0;
 }
 
 .section-title {
-  color: #333;
+  color: #121212;
   font-weight: 600;
   margin-bottom: 20px;
   padding-bottom: 10px;
   border-bottom: 2px solid #f0f0f0;
+  text-align: center;
+  text-transform: capitalize;
 }
 
 .voucher-details {
@@ -73,7 +82,7 @@
 
 .stat-card {
   text-align: center;
-  padding: 10px;
+  padding: 20px;
 }
 
 .stat-number {
@@ -100,26 +109,15 @@
   padding: 40px;
 }
 
-@media (max-width: 768px) {
-  .voucher-usage {
-    padding: 15px;
-  }
 
-  .voucher-usage-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .voucher-usage-title {
-    font-size: 1.5rem;
-  }
-
+/* Device width is less than or equal to 960px */
+@media only screen and (width <= 960px) {
   .voucher-info-paper,
   .statistics-paper,
   .usage-history-paper,
   .no-usage-paper {
-    padding: 20px;
+    width: 360px;
+    padding: 30px;
   }
 
   .voucher-detail-row {
@@ -139,5 +137,16 @@
 
   .usage-history-paper {
     overflow-x: auto;
+  }
+}
+
+/* Device width is greater than or equal to 960px */
+@media only screen and (width >= 960px) {
+  .voucher-info-paper,
+  .statistics-paper,
+  .usage-history-paper,
+  .no-usage-paper {
+    width: 550px;
+    padding: 30px;
   }
 }
