@@ -582,6 +582,9 @@ export interface Booking extends Document {
   _additionalDriver?: Types.ObjectId
   cancelRequest?: boolean
   price: number
+  originalPrice?: number
+  voucher?: Types.ObjectId
+  voucherDiscount?: number
   sessionId?: string
   paymentIntentId?: string
   customerId?: string
@@ -895,4 +898,42 @@ export interface Setting extends Document {
   minRentalHours: number
   minPickupDropoffHour: number
   maxPickupDropoffHour: number
+}
+
+/**
+ * Voucher Document.
+ *
+ * @export
+ * @interface Voucher
+ * @typedef {Voucher}
+ * @extends {Document}
+ */
+export interface Voucher extends Document {
+  code: string
+  discountType: bookcarsTypes.VoucherDiscountType
+  discountValue: number
+  fundingType: bookcarsTypes.VoucherFundingType
+  minimumAmount?: number
+  usageLimit?: number
+  usageCount: number
+  validFrom: Date
+  validTo: Date
+  isActive: boolean
+  supplier?: Types.ObjectId
+}
+
+/**
+ * VoucherUsage Document.
+ *
+ * @export
+ * @interface VoucherUsage
+ * @typedef {VoucherUsage}
+ * @extends {Document}
+ */
+export interface VoucherUsage extends Document {
+  voucher: Types.ObjectId
+  booking: Types.ObjectId
+  user: Types.ObjectId
+  discountApplied: number
+  usedAt: Date
 }
