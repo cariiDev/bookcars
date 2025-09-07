@@ -43,6 +43,10 @@ const UpdateCountry = lazy(() => import('@/pages/UpdateCountry'))
 const Scheduler = lazy(() => import('@/pages/Scheduler'))
 const BankDetails = lazy(() => import('@/pages/BankDetails'))
 const Pricing = lazy(() => import('@/pages/Pricing'))
+const Vouchers = lazy(() => import('@/pages/Vouchers'))
+const CreateVoucher = lazy(() => import('@/pages/CreateVoucher'))
+const UpdateVoucher = lazy(() => import('@/pages/UpdateVoucher'))
+const VoucherUsage = lazy(() => import('@/pages/VoucherUsage'))
 
 const AppLayout = () => {
   const location = useLocation()
@@ -109,6 +113,10 @@ const router = createBrowserRouter([
       { path: 'scheduler', element: <Scheduler /> },
       { path: 'bank-details', element: <BankDetails /> },
       { path: 'pricing', element: <Pricing /> },
+      { path: 'vouchers', element: <Vouchers /> },
+      { path: 'create-voucher', element: <CreateVoucher /> },
+      { path: 'update-voucher', element: <UpdateVoucher /> },
+      { path: 'voucher-usage', element: <VoucherUsage /> },
       { path: '*', element: <NoMatch /> }
     ]
   }

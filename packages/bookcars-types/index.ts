@@ -736,3 +736,26 @@ export interface ApplyVoucherPayload {
   bookingId: string
   userId: string
 }
+
+export interface GetVouchersPayload {
+  suppliers?: string[]
+  isActive?: boolean
+  fundingType?: VoucherFundingType
+}
+
+export interface ValidateVoucherResult {
+  valid: boolean
+  voucher?: Voucher
+  discountAmount?: number
+  message?: string
+}
+
+export interface VoucherUsageResult {
+  voucher: Voucher
+  usages: VoucherUsage[]
+  statistics: {
+    totalUsages: number
+    totalDiscountGiven: number
+    remainingUsages: number | null
+  }
+}

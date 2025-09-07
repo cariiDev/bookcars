@@ -1,0 +1,58 @@
+.voucher-info {
+  margin-bottom: 15px;
+}
+
+.voucher-card {
+  border-radius: 8px;
+}
+
+.voucher-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.voucher-code {
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.voucher-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.voucher-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.voucher-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.voucher-pager {
+  margin-top: 20px;
+}
+
+.empty-list {
+  margin: 20px 0;
+  text-align: center;
+  padding: 40px;
+}
+
+@media (max-width: 600px) {
+  .voucher-info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .voucher-actions {
+    margin-top: 10px;
+  }
+}
