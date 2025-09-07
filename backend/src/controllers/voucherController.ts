@@ -219,11 +219,10 @@ export const getVouchers = async (req: Request, res: Response) => {
       Voucher.countDocuments(filter),
     ])
 
-    res.json({
-      rows: vouchers,
-      rowCount: count,
-      pageInfo: { totalRecords: count },
-    })
+    res.json([{
+      resultData: vouchers,
+      pageInfo: [{ totalRecords: count }],
+    }])
   } catch (err) {
     logger.error('[voucher.getVouchers]', err)
     res.status(400).send(i18n.t('ERROR') + err)
