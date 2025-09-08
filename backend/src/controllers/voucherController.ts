@@ -8,6 +8,7 @@ import Booking from '../models/Booking'
 import i18n from '../lang/i18n'
 import * as helper from '../utils/helper'
 import * as logger from '../utils/logger'
+import * as voucherTimeHelper from '../utils/voucherTimeHelper'
 
 /**
  * Create a new voucher.
@@ -44,6 +45,13 @@ export const create = async (req: Request, res: Response) => {
       validTo: body.validTo,
       supplier: body.supplier,
       isActive: true,
+      
+      // Time restrictions
+      timeRestrictionEnabled: body.timeRestrictionEnabled || false,
+      allowedTimeSlots: body.allowedTimeSlots || [],
+      allowedDaysOfWeek: body.allowedDaysOfWeek || [],
+      dailyUsageLimit: body.dailyUsageLimit,
+      dailyUsageLimitEnabled: body.dailyUsageLimitEnabled || false,
     })
 
     await voucher.save()
@@ -98,6 +106,13 @@ export const update = async (req: Request, res: Response) => {
         validTo: body.validTo,
         supplier: body.supplier,
         isActive: body.isActive !== undefined ? body.isActive : true,
+        
+        // Time restrictions
+        timeRestrictionEnabled: body.timeRestrictionEnabled || false,
+        allowedTimeSlots: body.allowedTimeSlots || [],
+        allowedDaysOfWeek: body.allowedDaysOfWeek || [],
+        dailyUsageLimit: body.dailyUsageLimit,
+        dailyUsageLimitEnabled: body.dailyUsageLimitEnabled || false,
       },
       { new: true }
     )
@@ -241,7 +256,7 @@ export const validateVoucher = async (req: Request, res: Response) => {
   const { body }: { body: bookcarsTypes.ValidateVoucherPayload } = req
 
   try {
-    const { code, bookingAmount, userId } = body
+    const { code, bookingAmount, userId, bookingStartTime, bookingEndTime } = body
 
     if (!code || !bookingAmount) {
       throw new Error('Voucher code and booking amount are required')
@@ -301,6 +316,66 @@ export const validateVoucher = async (req: Request, res: Response) => {
           message: 'You have already used this voucher',
         })
         return
+      }
+    }
+
+    // Time restriction validations
+    if (voucher.timeRestrictionEnabled && bookingStartTime && bookingEndTime) {
+      const startTime = new Date(bookingStartTime)
+      const endTime = new Date(bookingEndTime)
+      const errorMessages = voucherTimeHelper.getTimeRestrictionErrorMessages()
+
+      // Check allowed time slots
+      if (voucher.allowedTimeSlots && voucher.allowedTimeSlots.length > 0) {
+        if (!voucherTimeHelper.isBookingWithinAllowedTimeSlots(startTime, endTime, voucher.allowedTimeSlots)) {
+          res.json({
+            valid: false,
+            message: errorMessages.INVALID_TIME_SLOT,
+          })
+          return
+        }
+      }
+
+      // Check allowed days of week
+      if (voucher.allowedDaysOfWeek && voucher.allowedDaysOfWeek.length > 0) {
+        if (!voucherTimeHelper.isBookingWithinAllowedDays(startTime, endTime, voucher.allowedDaysOfWeek)) {
+          res.json({
+            valid: false,
+            message: errorMessages.INVALID_DAY_OF_WEEK,
+          })
+          return
+        }
+      }
+
+      // Check daily usage limit
+      if (voucher.dailyUsageLimitEnabled && voucher.dailyUsageLimit && userId) {
+        const bookingDurationHours = voucherTimeHelper.calculateBookingDurationHours(startTime, endTime)
+        
+        // Check if booking duration itself exceeds daily limit
+        if (bookingDurationHours > voucher.dailyUsageLimit) {
+          res.json({
+            valid: false,
+            message: errorMessages.BOOKING_TOO_LONG,
+          })
+          return
+        }
+
+        // Check if adding this booking would exceed daily limit
+        const canUseVoucher = await voucherTimeHelper.checkDailyUsageLimit(
+          voucher._id as string,
+          userId,
+          startTime,
+          bookingDurationHours,
+          voucher.dailyUsageLimit
+        )
+
+        if (!canUseVoucher) {
+          res.json({
+            valid: false,
+            message: errorMessages.DAILY_LIMIT_EXCEEDED,
+          })
+          return
+        }
       }
     }
 
@@ -390,6 +465,50 @@ export const applyVoucher = async (req: Request, res: Response) => {
       throw new Error('You have already used this voucher')
     }
 
+    // Time restriction validations
+    if (voucher.timeRestrictionEnabled && booking.from && booking.to) {
+      const startTime = new Date(booking.from)
+      const endTime = new Date(booking.to)
+      const errorMessages = voucherTimeHelper.getTimeRestrictionErrorMessages()
+
+      // Check allowed time slots
+      if (voucher.allowedTimeSlots && voucher.allowedTimeSlots.length > 0) {
+        if (!voucherTimeHelper.isBookingWithinAllowedTimeSlots(startTime, endTime, voucher.allowedTimeSlots)) {
+          throw new Error(errorMessages.INVALID_TIME_SLOT)
+        }
+      }
+
+      // Check allowed days of week
+      if (voucher.allowedDaysOfWeek && voucher.allowedDaysOfWeek.length > 0) {
+        if (!voucherTimeHelper.isBookingWithinAllowedDays(startTime, endTime, voucher.allowedDaysOfWeek)) {
+          throw new Error(errorMessages.INVALID_DAY_OF_WEEK)
+        }
+      }
+
+      // Check daily usage limit
+      if (voucher.dailyUsageLimitEnabled && voucher.dailyUsageLimit) {
+        const bookingDurationHours = voucherTimeHelper.calculateBookingDurationHours(startTime, endTime)
+        
+        // Check if booking duration itself exceeds daily limit
+        if (bookingDurationHours > voucher.dailyUsageLimit) {
+          throw new Error(errorMessages.BOOKING_TOO_LONG)
+        }
+
+        // Check if adding this booking would exceed daily limit
+        const canUseVoucher = await voucherTimeHelper.checkDailyUsageLimit(
+          voucher._id as string,
+          userId,
+          startTime,
+          bookingDurationHours,
+          voucher.dailyUsageLimit
+        )
+
+        if (!canUseVoucher) {
+          throw new Error(errorMessages.DAILY_LIMIT_EXCEEDED)
+        }
+      }
+    }
+
     // Calculate discount
     let discountAmount: number
     if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
@@ -425,6 +544,20 @@ export const applyVoucher = async (req: Request, res: Response) => {
       { $inc: { usageCount: 1 } },
       { session }
     )
+
+    // Update daily usage tracking if enabled
+    if (voucher.dailyUsageLimitEnabled && voucher.dailyUsageLimit && booking.from && booking.to) {
+      const startTime = new Date(booking.from)
+      const endTime = new Date(booking.to)
+      const bookingDurationHours = voucherTimeHelper.calculateBookingDurationHours(startTime, endTime)
+      
+      await voucherTimeHelper.updateDailyUsageTracking(
+        voucher._id as string,
+        userId,
+        startTime,
+        bookingDurationHours
+      )
+    }
 
     await session.commitTransaction()
     

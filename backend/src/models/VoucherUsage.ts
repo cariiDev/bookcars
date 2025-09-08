@@ -13,7 +13,6 @@ const voucherUsageSchema = new Schema<env.VoucherUsage>(
       type: Schema.Types.ObjectId,
       required: [true, "can't be blank"],
       ref: 'Booking',
-      index: true,
     },
     user: {
       type: Schema.Types.ObjectId,
@@ -42,7 +41,7 @@ const voucherUsageSchema = new Schema<env.VoucherUsage>(
 // Indexes for efficient queries
 voucherUsageSchema.index({ voucher: 1, usedAt: -1 })
 voucherUsageSchema.index({ user: 1, usedAt: -1 })
-voucherUsageSchema.index({ booking: 1 })
+
 voucherUsageSchema.index({ usedAt: -1 })
 
 // Compound indexes for analytics queries

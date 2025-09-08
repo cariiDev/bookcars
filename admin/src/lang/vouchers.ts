@@ -49,5 +49,25 @@ export const strings = {
   CREATE: 'Create',
   INFORMATION: 'Information',
   EMPTY_LIST: 'No vouchers found.',
+  
+  // Time restrictions
+  TIME_RESTRICTIONS: 'Time Restrictions',
+  TIME_RESTRICTION_ENABLED: 'Enable Time Restrictions',
+  ALLOWED_TIME_SLOTS: 'Allowed Time Slots',
+  ADD_TIME_SLOT: 'Add Time Slot',
+  REMOVE_TIME_SLOT: 'Remove Time Slot',
+  START_HOUR: 'Start Hour',
+  END_HOUR: 'End Hour',
+  ALLOWED_DAYS: 'Allowed Days of Week',
+  SUNDAY: 'Sunday',
+  MONDAY: 'Monday',
+  TUESDAY: 'Tuesday',
+  WEDNESDAY: 'Wednesday',
+  THURSDAY: 'Thursday',
+  FRIDAY: 'Friday',
+  SATURDAY: 'Saturday',
+  DAILY_USAGE_LIMIT: 'Daily Usage Limit (hours)',
+  DAILY_USAGE_LIMIT_ENABLED: 'Enable Daily Usage Limit',
+  INVALID_TIME_RANGE: 'End hour must be different from start hour',
   ...commonStrings
 }

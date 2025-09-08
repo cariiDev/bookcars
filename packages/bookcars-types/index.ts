@@ -692,6 +692,11 @@ export interface CarOptions {
   additionalDriver?: boolean
 }
 
+export interface TimeSlot {
+  startHour: number // 0-23
+  endHour: number // 0-23
+}
+
 export interface Voucher {
   _id?: string
   code: string
@@ -705,6 +710,14 @@ export interface Voucher {
   validTo: Date
   isActive: boolean
   supplier?: string | User
+  
+  // Time restrictions
+  timeRestrictionEnabled?: boolean
+  allowedTimeSlots?: TimeSlot[]
+  allowedDaysOfWeek?: number[] // 0-6 (Sunday-Saturday)
+  dailyUsageLimit?: number // max hours per day per user
+  dailyUsageLimitEnabled?: boolean
+  
   createdAt?: Date
   updatedAt?: Date
 }
@@ -718,6 +731,16 @@ export interface VoucherUsage {
   usedAt: Date
 }
 
+export interface VoucherDailyUsage {
+  _id?: string
+  voucher: string | Voucher
+  user: string | User
+  date: Date // YYYY-MM-DD format
+  totalHoursUsed: number
+  createdAt?: Date
+  updatedAt?: Date
+}
+
 export interface CreateVoucherPayload {
   code: string
   discountType: VoucherDiscountType
@@ -728,6 +751,13 @@ export interface CreateVoucherPayload {
   validFrom: Date
   validTo: Date
   supplier?: string
+  
+  // Time restrictions
+  timeRestrictionEnabled?: boolean
+  allowedTimeSlots?: TimeSlot[]
+  allowedDaysOfWeek?: number[]
+  dailyUsageLimit?: number
+  dailyUsageLimitEnabled?: boolean
 }
 
 export interface UpdateVoucherPayload extends CreateVoucherPayload {
@@ -739,6 +769,8 @@ export interface ValidateVoucherPayload {
   code: string
   bookingAmount: number
   userId?: string
+  bookingStartTime?: string
+  bookingEndTime?: string
 }
 
 export interface VoucherValidationResult {

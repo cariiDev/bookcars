@@ -277,6 +277,41 @@ const VoucherList = ({
                         })()}
                       </Typography>
                     </div>
+
+                    {/* Time Restrictions Display */}
+                    {voucher.timeRestrictionEnabled && (
+                      <div className="voucher-info-row">
+                        <Typography variant="body2" color="textSecondary">
+                          {strings.TIME_RESTRICTIONS}:
+                        </Typography>
+                        <div className="time-restrictions-chips">
+                          {voucher.allowedTimeSlots && voucher.allowedTimeSlots.length > 0 && (
+                            <Chip 
+                              label={`${voucher.allowedTimeSlots.length} Time Slot${voucher.allowedTimeSlots.length > 1 ? 's' : ''}`}
+                              size="small" 
+                              variant="outlined"
+                              color="primary"
+                            />
+                          )}
+                          {voucher.allowedDaysOfWeek && voucher.allowedDaysOfWeek.length > 0 && voucher.allowedDaysOfWeek.length < 7 && (
+                            <Chip 
+                              label={`${voucher.allowedDaysOfWeek.length} Day${voucher.allowedDaysOfWeek.length > 1 ? 's' : ''}`}
+                              size="small" 
+                              variant="outlined"
+                              color="secondary"
+                            />
+                          )}
+                          {voucher.dailyUsageLimitEnabled && voucher.dailyUsageLimit && (
+                            <Chip 
+                              label={`${voucher.dailyUsageLimit}h/day max`}
+                              size="small" 
+                              variant="outlined"
+                              color="warning"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="voucher-info-row">
                       <Chip 

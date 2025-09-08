@@ -16,7 +16,17 @@ export const schema = z.object({
   validFrom: z.date({ message: strings.VALID_FROM_REQUIRED }),
   validTo: z.date({ message: strings.VALID_TO_REQUIRED }),
   supplier: z.string().optional(),
-  isActive: z.boolean().optional()
+  isActive: z.boolean().optional(),
+  
+  // Time restrictions
+  timeRestrictionEnabled: z.boolean().optional(),
+  allowedTimeSlots: z.array(z.object({
+    startHour: z.number().min(0).max(23),
+    endHour: z.number().min(0).max(23)
+  })).optional(),
+  allowedDaysOfWeek: z.array(z.number().min(0).max(6)).optional(),
+  dailyUsageLimit: z.string().refine((val) => !val || (!isNaN(parseInt(val, 10)) && parseInt(val, 10) > 0), { message: commonStrings.FIELD_NOT_VALID }).optional(),
+  dailyUsageLimitEnabled: z.boolean().optional()
 }).refine((data) => {
   // Check if percentage discount doesn't exceed 100%
   if (data.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
@@ -33,6 +43,15 @@ export const schema = z.object({
 }, {
   message: strings.VALID_TO_AFTER_FROM,
   path: ['validTo']
+}).refine((data) => {
+  // Validate time slots if time restrictions are enabled
+  if (data.timeRestrictionEnabled && data.allowedTimeSlots) {
+    return data.allowedTimeSlots.every(slot => slot.startHour !== slot.endHour)
+  }
+  return true
+}, {
+  message: strings.INVALID_TIME_RANGE,
+  path: ['allowedTimeSlots']
 })
 
 export type FormFields = z.infer<typeof schema>

@@ -109,6 +109,52 @@
   padding: 40px;
 }
 
+/* Time restrictions styling */
+.time-restrictions-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.time-restriction-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.restriction-label {
+  font-weight: 500;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.time-slots,
+.allowed-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.time-slots .MuiChip-root,
+.allowed-days .MuiChip-root {
+  font-size: 0.75rem;
+  height: 24px;
+}
+
+.time-slots .MuiChip-colorPrimary {
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+.allowed-days .MuiChip-colorSecondary {
+  border-color: #9c27b0;
+  color: #9c27b0;
+}
+
+.time-restriction-item .MuiChip-colorWarning {
+  border-color: #f57c00;
+  color: #f57c00;
+}
 
 /* Device width is less than or equal to 960px */
 @media only screen and (width <= 960px) {

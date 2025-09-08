@@ -129,6 +129,36 @@
   font-weight: 600;
 }
 
+/* Time restrictions styling */
+.time-restrictions-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.time-restrictions-chips .MuiChip-root {
+  font-size: 0.7rem;
+  height: 22px;
+  border-radius: 11px;
+  font-weight: 500;
+}
+
+.time-restrictions-chips .MuiChip-colorPrimary {
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+.time-restrictions-chips .MuiChip-colorSecondary {
+  border-color: #9c27b0;
+  color: #9c27b0;
+}
+
+.time-restrictions-chips .MuiChip-colorWarning {
+  border-color: #f57c00;
+  color: #f57c00;
+}
+
 @media (max-width: 600px) {
   .voucher-info-row {
     flex-direction: column;

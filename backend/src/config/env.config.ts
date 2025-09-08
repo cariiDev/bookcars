@@ -956,6 +956,13 @@ export interface Voucher extends Document {
   validTo: Date
   isActive: boolean
   supplier?: Types.ObjectId
+  
+  // Time restrictions
+  timeRestrictionEnabled?: boolean
+  allowedTimeSlots?: bookcarsTypes.TimeSlot[]
+  allowedDaysOfWeek?: number[]
+  dailyUsageLimit?: number
+  dailyUsageLimitEnabled?: boolean
 }
 
 /**
@@ -972,4 +979,19 @@ export interface VoucherUsage extends Document {
   user: Types.ObjectId
   discountApplied: number
   usedAt: Date
+}
+
+/**
+ * VoucherDailyUsage Document.
+ *
+ * @export
+ * @interface VoucherDailyUsage
+ * @typedef {VoucherDailyUsage}
+ * @extends {Document}
+ */
+export interface VoucherDailyUsage extends Document {
+  voucher: Types.ObjectId
+  user: Types.ObjectId
+  date: Date
+  totalHoursUsed: number
 }

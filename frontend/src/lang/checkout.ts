@@ -49,6 +49,10 @@ const strings = new LocalizedStrings({
     VOUCHER_USED: 'Code promo déjà utilisé',
     VOUCHER_APPLIED: 'Code promo appliqué avec succès',
     VOUCHER_DISCOUNT: 'Réduction',
+    VOUCHER_INVALID_TIME_SLOT: 'Ce voucher n\'est pas valide pour cette période',
+    VOUCHER_INVALID_DAY_OF_WEEK: 'Ce voucher n\'est pas valide pour ce jour de la semaine',
+    VOUCHER_DAILY_LIMIT_EXCEEDED: 'Limite d\'utilisation quotidienne dépassée pour ce voucher',
+    VOUCHER_BOOKING_TOO_LONG: 'La durée de réservation dépasse la limite quotidienne du voucher',
   },
   en: {
     BOOKING_HEADING: 'Book now',
@@ -97,6 +101,10 @@ const strings = new LocalizedStrings({
     VOUCHER_USED: 'Voucher code has been used',
     VOUCHER_APPLIED: 'Voucher code applied successfully',
     VOUCHER_DISCOUNT: 'Discount',
+    VOUCHER_INVALID_TIME_SLOT: 'Voucher is not valid for this time period',
+    VOUCHER_INVALID_DAY_OF_WEEK: 'Voucher is not valid for this day of the week',
+    VOUCHER_DAILY_LIMIT_EXCEEDED: 'Daily usage limit exceeded for this voucher',
+    VOUCHER_BOOKING_TOO_LONG: 'Booking duration exceeds voucher daily limit',
   },
   es: {
     BOOKING_HEADING: 'Reservar ahora',
@@ -145,6 +153,10 @@ const strings = new LocalizedStrings({
     VOUCHER_USED: 'Código promocional ya usado',
     VOUCHER_APPLIED: 'Código promocional aplicado con éxito',
     VOUCHER_DISCOUNT: 'Descuento',
+    VOUCHER_INVALID_TIME_SLOT: 'El voucher no es válido para este período de tiempo',
+    VOUCHER_INVALID_DAY_OF_WEEK: 'El voucher no es válido para este día de la semana',
+    VOUCHER_DAILY_LIMIT_EXCEEDED: 'Límite de uso diario excedido para este voucher',
+    VOUCHER_BOOKING_TOO_LONG: 'La duración de la reserva excede el límite diario del voucher',
   },
 })
 
