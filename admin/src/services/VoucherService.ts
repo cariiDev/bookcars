@@ -19,13 +19,14 @@ export const create = (data: bookcarsTypes.CreateVoucherPayload): Promise<bookca
 /**
  * Update a Voucher.
  *
+ * @param {string} id
  * @param {bookcarsTypes.UpdateVoucherPayload} data
  * @returns {Promise<number>}
  */
-export const update = (data: bookcarsTypes.UpdateVoucherPayload): Promise<number> =>
+export const update = (id: string, data: bookcarsTypes.UpdateVoucherPayload): Promise<number> =>
   axiosInstance
     .put(
-      '/api/update-voucher',
+      `/api/update-voucher/${encodeURIComponent(id)}`,
       data,
       { withCredentials: true }
     )
