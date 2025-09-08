@@ -73,7 +73,6 @@ const UpdateVoucher = () => {
   const allowedTimeSlots = useWatch({ control, name: 'allowedTimeSlots' })
   const allowedDaysOfWeek = useWatch({ control, name: 'allowedDaysOfWeek' })
   const dailyUsageLimitEnabled = useWatch({ control, name: 'dailyUsageLimitEnabled' })
-  const dailyUsageLimit = useWatch({ control, name: 'dailyUsageLimit' })
 
 
   useEffect(() => {
