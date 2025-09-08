@@ -504,7 +504,6 @@ const Checkout = () => {
                       }}
         
                       bayarCashLoaded={bayarCashLoaded}
-                      onPriceChange={(value) => setPrice(value)}
                       onAdManuallyCheckedChange={(value) => setAdManuallyChecked(value)}
                       onCancellationChange={(value) => setValue('cancellation', value)}
                       onAmendmentsChange={(value) => setValue('amendments', value)}
