@@ -71,6 +71,41 @@ const voucherSchema = new Schema<env.Voucher>(
       ref: 'User',
       index: true,
     },
+    
+    // Time restrictions
+    timeRestrictionEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    allowedTimeSlots: [
+      {
+        startHour: {
+          type: Number,
+          min: [0, 'Start hour must be between 0-23'],
+          max: [23, 'Start hour must be between 0-23'],
+        },
+        endHour: {
+          type: Number,
+          min: [0, 'End hour must be between 0-23'],
+          max: [23, 'End hour must be between 0-23'],
+        },
+      },
+    ],
+    allowedDaysOfWeek: [
+      {
+        type: Number,
+        min: [0, 'Day of week must be between 0-6 (Sunday-Saturday)'],
+        max: [6, 'Day of week must be between 0-6 (Sunday-Saturday)'],
+      },
+    ],
+    dailyUsageLimit: {
+      type: Number,
+      min: [1, 'Daily usage limit must be at least 1 hour'],
+    },
+    dailyUsageLimitEnabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

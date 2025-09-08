@@ -516,6 +516,9 @@ const Checkout = () => {
                     <VoucherInput
                       value={voucherCode}
                       bookingAmount={originalPrice || price}
+                      bookingStartTime={from}
+                      bookingEndTime={to}
+                      userId={user?._id}
                       onVoucherChange={handleVoucherChange}
                       disabled={!!clientSecret || payPalLoaded}
                     />

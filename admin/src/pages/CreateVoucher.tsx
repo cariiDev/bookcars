@@ -28,6 +28,8 @@ import { schema, FormFields } from '@/models/VoucherForm'
 import DateTimePicker from '@/components/DateTimePicker'
 import DiscountTypeList from '@/components/DiscountTypeList'
 import FundingTypeList from '@/components/FundingTypeList'
+import TimeSlotPicker from '@/components/TimeSlotPicker'
+import DayOfWeekSelector from '@/components/DayOfWeekSelector'
 import { useSuppliers } from '@/hooks/useSuppliers'
 
 import '@/assets/css/create-voucher.css'
@@ -61,7 +63,14 @@ const CreateVoucher = () => {
       validFrom: new Date(),
       validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       supplier: '',
-      isActive: true
+      isActive: true,
+      
+      // Time restrictions
+      timeRestrictionEnabled: false,
+      allowedTimeSlots: [],
+      allowedDaysOfWeek: [],
+      dailyUsageLimit: '',
+      dailyUsageLimitEnabled: false
     }
   })
 
@@ -71,6 +80,13 @@ const CreateVoucher = () => {
   const validTo = useWatch({ control, name: 'validTo' })
   const isActive = useWatch({ control, name: 'isActive' })
   const supplier = useWatch({ control, name: 'supplier' })
+  
+  // Time restrictions
+  const timeRestrictionEnabled = useWatch({ control, name: 'timeRestrictionEnabled' })
+  const allowedTimeSlots = useWatch({ control, name: 'allowedTimeSlots' })
+  const allowedDaysOfWeek = useWatch({ control, name: 'allowedDaysOfWeek' })
+  const dailyUsageLimitEnabled = useWatch({ control, name: 'dailyUsageLimitEnabled' })
+  const dailyUsageLimit = useWatch({ control, name: 'dailyUsageLimit' })
 
   const onLoad = (_user?: bookcarsTypes.User) => {
     if (_user && _user.verified) {
@@ -92,7 +108,14 @@ const CreateVoucher = () => {
         usageLimit: data.usageLimit ? parseInt(data.usageLimit, 10) : undefined,
         validFrom: data.validFrom,
         validTo: data.validTo,
-        supplier: data.supplier || undefined
+        supplier: data.supplier || undefined,
+        
+        // Time restrictions
+        timeRestrictionEnabled: data.timeRestrictionEnabled || false,
+        allowedTimeSlots: data.allowedTimeSlots || [],
+        allowedDaysOfWeek: data.allowedDaysOfWeek || [],
+        dailyUsageLimit: data.dailyUsageLimit ? parseInt(data.dailyUsageLimit, 10) : undefined,
+        dailyUsageLimitEnabled: data.dailyUsageLimitEnabled || false
       }
 
       const voucher = await VoucherService.create(payload)
@@ -275,6 +298,72 @@ const CreateVoucher = () => {
                     {errors.validTo?.message}
                   </FormHelperText>
                 </FormControl>
+
+                {/* Time Restrictions Section */}
+                <FormControl fullWidth margin="dense">
+                  <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                    {strings.TIME_RESTRICTIONS}
+                  </Typography>
+                  
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={timeRestrictionEnabled || false}
+                        onChange={(e) => setValue('timeRestrictionEnabled', e.target.checked)}
+                      />
+                    }
+                    label={strings.TIME_RESTRICTION_ENABLED}
+                    className="voucher-switch"
+                  />
+                </FormControl>
+
+                {timeRestrictionEnabled && (
+                  <>
+                    <FormControl fullWidth margin="dense">
+                      <TimeSlotPicker
+                        timeSlots={allowedTimeSlots || []}
+                        onChange={(slots) => setValue('allowedTimeSlots', slots)}
+                        error={errors.allowedTimeSlots?.message}
+                      />
+                    </FormControl>
+
+                    <FormControl fullWidth margin="dense">
+                      <DayOfWeekSelector
+                        selectedDays={allowedDaysOfWeek || []}
+                        onChange={(days) => setValue('allowedDaysOfWeek', days)}
+                      />
+                    </FormControl>
+
+                    <FormControl fullWidth margin="dense">
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={dailyUsageLimitEnabled || false}
+                            onChange={(e) => setValue('dailyUsageLimitEnabled', e.target.checked)}
+                          />
+                        }
+                        label={strings.DAILY_USAGE_LIMIT_ENABLED}
+                        className="voucher-switch"
+                      />
+                    </FormControl>
+
+                    {dailyUsageLimitEnabled && (
+                      <FormControl fullWidth margin="dense">
+                        <InputLabel>{strings.DAILY_USAGE_LIMIT}</InputLabel>
+                        <Input
+                          type="number"
+                          {...register('dailyUsageLimit')}
+                          error={!!errors.dailyUsageLimit}
+                          autoComplete="off"
+                          inputProps={{ step: '1', min: '1' }}
+                        />
+                        <FormHelperText error={!!errors.dailyUsageLimit}>
+                          {errors.dailyUsageLimit?.message}
+                        </FormHelperText>
+                      </FormControl>
+                    )}
+                  </>
+                )}
 
                 <FormControl fullWidth margin="dense">
                   <FormControlLabel

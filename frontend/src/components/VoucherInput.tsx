@@ -21,6 +21,9 @@ import * as helper from '@/utils/helper'
 interface VoucherInputProps {
   value?: string
   bookingAmount: number
+  bookingStartTime?: Date
+  bookingEndTime?: Date
+  userId?: string
   onVoucherChange?: (voucher: bookcarsTypes.Voucher | null, code: string) => void
   disabled?: boolean
 }
@@ -28,6 +31,9 @@ interface VoucherInputProps {
 const VoucherInput: React.FC<VoucherInputProps> = ({
   value = '',
   bookingAmount,
+  bookingStartTime,
+  bookingEndTime,
+  userId,
   onVoucherChange,
   disabled = false,
 }) => {
@@ -48,6 +54,9 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
       const payload: bookcarsTypes.ValidateVoucherPayload = {
         code: voucherCode.trim(),
         bookingAmount,
+        bookingStartTime: bookingStartTime?.toISOString(),
+        bookingEndTime: bookingEndTime?.toISOString(),
+        userId,
       }
 
       const result = await VoucherService.validateVoucher(payload)
@@ -62,6 +71,14 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
           errorMessage = strings.VOUCHER_EXPIRED
         } else if (result.message?.includes('already used')) {
           errorMessage = strings.VOUCHER_USED
+        } else if (result.message?.includes('not valid for this time period')) {
+          errorMessage = strings.VOUCHER_INVALID_TIME_SLOT
+        } else if (result.message?.includes('not valid for this day of the week')) {
+          errorMessage = strings.VOUCHER_INVALID_DAY_OF_WEEK
+        } else if (result.message?.includes('Daily usage limit exceeded')) {
+          errorMessage = strings.VOUCHER_DAILY_LIMIT_EXCEEDED
+        } else if (result.message?.includes('duration exceeds voucher daily limit')) {
+          errorMessage = strings.VOUCHER_BOOKING_TOO_LONG
         }
         
         setError(errorMessage)

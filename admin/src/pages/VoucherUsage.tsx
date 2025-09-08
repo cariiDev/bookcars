@@ -136,6 +136,76 @@ const VoucherUsage = () => {
                 </Typography>
               </div>
 
+              {/* Time Restrictions Details */}
+              {usageData.voucher.timeRestrictionEnabled && (
+                <div className="voucher-detail-row">
+                  <Typography variant="body1" className="detail-label">
+                    {strings.TIME_RESTRICTIONS}:
+                  </Typography>
+                  <div className="time-restrictions-details">
+                    {usageData.voucher.allowedTimeSlots && usageData.voucher.allowedTimeSlots.length > 0 && (
+                      <div className="time-restriction-item">
+                        <Typography variant="body2" className="restriction-label">
+                          {strings.ALLOWED_TIME_SLOTS}:
+                        </Typography>
+                        <div className="time-slots">
+                          {usageData.voucher.allowedTimeSlots.map((slot, index) => (
+                            <Chip
+                              key={index}
+                              label={`${slot.startHour.toString().padStart(2, '0')}:00 - ${slot.endHour.toString().padStart(2, '0')}:00`}
+                              size="small"
+                              variant="outlined"
+                              color="primary"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {usageData.voucher.allowedDaysOfWeek && usageData.voucher.allowedDaysOfWeek.length > 0 && usageData.voucher.allowedDaysOfWeek.length < 7 && (
+                      <div className="time-restriction-item">
+                        <Typography variant="body2" className="restriction-label">
+                          {strings.ALLOWED_DAYS}:
+                        </Typography>
+                        <div className="allowed-days">
+                          {usageData.voucher.allowedDaysOfWeek.map((day) => (
+                            <Chip
+                              key={day}
+                              label={
+                                day === 0 ? strings.SUNDAY :
+                                day === 1 ? strings.MONDAY :
+                                day === 2 ? strings.TUESDAY :
+                                day === 3 ? strings.WEDNESDAY :
+                                day === 4 ? strings.THURSDAY :
+                                day === 5 ? strings.FRIDAY :
+                                strings.SATURDAY
+                              }
+                              size="small"
+                              variant="outlined"
+                              color="secondary"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {usageData.voucher.dailyUsageLimitEnabled && usageData.voucher.dailyUsageLimit && (
+                      <div className="time-restriction-item">
+                        <Typography variant="body2" className="restriction-label">
+                          {strings.DAILY_USAGE_LIMIT}:
+                        </Typography>
+                        <Chip
+                          label={`${usageData.voucher.dailyUsageLimit} hours per day`}
+                          size="small"
+                          variant="outlined"
+                          color="warning"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="voucher-detail-row">
                 <Typography variant="body1" className="detail-label">
                   {strings.ACTIVE}:
