@@ -114,14 +114,14 @@ export const DB_SSL = helper.StringToBoolean(__env__('BC_DB_SSL', false, 'false'
  *
  * @type {string}
  */
-export const DB_SSL_CERT = __env__('BC_DB_SSL_CERT', DB_SSL)
+export const DB_SSL_CERT = __env__('BC_DB_SSL_CERT', false)
 
 /**
  * MongoDB SSL CA certificate filepath.
  *
  * @type {string}
  */
-export const DB_SSL_CA = __env__('BC_DB_SSL_CA', DB_SSL)
+export const DB_SSL_CA = __env__('BC_DB_SSL_CA', false)
 
 /**
  * Indicate whether MongoDB debug is enabled or not.
@@ -313,6 +313,13 @@ export const CDN_LICENSES = __env__('BC_CDN_LICENSES', true)
 export const CDN_TEMP_LICENSES = __env__('BC_CDN_TEMP_LICENSES', true)
 
 /**
+ * Backend host.
+ *
+ * @type {string}
+ */
+export const BACKEND_HOST = __env__('BC_BACKEND_HOST', true)
+
+/**
  * Admin host.
  *
  * @type {string}
@@ -387,6 +394,34 @@ export const PAYPAL_CLIENT_ID = __env__('BC_PAYPAL_CLIENT_ID', false, 'PAYPAL_CL
  * @type {string}
  */
 export const PAYPAL_CLIENT_SECRET = __env__('BC_PAYPAL_CLIENT_SECRET', false, 'PAYPAL_CLIENT_SECRET')
+
+/**
+ * Indicates whether BayarCash is used in sandbox mode or production.
+ *
+ * @type {boolean}
+ */
+export const BAYARCASH_SANDBOX = helper.StringToBoolean(__env__('BC_BAYARCASH_SANDBOX', false, 'true'))
+
+/**
+ * BayarCash access token (Personal Access Token).
+ *
+ * @type {string}
+ */
+export const BAYARCASH_ACCESS_TOKEN = __env__('BC_BAYARCASH_ACCESS_TOKEN', false, 'BAYARCASH_ACCESS_TOKEN')
+
+/**
+ * BayarCash portal key.
+ *
+ * @type {string}
+ */
+export const BAYARCASH_PORTAL_KEY = __env__('BC_BAYARCASH_PORTAL_KEY', false, 'BAYARCASH_PORTAL_KEY')
+
+/**
+ * BayarCash API secret for checksum validation.
+ *
+ * @type {string}
+ */
+export const BAYARCASH_API_SECRET = __env__('BC_BAYARCASH_API_SECRET', false, 'BAYARCASH_API_SECRET')
 
 /**
  * Booking expiration in seconds.
@@ -591,6 +626,7 @@ export interface Booking extends Document {
   expireAt?: Date
   isDeposit: boolean
   paypalOrderId?: string
+  bayarcashTransactionId?: string
 }
 
 /**

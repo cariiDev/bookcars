@@ -78,6 +78,7 @@ export enum RecordType {
 export enum PaymentGateway {
   PayPal = 'payPal',
   Stripe = 'stripe',
+  BayarCash = 'bayarCash',
 }
 
 export enum VoucherDiscountType {
@@ -130,6 +131,7 @@ export interface CheckoutPayload {
   paymentIntentId?: string
   customerId?: string
   payPal?: boolean
+  bayarCash?: boolean
 }
 
 export interface Filter {
@@ -593,11 +595,26 @@ export interface CreatePayPalOrderPayload {
   description: string
 }
 
+export interface CreateBayarCashPayload {
+  bookingId: string
+  amount: number
+  currency: string
+  paymentChannel: number
+  payerName: string
+  payerEmail: string
+  payerTelephoneNumber?: string
+  name: string
+  description: string
+  callbackUrl?: string
+  returnUrl?: string
+}
+
 export interface PaymentResult {
   sessionId?: string
   paymentIntentId?: string
-  customerId: string
+  customerId?: string
   clientSecret: string | null
+  paymentUrl?: string
 }
 
 export interface SendEmailPayload {
