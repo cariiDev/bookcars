@@ -139,7 +139,7 @@ const UpdateVoucher = () => {
         isActive: data.isActive
       }
 
-      const status = await VoucherService.update(payload)
+      const status = await VoucherService.update(voucher._id, payload)
       
       if (status === 200) {
         helper.info(strings.VOUCHER_UPDATED)

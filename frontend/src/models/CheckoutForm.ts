@@ -41,6 +41,9 @@ const baseSchema = z.object({
     fullInsurance: z.boolean().default(false).optional(),
     additionalDriver: z.boolean().default(false).optional(),
 
+    // Voucher
+    voucherCode: z.string().optional(),
+
     // Additional driver details
     additionalDriverFullName: z.string().optional(),
     additionalDriverEmail: z.string()
