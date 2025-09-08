@@ -18,7 +18,6 @@ const voucherDailyUsageSchema = new Schema<env.VoucherDailyUsage>(
     date: {
       type: Date,
       required: [true, "can't be blank"],
-      index: true,
     },
     totalHoursUsed: {
       type: Number,
