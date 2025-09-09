@@ -92,3 +92,33 @@ export const getBookings = (payload: bookcarsTypes.GetBookingsPayload, page: num
       { withCredentials: true }
     )
     .then((res) => res.data)
+
+/**
+ * Export Bookings to CSV.
+ *
+ * @param {bookcarsTypes.GetBookingsPayload} payload
+ * @returns {Promise<string>}
+ */
+export const exportBookings = (payload: bookcarsTypes.GetBookingsPayload): Promise<string> =>
+  axiosInstance
+    .post(
+      `/api/export-bookings/${UserService.getLanguage()}`,
+      payload,
+      { 
+        withCredentials: true,
+        responseType: 'blob'
+      }
+    )
+    .then((res) => {
+      // Create blob and download file
+      const blob = new Blob([res.data], { type: 'text/csv' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'bookings-export.csv'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      return 'success'
+    })

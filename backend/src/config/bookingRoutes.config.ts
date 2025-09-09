@@ -8,6 +8,7 @@ const routes = {
   getBooking: '/api/booking/:id/:language',
   getBookingId: '/api/booking-id/:sessionId',
   getBookings: '/api/bookings/:page/:size/:language',
+  exportBookings: '/api/export-bookings/:language',
   hasBookings: '/api/has-bookings/:driver',
   cancelBooking: '/api/cancel-booking/:id',
 }

@@ -46,6 +46,12 @@ div.bookings {
     max-width: 480px;
     margin: 15px 10px 5px;
   }
+
+  div.bookings div.col-1 .cl-export-bookings {
+    width: calc(100% - 20px);
+    max-width: 480px;
+    margin: 5px 10px;
+  }
 }
 
 /* Device width is greater than or equal to 960px */
@@ -93,6 +99,11 @@ div.bookings {
   div.bookings div.col-1 .cl-new-booking {
     width: 265px;
     margin-left: 5px;
+  }
+
+  div.bookings div.col-1 .cl-export-bookings {
+    width: 265px;
+    margin: 5px 0 0 5px;
   }
 
   div.bookings div.col-2 {

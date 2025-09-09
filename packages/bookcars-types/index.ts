@@ -133,6 +133,7 @@ export interface GetBookingsPayload {
   user?: string
   car?: string
   filter?: Filter
+  ids?: string[]
 }
 
 export interface AdditionalDriver {
