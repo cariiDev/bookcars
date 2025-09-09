@@ -214,7 +214,7 @@ const UpdateCountry = () => {
               )}
               {country.values.map((value, index) => (
                 <FormControl key={value.language} fullWidth margin="dense">
-                  <InputLabel className="required">{`${commonStrings.NAME} (${env._LANGUAGES.filter((l) => l.code === value.language)[0].label})`}</InputLabel>
+                  <InputLabel className="required">{`${commonStrings.NAME} (${env._LANGUAGES.find((l) => l.code === value.language)?.label || value.language})`}</InputLabel>
                   <Input
                     type="text"
                     error={!!errors.names?.[index]?.name}
