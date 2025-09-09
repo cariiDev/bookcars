@@ -49,6 +49,7 @@ interface BookingListProps {
   loading?: boolean
   checkboxSelection?: boolean
   onLoad?: bookcarsTypes.DataEvent<bookcarsTypes.Booking>
+  onSelectionChange?: (selectedIds: string[]) => void
 }
 
 const BookingList = ({
@@ -66,6 +67,7 @@ const BookingList = ({
   language,
   checkboxSelection,
   onLoad,
+  onSelectionChange,
 }: BookingListProps) => {
   const navigate = useNavigate()
 
@@ -100,6 +102,12 @@ const BookingList = ({
       setPageSize(paginationModel.pageSize)
     }
   }, [paginationModel])
+
+  useEffect(() => {
+    if (onSelectionChange) {
+      onSelectionChange(selectedIds)
+    }
+  }, [selectedIds, onSelectionChange])
 
   const fetchData = async (_page: number, _user?: bookcarsTypes.User, _car?: string) => {
     try {

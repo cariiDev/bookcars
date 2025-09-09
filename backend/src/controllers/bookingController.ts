@@ -21,6 +21,7 @@ import * as mailHelper from '../utils/mailHelper'
 import * as env from '../config/env.config'
 import * as logger from '../utils/logger'
 import stripeAPI from '../payment/stripe'
+import { stringify } from 'csv-stringify'
 
 /**
  * Create a Booking.
@@ -1086,6 +1087,273 @@ export const cancelBooking = async (req: Request, res: Response) => {
     res.sendStatus(204)
   } catch (err) {
     logger.error(`[booking.cancelBooking] ${i18n.t('DB_ERROR')} ${id}`, err)
+    res.status(400).send(i18n.t('DB_ERROR') + err)
+  }
+}
+
+/**
+ * Export Bookings to CSV.
+ *
+ * @export
+ * @async
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {unknown}
+ */
+export const exportBookings = async (req: Request, res: Response) => {
+  try {
+    const { body }: { body: bookcarsTypes.GetBookingsPayload } = req
+    const suppliers = body.suppliers.map((id) => new mongoose.Types.ObjectId(id))
+    const {
+      statuses,
+      user,
+      car,
+      ids,
+    } = body
+    const from = (body.filter && body.filter.from && new Date(body.filter.from)) || null
+    const dateBetween = (body.filter && body.filter.dateBetween && new Date(body.filter.dateBetween)) || null
+    const to = (body.filter && body.filter.to && new Date(body.filter.to)) || null
+    const pickupLocation = (body.filter && body.filter.pickupLocation) || null
+    const dropOffLocation = (body.filter && body.filter.dropOffLocation) || null
+    let keyword = (body.filter && body.filter.keyword) || ''
+    const options = 'i'
+
+    const $match: mongoose.FilterQuery<any> = {
+      $and: [{ 'supplier._id': { $in: suppliers } }, { status: { $in: statuses } }, { expireAt: null }],
+    }
+
+    // If specific booking IDs are provided, filter by them
+    if (ids && ids.length > 0) {
+      const bookingIds = ids.map((id) => new mongoose.Types.ObjectId(id))
+      $match.$and!.push({ _id: { $in: bookingIds } })
+    }
+
+    if (user) {
+      $match.$and!.push({ 'driver._id': { $eq: new mongoose.Types.ObjectId(user) } })
+    }
+    if (car) {
+      $match.$and!.push({ 'car._id': { $eq: new mongoose.Types.ObjectId(car) } })
+    }
+
+    if (dateBetween) {
+      const dateBetweenStart = new Date(dateBetween)
+      dateBetweenStart.setHours(0, 0, 0, 0)
+      const dateBetweenEnd = new Date(dateBetween)
+      dateBetweenEnd.setHours(23, 59, 59, 999)
+
+      $match.$and!.push({
+        $and: [
+          { from: { $lte: dateBetweenEnd } },
+          { to: { $gte: dateBetweenStart } },
+        ],
+      })
+    } else if (from) {
+      $match.$and!.push({ from: { $gte: from } })
+    }
+
+    if (to) {
+      $match.$and!.push({ to: { $lte: to } })
+    }
+    if (pickupLocation) {
+      $match.$and!.push({ 'pickupLocation._id': { $eq: new mongoose.Types.ObjectId(pickupLocation) } })
+    }
+    if (dropOffLocation) {
+      $match.$and!.push({ 'dropOffLocation._id': { $eq: new mongoose.Types.ObjectId(dropOffLocation) } })
+    }
+    if (keyword) {
+      const isObjectId = helper.isValidObjectId(keyword)
+      if (isObjectId) {
+        $match.$and!.push({
+          _id: { $eq: new mongoose.Types.ObjectId(keyword) },
+        })
+      } else {
+        keyword = escapeStringRegexp(keyword)
+        $match.$and!.push({
+          $or: [
+            { 'supplier.fullName': { $regex: keyword, $options: options } },
+            { 'driver.fullName': { $regex: keyword, $options: options } },
+            { 'car.name': { $regex: keyword, $options: options } },
+          ],
+        })
+      }
+    }
+
+    const { language } = req.params
+
+    const bookings = await Booking.aggregate([
+      {
+        $lookup: {
+          from: 'User',
+          let: { supplierId: '$supplier' },
+          pipeline: [
+            {
+              $match: { $expr: { $eq: ['$_id', '$$supplierId'] } },
+            },
+          ],
+          as: 'supplier',
+        },
+      },
+      { $unwind: { path: '$supplier', preserveNullAndEmptyArrays: false } },
+      {
+        $lookup: {
+          from: 'Car',
+          let: { carId: '$car' },
+          pipeline: [
+            {
+              $match: { $expr: { $eq: ['$_id', '$$carId'] } },
+            },
+          ],
+          as: 'car',
+        },
+      },
+      { $unwind: { path: '$car', preserveNullAndEmptyArrays: false } },
+      {
+        $lookup: {
+          from: 'User',
+          let: { driverId: '$driver' },
+          pipeline: [
+            {
+              $match: { $expr: { $eq: ['$_id', '$$driverId'] } },
+            },
+          ],
+          as: 'driver',
+        },
+      },
+      { $unwind: { path: '$driver', preserveNullAndEmptyArrays: false } },
+      {
+        $lookup: {
+          from: 'Location',
+          let: { pickupLocationId: '$pickupLocation' },
+          pipeline: [
+            {
+              $match: { $expr: { $eq: ['$_id', '$$pickupLocationId'] } },
+            },
+            {
+              $lookup: {
+                from: 'LocationValue',
+                let: { values: '$values' },
+                pipeline: [
+                  {
+                    $match: {
+                      $and: [{ $expr: { $in: ['$_id', '$$values'] } }, { $expr: { $eq: ['$language', language] } }],
+                    },
+                  },
+                ],
+                as: 'value',
+              },
+            },
+            {
+              $addFields: { name: '$value.value' },
+            },
+          ],
+          as: 'pickupLocation',
+        },
+      },
+      {
+        $unwind: { path: '$pickupLocation', preserveNullAndEmptyArrays: false },
+      },
+      {
+        $lookup: {
+          from: 'Location',
+          let: { dropOffLocationId: '$dropOffLocation' },
+          pipeline: [
+            {
+              $match: { $expr: { $eq: ['$_id', '$$dropOffLocationId'] } },
+            },
+            {
+              $lookup: {
+                from: 'LocationValue',
+                let: { values: '$values' },
+                pipeline: [
+                  {
+                    $match: {
+                      $and: [{ $expr: { $in: ['$_id', '$$values'] } }, { $expr: { $eq: ['$language', language] } }],
+                    },
+                  },
+                ],
+                as: 'value',
+              },
+            },
+            {
+              $addFields: { name: '$value.value' },
+            },
+          ],
+          as: 'dropOffLocation',
+        },
+      },
+      {
+        $unwind: {
+          path: '$dropOffLocation',
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $match,
+      },
+      {
+        $sort: { createdAt: -1, _id: 1 },
+      },
+    ])
+
+    // Transform bookings for CSV export
+    const csvData = bookings.map((booking: any) => ({
+      id: booking._id.toString(),
+      supplier: booking.supplier.fullName,
+      car: booking.car.name,
+      driver: booking.driver.fullName,
+      driverEmail: booking.driver.email,
+      pickupLocation: booking.pickupLocation.name[0] || '',
+      dropOffLocation: booking.dropOffLocation.name[0] || '',
+      from: booking.from.toISOString().split('T')[0],
+      to: booking.to.toISOString().split('T')[0],
+      status: booking.status,
+      price: booking.price.toFixed(2),
+      cancellation: booking.cancellation ? 'Yes' : 'No',
+      amendments: booking.amendments ? 'Yes' : 'No',
+      theftProtection: booking.theftProtection ? 'Yes' : 'No',
+      collisionDamageWaiver: booking.collisionDamageWaiver ? 'Yes' : 'No',
+      fullInsurance: booking.fullInsurance ? 'Yes' : 'No',
+      additionalDriver: booking.additionalDriver ? 'Yes' : 'No',
+      createdAt: booking.createdAt.toISOString().split('T')[0],
+    }))
+
+    // Generate CSV
+    stringify(csvData, {
+      header: true,
+      columns: {
+        id: 'Booking ID',
+        supplier: 'Supplier',
+        car: 'Car',
+        driver: 'Driver Name',
+        driverEmail: 'Driver Email',
+        pickupLocation: 'Pickup Location',
+        dropOffLocation: 'Drop-off Location',
+        from: 'From Date',
+        to: 'To Date',
+        status: 'Status',
+        price: 'Price',
+        cancellation: 'Cancellation',
+        amendments: 'Amendments',
+        theftProtection: 'Theft Protection',
+        collisionDamageWaiver: 'Collision Damage Waiver',
+        fullInsurance: 'Full Insurance',
+        additionalDriver: 'Additional Driver',
+        createdAt: 'Created Date',
+      },
+    }, (err, csvString) => {
+      if (err) {
+        logger.error('[booking.exportBookings] CSV generation error', err)
+        res.status(400).send(i18n.t('ERROR') + err)
+        return
+      }
+
+      // Set headers for CSV download
+      res.setHeader('Content-Type', 'text/csv')
+      res.setHeader('Content-Disposition', 'attachment; filename="bookings-export.csv"')
+      res.status(200).send(csvString)
+    })
+  } catch (err) {
+    logger.error(`[booking.exportBookings] ${i18n.t('DB_ERROR')} ${JSON.stringify(req.body)}`, err)
     res.status(400).send(i18n.t('DB_ERROR') + err)
   }
 }

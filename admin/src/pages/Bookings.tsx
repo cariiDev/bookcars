@@ -12,6 +12,7 @@ import SupplierFilter from '@/components/SupplierFilter'
 import StatusFilter from '@/components/StatusFilter'
 import BookingFilter from '@/components/BookingFilter'
 import * as SupplierService from '@/services/SupplierService'
+import * as BookingService from '@/services/BookingService'
 
 import '@/assets/css/bookings.css'
 
@@ -27,6 +28,8 @@ const Bookings = () => {
   const [filter, setFilter] = useState<bookcarsTypes.Filter | null>()
   const [loadingSuppliers, setLoadingSuppliers] = useState(true)
   const [offset, setOffset] = useState(0)
+  const [exporting, setExporting] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   useEffect(() => {
     if (user && user.verified) {
@@ -47,6 +50,43 @@ const Bookings = () => {
 
   const handleBookingFilterSubmit = (_filter: bookcarsTypes.Filter | null) => {
     setFilter(_filter)
+  }
+
+  const handleSelectionChange = (_selectedIds: string[]) => {
+    setSelectedIds(_selectedIds)
+  }
+
+  const handleExportBookings = async () => {
+    if (!suppliers || suppliers.length === 0) {
+      helper.error('No suppliers selected')
+      return
+    }
+
+    // If there are selected bookings, ask for confirmation when only exporting selected ones
+    if (selectedIds.length > 0) {
+      const confirmMessage = `Export ${selectedIds.length} selected booking${selectedIds.length > 1 ? 's' : ''}?`
+      if (!confirm(confirmMessage)) {
+        return
+      }
+    }
+
+    setExporting(true)
+    try {
+      const payload: bookcarsTypes.GetBookingsPayload = {
+        suppliers,
+        statuses,
+        filter: filter || undefined,
+        // Include selected IDs if any are selected
+        ...(selectedIds.length > 0 && { ids: selectedIds }),
+      }
+
+      await BookingService.exportBookings(payload)
+      helper.info(strings.EXPORT_SUCCESS)
+    } catch (err) {
+      helper.error(strings.EXPORT_ERROR)
+    } finally {
+      setExporting(false)
+    }
   }
 
   const onLoad = async (_user?: bookcarsTypes.User) => {
@@ -75,6 +115,20 @@ const Bookings = () => {
               <>
                 <Button variant="contained" className="btn-primary cl-new-booking" size="small" onClick={() => navigate('/create-booking')}>
                   {strings.NEW_BOOKING}
+                </Button>
+                <Button 
+                  variant="contained" 
+                  className="btn-secondary cl-export-bookings" 
+                  size="small" 
+                  onClick={handleExportBookings}
+                  disabled={exporting || !suppliers || suppliers.length === 0}
+                >
+                  {exporting 
+                    ? 'Exporting...' 
+                    : selectedIds.length > 0 
+                      ? `Export ${selectedIds.length} Selected`
+                      : strings.EXPORT_BOOKINGS
+                  }
                 </Button>
                 {admin
                   && (
@@ -109,6 +163,7 @@ const Bookings = () => {
               loading={loadingSuppliers}
               hideDates={env.isMobile}
               checkboxSelection={!env.isMobile}
+              onSelectionChange={handleSelectionChange}
             />
           </div>
         </div>
