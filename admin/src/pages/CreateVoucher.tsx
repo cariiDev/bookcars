@@ -58,7 +58,7 @@ const CreateVoucher = () => {
       discountType: undefined,
       discountValue: '',
       fundingType: undefined,
-      minimumAmount: '',
+      minimumRentalAmount: '',
       usageLimit: '',
       validFrom: new Date(),
       validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
@@ -103,7 +103,7 @@ const CreateVoucher = () => {
         discountType: data.discountType,
         discountValue: parseFloat(data.discountValue),
         fundingType: data.fundingType,
-        minimumAmount: data.minimumAmount ? parseFloat(data.minimumAmount) : undefined,
+        minimumRentalAmount: data.minimumRentalAmount ? parseFloat(data.minimumRentalAmount) : undefined,
         usageLimit: data.usageLimit ? parseInt(data.usageLimit, 10) : undefined,
         validFrom: data.validFrom,
         validTo: data.validTo,
@@ -243,16 +243,16 @@ const CreateVoucher = () => {
                 )}
 
                 <FormControl fullWidth margin="dense">
-                  <InputLabel>{strings.MINIMUM_AMOUNT}</InputLabel>
+                  <InputLabel>{strings.MINIMUM_RENTAL_AMOUNT}</InputLabel>
                   <Input
                     type="number"
-                    {...register('minimumAmount')}
-                    error={!!errors.minimumAmount}
+                    {...register('minimumRentalAmount')}
+                    error={!!errors.minimumRentalAmount}
                     autoComplete="off"
                     inputProps={{ step: '0.01', min: '0' }}
                   />
-                  <FormHelperText error={!!errors.minimumAmount}>
-                    {errors.minimumAmount?.message}
+                  <FormHelperText error={!!errors.minimumRentalAmount}>
+                    {errors.minimumRentalAmount?.message}
                   </FormHelperText>
                 </FormControl>
 

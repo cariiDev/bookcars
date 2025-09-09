@@ -11,7 +11,7 @@ export const schema = z.object({
     return !isNaN(num) && num > 0
   }, { message: strings.INVALID_DISCOUNT_VALUE }),
   fundingType: z.enum([bookcarsTypes.VoucherFundingType.Platform, bookcarsTypes.VoucherFundingType.Supplier, bookcarsTypes.VoucherFundingType.CoFunded]),
-  minimumAmount: z.string().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), { message: commonStrings.FIELD_NOT_VALID }).optional(),
+  minimumRentalAmount: z.string().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), { message: commonStrings.FIELD_NOT_VALID }).optional(),
   usageLimit: z.string().refine((val) => !val || (!isNaN(parseInt(val, 10)) && parseInt(val, 10) > 0), { message: commonStrings.FIELD_NOT_VALID }).optional(),
   validFrom: z.date({ message: strings.VALID_FROM_REQUIRED }),
   validTo: z.date({ message: strings.VALID_TO_REQUIRED }),
