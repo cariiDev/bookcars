@@ -286,7 +286,7 @@ const UpdateLocation = () => {
 
               {nameFields.map((field, index) => (
                 <FormControl key={field.id} fullWidth margin="dense">
-                  <InputLabel className="required">{`${commonStrings.NAME} (${env._LANGUAGES.filter((l) => l.code === field.language)[0].label})`}</InputLabel>
+                  <InputLabel className="required">{`${commonStrings.NAME} (${env._LANGUAGES.find((l) => l.code === field.language)?.label || field.language})`}</InputLabel>
 
                   <Input
                     type="text"
