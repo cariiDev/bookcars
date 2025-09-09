@@ -703,7 +703,7 @@ export interface Voucher {
   discountType: VoucherDiscountType
   discountValue: number
   fundingType: VoucherFundingType
-  minimumAmount?: number
+  minimumRentalAmount?: number
   usageLimit?: number
   usageCount: number
   validFrom: Date
@@ -746,7 +746,7 @@ export interface CreateVoucherPayload {
   discountType: VoucherDiscountType
   discountValue: number
   fundingType: VoucherFundingType
-  minimumAmount?: number
+  minimumRentalAmount?: number
   usageLimit?: number
   validFrom: Date
   validTo: Date

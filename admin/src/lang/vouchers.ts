@@ -8,7 +8,7 @@ export const strings = {
   DISCOUNT_TYPE: 'Discount Type',
   DISCOUNT_VALUE: 'Discount Value',
   FUNDING_TYPE: 'Funding Type',
-  MINIMUM_AMOUNT: 'Minimum Amount',
+  MINIMUM_RENTAL_AMOUNT: 'Minimum Rental Amount',
   USAGE_LIMIT: 'Usage Limit',
   USAGE_COUNT: 'Usage Count',
   VALID_FROM: 'Valid From',

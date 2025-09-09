@@ -949,7 +949,7 @@ export interface Voucher extends Document {
   discountType: bookcarsTypes.VoucherDiscountType
   discountValue: number
   fundingType: bookcarsTypes.VoucherFundingType
-  minimumAmount?: number
+  minimumRentalAmount?: number
   usageLimit?: number
   usageCount: number
   validFrom: Date

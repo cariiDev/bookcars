@@ -34,10 +34,10 @@ const voucherSchema = new Schema<env.Voucher>(
       ],
       required: [true, "can't be blank"],
     },
-    minimumAmount: {
+    minimumRentalAmount: {
       type: Number,
       default: 0,
-      min: [0, 'Minimum amount must be 0 or greater'],
+      min: [0, 'Minimum rental amount must be 0 or greater'],
     },
     usageLimit: {
       type: Number,

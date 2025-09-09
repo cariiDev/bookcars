@@ -181,9 +181,9 @@ const Checkout = () => {
         discountAmount = voucher.discountValue
       }
       
-      // Apply minimum amount validation
-      if (voucher.minimumAmount && currentPrice < voucher.minimumAmount) {
-        helper.error(`Minimum order amount required: ${voucher.minimumAmount}`)
+      // Apply minimum rental amount validation
+      if (voucher.minimumRentalAmount && currentPrice < voucher.minimumRentalAmount) {
+        helper.error(`Minimum rental amount required: ${voucher.minimumRentalAmount}`)
         return
       }
       

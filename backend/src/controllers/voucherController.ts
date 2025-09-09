@@ -38,7 +38,7 @@ export const create = async (req: Request, res: Response) => {
       discountType: body.discountType,
       discountValue: body.discountValue,
       fundingType: body.fundingType,
-      minimumAmount: body.minimumAmount || 0,
+      minimumRentalAmount: body.minimumRentalAmount || 0,
       usageLimit: body.usageLimit,
       usageCount: 0,
       validFrom: body.validFrom,
@@ -100,7 +100,7 @@ export const update = async (req: Request, res: Response) => {
         discountType: body.discountType,
         discountValue: body.discountValue,
         fundingType: body.fundingType,
-        minimumAmount: body.minimumAmount || 0,
+        minimumRentalAmount: body.minimumRentalAmount || 0,
         usageLimit: body.usageLimit,
         validFrom: body.validFrom,
         validTo: body.validTo,
@@ -296,10 +296,10 @@ export const validateVoucher = async (req: Request, res: Response) => {
     }
 
     // Check minimum amount
-    if (voucher.minimumAmount && bookingAmount < voucher.minimumAmount) {
+    if (voucher.minimumRentalAmount && bookingAmount < voucher.minimumRentalAmount) {
       res.json({
         valid: false,
-        message: `Minimum booking amount of $${voucher.minimumAmount} required`,
+        message: `Minimum booking amount of $${voucher.minimumRentalAmount} required`,
       })
       return
     }
@@ -451,8 +451,8 @@ export const applyVoucher = async (req: Request, res: Response) => {
     }
 
     // Check minimum amount
-    if (voucher.minimumAmount && booking.price < voucher.minimumAmount) {
-      throw new Error(`Minimum booking amount of $${voucher.minimumAmount} required`)
+    if (voucher.minimumRentalAmount && booking.price < voucher.minimumRentalAmount) {
+      throw new Error(`Minimum booking amount of $${voucher.minimumRentalAmount} required`)
     }
 
     // Check if user has already used this voucher
