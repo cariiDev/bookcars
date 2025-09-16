@@ -17,6 +17,12 @@ const voucherSchema = new Schema<env.Voucher>(
       enum: [
         bookcarsTypes.VoucherDiscountType.Percentage,
         bookcarsTypes.VoucherDiscountType.FixedAmount,
+        bookcarsTypes.VoucherDiscountType.FreeHours,
+        bookcarsTypes.VoucherDiscountType.MorningBookings,
+        bookcarsTypes.VoucherDiscountType.Rent5Get1,
+        bookcarsTypes.VoucherDiscountType.WeekdayTrips,
+        bookcarsTypes.VoucherDiscountType.HourlyPriceReduction,
+        bookcarsTypes.VoucherDiscountType.DurationBasedFreeHours,
       ],
       required: [true, "can't be blank"],
     },
@@ -103,6 +109,46 @@ const voucherSchema = new Schema<env.Voucher>(
       min: [1, 'Daily usage limit must be at least 1 hour'],
     },
     dailyUsageLimitEnabled: {
+      type: Boolean,
+      default: false,
+    },
+
+    // Sub-feature fields
+    allowedCarModels: [
+      {
+        type: String,
+        trim: true,
+      }
+    ],
+    maxUsesPerUser: {
+      type: Number,
+      min: [1, 'Maximum uses per user must be at least 1'],
+    },
+    freeHoursAmount: {
+      type: Number,
+      min: [0.5, 'Free hours amount must be at least 0.5 hours'],
+    },
+
+    // Advanced features
+    isStackable: {
+      type: Boolean,
+      default: false,
+    },
+    minimumRentalHours: {
+      type: Number,
+      min: [0.5, 'Minimum rental hours must be at least 0.5 hours'],
+    },
+    freeHoursRatio: {
+      rent: {
+        type: Number,
+        min: [1, 'Rent hours ratio must be at least 1'],
+      },
+      free: {
+        type: Number,
+        min: [1, 'Free hours ratio must be at least 1'],
+      },
+    },
+    deductCheapestHours: {
       type: Boolean,
       default: false,
     },

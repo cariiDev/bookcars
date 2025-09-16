@@ -206,6 +206,7 @@ const UpdateCar = () => {
         multimedia: data.multimedia!,
         rating: Number(data.rating) || undefined,
         co2: Number(data.co2) || undefined,
+        carModel: data.carModel || undefined,
         comingSoon: data.comingSoon,
         fullyBooked: data.fullyBooked,
         blockOnPay: data.blockOnPay,
@@ -289,6 +290,9 @@ const UpdateCar = () => {
               }
               if (_car.co2) {
                 setValue('co2', _car.co2.toString())
+              }
+              if (_car.carModel) {
+                setValue('carModel', _car.carModel)
               }
               setValue('available', _car.available)
               setValue('fullyBooked', _car.fullyBooked || false)
@@ -682,6 +686,22 @@ const UpdateCar = () => {
                   onChange={() => {
                     if (errors.co2) {
                       clearErrors('co2')
+                    }
+                  }}
+                />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <TextField
+                  label={strings.CAR_MODEL}
+                  {...register('carModel')}
+                  variant="standard"
+                  autoComplete="off"
+                  error={!!errors.carModel}
+                  helperText={errors.carModel?.message}
+                  onChange={() => {
+                    if (errors.carModel) {
+                      clearErrors('carModel')
                     }
                   }}
                 />

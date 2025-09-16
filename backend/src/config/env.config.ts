@@ -695,6 +695,7 @@ export interface Car extends Document {
   trips: number
   co2?: number
   blockOnPay?: boolean
+  carModel?: string
 }
 
 /**
@@ -963,6 +964,17 @@ export interface Voucher extends Document {
   allowedDaysOfWeek?: number[]
   dailyUsageLimit?: number
   dailyUsageLimitEnabled?: boolean
+
+  // Sub-feature fields
+  allowedCarModels?: string[]
+  maxUsesPerUser?: number
+  freeHoursAmount?: number
+
+  // Advanced features
+  isStackable?: boolean
+  minimumRentalHours?: number
+  freeHoursRatio?: { rent: number; free: number }
+  deductCheapestHours?: boolean
 }
 
 /**
