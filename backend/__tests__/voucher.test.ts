@@ -334,6 +334,9 @@ describe('POST /api/validate-voucher', () => {
     const payload: bookcarsTypes.ValidateVoucherPayload = {
       code: VOUCHER_CODE,
       bookingAmount: 30, // Less than minimum 50
+      userId: USER_ID,
+      bookingStartTime: new Date(2025, 0, 15, 10, 0, 0).toISOString(), // Wednesday 10:00 AM
+      bookingEndTime: new Date(2025, 0, 15, 16, 0, 0).toISOString(), // Wednesday 4:00 PM
     }
 
     const res = await request(app)
@@ -343,7 +346,7 @@ describe('POST /api/validate-voucher', () => {
 
     expect(res.statusCode).toBe(200)
     expect(res.body.valid).toBe(false)
-    expect(res.body.message).toContain('Minimum booking amount')
+    expect(res.body.message).toContain('minimum booking amount')
   })
 
   it('should fail validation for invalid time slot', async () => {
@@ -381,7 +384,7 @@ describe('POST /api/validate-voucher', () => {
 
     expect(res.statusCode).toBe(200)
     expect(res.body.valid).toBe(false)
-    expect(res.body.message).toBe('Voucher is not valid for this day of the week')
+    expect(res.body.message).toBe('This voucher is only valid for weekday bookings (Monday-Friday)')
   })
 
   it('should fail validation for booking exceeding daily limit', async () => {
@@ -409,7 +412,6 @@ describe('POST /api/apply-voucher', () => {
     const payload: bookcarsTypes.ApplyVoucherPayload = {
       voucherCode: VOUCHER_CODE,
       bookingId: BOOKING_ID,
-      userId: USER_ID,
     }
 
     const res = await request(app)
@@ -444,7 +446,6 @@ describe('POST /api/apply-voucher', () => {
     const payload: bookcarsTypes.ApplyVoucherPayload = {
       voucherCode: VOUCHER_CODE,
       bookingId: BOOKING_ID,
-      userId: USER_ID,
     }
 
     const res = await request(app)
@@ -481,7 +482,6 @@ describe('POST /api/apply-voucher', () => {
     const payload: bookcarsTypes.ApplyVoucherPayload = {
       voucherCode: VOUCHER_CODE,
       bookingId: savedBooking2._id.toString(),
-      userId: USER_ID,
     }
 
     const res = await request(app)
@@ -591,7 +591,6 @@ describe('DELETE /api/delete-voucher/:id', () => {
     const payload: bookcarsTypes.ApplyVoucherPayload = {
       voucherCode: VOUCHER_CODE,
       bookingId: BOOKING_ID,
-      userId: USER_ID,
     }
 
     const applyRes = await request(app)

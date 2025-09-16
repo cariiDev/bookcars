@@ -333,7 +333,6 @@ describe('Booking-Voucher Integration Tests', () => {
       const payload: bookcarsTypes.ApplyVoucherPayload = {
         voucherCode: PERCENTAGE_VOUCHER_CODE,
         bookingId: testBookingId,
-        userId: USER_ID,
       }
 
       const res = await request(app)
@@ -360,7 +359,6 @@ describe('Booking-Voucher Integration Tests', () => {
       const payload: bookcarsTypes.ApplyVoucherPayload = {
         voucherCode: FIXED_AMOUNT_VOUCHER_CODE,
         bookingId: testBookingId,
-        userId: USER_ID,
       }
 
       const res = await request(app)
@@ -382,7 +380,6 @@ describe('Booking-Voucher Integration Tests', () => {
       const payload: bookcarsTypes.ApplyVoucherPayload = {
         voucherCode: EXPIRED_VOUCHER_CODE,
         bookingId: testBookingId,
-        userId: USER_ID,
       }
 
       const res = await request(app)
@@ -407,7 +404,6 @@ describe('Booking-Voucher Integration Tests', () => {
       const payload: bookcarsTypes.ApplyVoucherPayload = {
         voucherCode: HIGH_MINIMUM_VOUCHER_CODE,
         bookingId: smallBookingId,
-        userId: USER_ID,
       }
 
       const res = await request(app)
@@ -492,13 +488,11 @@ describe('Booking-Voucher Integration Tests', () => {
       const payload1: bookcarsTypes.ApplyVoucherPayload = {
         voucherCode: PERCENTAGE_VOUCHER_CODE,
         bookingId: booking1Id,
-        userId: USER_ID,
       }
 
       const payload2: bookcarsTypes.ApplyVoucherPayload = {
         voucherCode: PERCENTAGE_VOUCHER_CODE,
         bookingId: booking2Id,
-        userId: USER2_ID,
       }
 
       const res1 = await request(app)
@@ -544,7 +538,6 @@ describe('Booking-Voucher Integration Tests', () => {
       const payload1: bookcarsTypes.ApplyVoucherPayload = {
         voucherCode: PERCENTAGE_VOUCHER_CODE,
         bookingId: booking1Id,
-        userId: USER_ID,
       }
 
       const res1 = await request(app)
@@ -565,7 +558,6 @@ describe('Booking-Voucher Integration Tests', () => {
       const payload2: bookcarsTypes.ApplyVoucherPayload = {
         voucherCode: PERCENTAGE_VOUCHER_CODE,
         bookingId: booking2Id,
-        userId: USER_ID,
       }
 
       const res2 = await request(app)

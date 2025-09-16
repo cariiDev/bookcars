@@ -200,6 +200,7 @@ const CreateCar = () => {
         multimedia: data.multimedia || [],
         rating: data.rating ? Number(data.rating) : undefined,
         co2: data.co2 ? Number(data.co2) : undefined,
+        carModel: data.carModel || undefined,
         isDateBasedPrice: data.isDateBasedPrice,
         dateBasedPrices: data.dateBasedPrices || [],
       }
@@ -587,6 +588,22 @@ const CreateCar = () => {
                 onChange={() => {
                   if (errors.co2) {
                     clearErrors('co2')
+                  }
+                }}
+              />
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
+              <TextField
+                label={strings.CAR_MODEL}
+                {...register('carModel')}
+                variant="standard"
+                autoComplete="off"
+                error={!!errors.carModel}
+                helperText={errors.carModel?.message}
+                onChange={() => {
+                  if (errors.carModel) {
+                    clearErrors('carModel')
                   }
                 }}
               />
