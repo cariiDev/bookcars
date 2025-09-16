@@ -65,6 +65,7 @@ export const schema = z.object({
   multimedia: z.array(z.enum([...bookcarsHelper.getAllMultimedias()] as [string, ...string[]])).optional(),
   rating: z.string().optional(),
   co2: z.string().refine((val) => !val || numberRegex.test(val), { message: commonStrings.FIELD_NOT_VALID }).optional(),
+  carModel: z.string().optional(),
   isDateBasedPrice: z.boolean(),
   dateBasedPrices: z.array(dateBasedPriceSchema).optional(),
 })

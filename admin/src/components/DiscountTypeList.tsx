@@ -62,6 +62,24 @@ const DiscountTypeList = ({
         <MenuItem value={bookcarsTypes.VoucherDiscountType.FixedAmount}>
           {strings.FIXED_AMOUNT}
         </MenuItem>
+        <MenuItem value={bookcarsTypes.VoucherDiscountType.FreeHours}>
+          Free Hours
+        </MenuItem>
+        <MenuItem value={bookcarsTypes.VoucherDiscountType.MorningBookings}>
+          Morning Discount
+        </MenuItem>
+        <MenuItem value={bookcarsTypes.VoucherDiscountType.Rent5Get1}>
+          Rental Bonus
+        </MenuItem>
+        <MenuItem value={bookcarsTypes.VoucherDiscountType.WeekdayTrips}>
+          Weekday Special
+        </MenuItem>
+        <MenuItem value={bookcarsTypes.VoucherDiscountType.HourlyPriceReduction}>
+          Time-Based Discount
+        </MenuItem>
+        <MenuItem value={bookcarsTypes.VoucherDiscountType.DurationBasedFreeHours}>
+          Duration Bonus
+        </MenuItem>
       </Select>
     </div>
   )

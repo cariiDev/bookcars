@@ -5,7 +5,16 @@ import { strings } from '@/lang/vouchers'
 
 export const schema = z.object({
   code: z.string().min(1, { message: strings.VOUCHER_CODE_REQUIRED }),
-  discountType: z.enum([bookcarsTypes.VoucherDiscountType.Percentage, bookcarsTypes.VoucherDiscountType.FixedAmount]),
+  discountType: z.enum([
+    bookcarsTypes.VoucherDiscountType.Percentage,
+    bookcarsTypes.VoucherDiscountType.FixedAmount,
+    bookcarsTypes.VoucherDiscountType.FreeHours,
+    bookcarsTypes.VoucherDiscountType.MorningBookings,
+    bookcarsTypes.VoucherDiscountType.Rent5Get1,
+    bookcarsTypes.VoucherDiscountType.WeekdayTrips,
+    bookcarsTypes.VoucherDiscountType.HourlyPriceReduction,
+    bookcarsTypes.VoucherDiscountType.DurationBasedFreeHours
+  ]),
   discountValue: z.string().refine((val) => {
     const num = parseFloat(val)
     return !isNaN(num) && num > 0

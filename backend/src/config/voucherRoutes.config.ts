@@ -8,6 +8,8 @@ const routes = {
   validateVoucher: '/api/validate-voucher',
   applyVoucher: '/api/apply-voucher',
   removeVoucher: '/api/remove-voucher/:bookingId',
+  validateStackableVouchers: '/api/validate-stackable-vouchers',
+  findBestVoucherCombination: '/api/find-best-voucher-combination',
 }
 
 export default routes

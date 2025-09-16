@@ -205,6 +205,11 @@ const carSchema = new Schema<env.Car>(
       type: Boolean,
       default: true,
     },
+    carModel: {
+      type: String,
+      trim: true,
+      index: true, // For voucher car model restrictions
+    },
   },
   {
     timestamps: true,
