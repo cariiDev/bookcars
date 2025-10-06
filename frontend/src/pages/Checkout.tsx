@@ -60,6 +60,7 @@ import CheckoutStatus from '@/components/CheckoutStatus'
 import NoMatch from './NoMatch'
 import CheckoutOptions from '@/components/CheckoutOptions'
 import VoucherInput from '@/components/VoucherInput'
+import VoucherInputMultiple from '@/components/VoucherInputMultiple'
 import Footer from '@/components/Footer'
 import ViewOnMapButton from '@/components/ViewOnMapButton'
 import MapDialog from '@/components/MapDialog'
@@ -112,6 +113,9 @@ const Checkout = () => {
   const [payPalInit, setPayPalInit] = useState(false)
   const [payPalProcessing, setPayPalProcessing] = useState(false)
   const [appliedVoucher, setAppliedVoucher] = useState<bookcarsTypes.Voucher | null>(null)
+  const [appliedVouchers, setAppliedVouchers] = useState<bookcarsTypes.Voucher[]>([])
+  const [appliedVoucherCodes, setAppliedVoucherCodes] = useState<string[]>([])
+  const [vouchersDiscount, setVouchersDiscount] = useState(0)
   const [originalPrice, setOriginalPrice] = useState(0)
   const [bayarCashLoaded, setBayarCashLoaded] = useState(false)
   const [bayarCashProcessing, setBayarCashProcessing] = useState(false)
@@ -170,9 +174,9 @@ const Checkout = () => {
   const handleVoucherChange = (voucher: bookcarsTypes.Voucher | null, code: string) => {
     setValue('voucherCode', code)
     setAppliedVoucher(voucher)
-    
+
     const currentPrice = originalPrice || price
-    
+
     if (voucher && currentPrice > 0) {
       let discountAmount = 0
       if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
@@ -180,14 +184,29 @@ const Checkout = () => {
       } else {
         discountAmount = voucher.discountValue
       }
-      
+
       // Apply minimum rental amount validation
       if (voucher.minimumRentalAmount && currentPrice < voucher.minimumRentalAmount) {
         helper.error(`Minimum rental amount required: ${voucher.minimumRentalAmount}`)
         return
       }
-      
+
       const newPrice = Math.max(0, currentPrice - discountAmount)
+      setPrice(newPrice)
+    } else if (currentPrice > 0) {
+      setPrice(currentPrice)
+    }
+  }
+
+  const handleVouchersChange = (vouchers: bookcarsTypes.Voucher[], codes: string[], totalDiscount: number) => {
+    setAppliedVouchers(vouchers)
+    setAppliedVoucherCodes(codes)
+    setVouchersDiscount(totalDiscount)
+
+    const currentPrice = originalPrice || price
+
+    if (totalDiscount > 0 && currentPrice > 0) {
+      const newPrice = Math.max(0, currentPrice - totalDiscount)
       setPrice(newPrice)
     } else if (currentPrice > 0) {
       setPrice(currentPrice)
@@ -266,6 +285,7 @@ const Checkout = () => {
         fullInsurance: data.fullInsurance,
         additionalDriver,
         voucher: appliedVoucher?._id,
+        vouchers: appliedVouchers.length > 0 ? appliedVouchers.map(v => v._id).filter(id => id !== undefined) as string[] : undefined,
         price: basePrice,
       }
 
@@ -488,10 +508,14 @@ const Checkout = () => {
 
                       onPriceChange={(value) => {
                         setOriginalPrice(value)
-                        if (!appliedVoucher) {
+                        if (!appliedVoucher && appliedVouchers.length === 0) {
                           setPrice(value)
-                        } else {
-                          // Recalculate with voucher applied
+                        } else if (appliedVouchers.length > 0) {
+                          // Use multiple vouchers discount
+                          const newPrice = Math.max(0, value - vouchersDiscount)
+                          setPrice(newPrice)
+                        } else if (appliedVoucher) {
+                          // Use single voucher discount (backward compatibility)
                           let discountAmount = 0
                           if (appliedVoucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
                             discountAmount = value * (appliedVoucher.discountValue / 100)
@@ -513,13 +537,12 @@ const Checkout = () => {
                       onAdditionalDriverChange={(value) => setValue('additionalDriver', value)}
                     />
 
-                    <VoucherInput
-                      value={voucherCode}
+                    <VoucherInputMultiple
                       bookingAmount={originalPrice || price}
                       bookingStartTime={from}
                       bookingEndTime={to}
                       userId={user?._id}
-                      onVoucherChange={handleVoucherChange}
+                      onVouchersChange={handleVouchersChange}
                       disabled={!!clientSecret || payPalLoaded}
                     />
 
@@ -558,11 +581,17 @@ const Checkout = () => {
                             </div>
                           </div>
                         )}
-                        {appliedVoucher && originalPrice > 0 && (
+                        {(appliedVouchers.length > 0 || appliedVoucher) && originalPrice > 0 && (
                           <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
                             <span className="checkout-detail-title">{strings.VOUCHER_DISCOUNT}</span>
                             <div className="checkout-detail-value" style={{ color: 'green' }}>
-                              -{bookcarsHelper.formatPrice(Math.max(0, originalPrice - price), commonStrings.CURRENCY, language)}
+                              -{bookcarsHelper.formatPrice(
+                                appliedVouchers.length > 0
+                                  ? vouchersDiscount
+                                  : Math.max(0, originalPrice - price),
+                                commonStrings.CURRENCY,
+                                language
+                              )}
                             </div>
                           </div>
                         )}

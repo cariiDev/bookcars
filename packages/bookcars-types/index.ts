@@ -119,7 +119,9 @@ export interface Booking {
   price?: number
   originalPrice?: number
   voucher?: string | Voucher
+  vouchers?: (string | Voucher)[]
   voucherDiscount?: number
+  vouchersDiscount?: number
   sessionId?: string
   paymentIntentId?: string
   customerId?: string

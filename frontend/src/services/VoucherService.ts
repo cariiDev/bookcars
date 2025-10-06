@@ -15,3 +15,18 @@ export const validateVoucher = (data: bookcarsTypes.ValidateVoucherPayload): Pro
       { withCredentials: true }
     )
     .then((res) => res.data)
+
+/**
+ * Validate multiple stackable vouchers.
+ *
+ * @param {bookcarsTypes.ValidateStackableVouchersPayload} data
+ * @returns {Promise<any>}
+ */
+export const validateStackableVouchers = (data: bookcarsTypes.ValidateStackableVouchersPayload): Promise<any> =>
+  axiosInstance
+    .post(
+      '/api/validate-stackable-vouchers',
+      data,
+      { withCredentials: true }
+    )
+    .then((res) => res.data)
