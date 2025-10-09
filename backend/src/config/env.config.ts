@@ -619,7 +619,9 @@ export interface Booking extends Document {
   price: number
   originalPrice?: number
   voucher?: Types.ObjectId
+  vouchers?: Types.ObjectId[]
   voucherDiscount?: number
+  vouchersDiscount?: number
   sessionId?: string
   paymentIntentId?: string
   customerId?: string
