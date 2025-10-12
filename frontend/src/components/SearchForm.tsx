@@ -90,20 +90,22 @@ const SearchForm = ({
 
   useEffect(() => {
     if (settings) {
-      const _from = new Date()
+      let _from = new Date()
       if (settings!.minPickupHours < 72) {
-        _from.setDate(_from.getDate() + 3)
+        _from = addHours(_from, 3)
       } else {
         _from.setDate(_from.getDate() + Math.ceil(settings!.minPickupHours / 24) + 1)
+        _from.setHours(10)
+        _from.setMinutes(0)
+        _from.setSeconds(0)
+        _from.setMilliseconds(0)
       }
-      _from.setHours(10)
-      _from.setMinutes(0)
-      _from.setSeconds(0)
-      _from.setMilliseconds(0)
 
-      const _to = new Date(_from)
+      let _to = new Date(_from)
       if (settings!.minRentalHours < 72) {
-        _to.setDate(_to.getDate() + 3)
+        // Add 1 day + 3 hours
+        _to.setDate(_to.getDate() + 1)
+        _to = addHours(_to, 3)
       } else {
         _to.setDate(_to.getDate() + Math.ceil(settings!.minRentalHours / 24) + 1)
       }
@@ -187,6 +189,19 @@ const SearchForm = ({
         setError('from', { message: strings.INVALID_PICK_UP_TIME })
         valid = false
       }
+    }
+
+    if (from && !to) {
+      // Auto-set return date when pickup date is set but return date is not
+      let _to = new Date(from)
+      if (settings.minRentalHours < 72) {
+        // Add 1 day + 3 hours
+        _to.setDate(_to.getDate() + 1)
+        _to = addHours(_to, 3)
+      } else {
+        _to.setDate(_to.getDate() + Math.ceil(settings.minRentalHours / 24) + 1)
+      }
+      setValue('to', _to)
     }
 
     if (from && to) {
