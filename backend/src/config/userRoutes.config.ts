@@ -35,6 +35,10 @@ const routes = {
   updateLicense: '/api/update-license/:id',
   deleteLicense: '/api/delete-license/:id',
   deleteTempLicense: '/api/delete-temp-license/:file',
+  createIC: '/api/create-ic',
+  updateIC: '/api/update-ic/:id',
+  deleteIC: '/api/delete-ic/:id',
+  deleteTempIC: '/api/delete-temp-ic/:file',
 }
 
 export default routes

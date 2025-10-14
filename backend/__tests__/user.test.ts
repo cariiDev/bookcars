@@ -35,6 +35,11 @@ const LICENSE1_PATH = path.join(__dirname, `./contracts/${LICENSE1}`)
 const LICENSE2 = 'contract2.pdf'
 const LICENSE2_PATH = path.join(__dirname, `./contracts/${LICENSE2}`)
 
+const IC1 = 'license1.pdf'
+const IC1_PATH = path.join(__dirname, `./licenses/${IC1}`)
+const IC2 = 'license2.pdf'
+const IC2_PATH = path.join(__dirname, `./licenses/${IC2}`)
+
 let USER1_ID: string
 let USER2_ID: string
 let ADMIN_ID: string
@@ -251,6 +256,10 @@ describe('POST /api/create-user', () => {
     if (!(await helper.pathExists(tempLicense))) {
       await asyncFs.copyFile(LICENSE1_PATH, tempLicense)
     }
+    const tempIc = path.join(env.CDN_TEMP_IC, IC1)
+    if (!(await helper.pathExists(tempIc))) {
+      await asyncFs.copyFile(IC1_PATH, tempIc)
+    }
 
     const contractFileName = `${nanoid()}.pdf`
     const contractFile = path.join(env.CDN_TEMP_CONTRACTS, contractFileName)
@@ -273,7 +282,11 @@ describe('POST /api/create-user', () => {
       location: 'location',
       bio: 'bio',
       avatar: AVATAR1,
+      icNumber: '920625-14-1234',
+      icDocument: IC1,
+      driverLicenseNumber: 'DL123456',
       license: LICENSE1,
+      licenseExpiryDate: new Date(2030, 11, 31),
       contracts,
     }
     let res = await request(app)
@@ -368,11 +381,12 @@ describe('POST /api/create-user', () => {
     expect(userToken?.token.length).toBeGreaterThan(0)
     await userToken?.deleteOne()
 
-    // test success (without avatar and license)
+    // test success (without avatar, license, and IC)
     let email = testHelper.GetRandomEmail()
     payload.email = email
     payload.type = bookcarsTypes.UserType.User
     payload.avatar = undefined
+    payload.icDocument = undefined
     payload.license = undefined
     res = await request(app)
       .post('/api/create-user')
@@ -387,10 +401,11 @@ describe('POST /api/create-user', () => {
     expect(userToken?.token.length).toBeGreaterThan(0)
     await userToken?.deleteOne()
 
-    // test success (avatar and license not found)
+    // test success (avatar, license, and IC not found)
     email = testHelper.GetRandomEmail()
     payload.email = email
     payload.avatar = `${nanoid()}.jpg`
+    payload.icDocument = `${nanoid()}.pdf`
     payload.license = `${nanoid()}.pdf`
     res = await request(app)
       .post('/api/create-user')
@@ -1789,6 +1804,208 @@ describe('POST /api/delete-temp-license/:image', () => {
   })
 })
 
+describe('POST /api/create-ic', () => {
+  it('should create an IC document', async () => {
+    // test success
+    let res = await request(app)
+      .post('/api/create-ic')
+      .attach('file', IC1_PATH)
+    expect(res.statusCode).toBe(200)
+    const filename = res.body as string
+    const filePath = path.join(env.CDN_TEMP_IC, filename)
+    const icExists = await helper.pathExists(filePath)
+    expect(icExists).toBeTruthy()
+    await asyncFs.unlink(filePath)
+
+    // test failure (file not sent)
+    res = await request(app)
+      .post('/api/create-ic')
+    expect(res.statusCode).toBe(400)
+
+    // test failure (filename not valid)
+    const invalidIc = path.join(env.CDN_TEMP_IC, `${nanoid()}`)
+    await asyncFs.copyFile(IC1_PATH, invalidIc)
+    res = await request(app)
+      .post('/api/create-ic')
+      .attach('file', invalidIc)
+    expect(res.statusCode).toBe(400)
+    await asyncFs.unlink(invalidIc)
+  })
+})
+
+describe('POST /api/update-ic/:id', () => {
+  it('should update an IC document', async () => {
+    const token = await testHelper.signinAsUser()
+
+    // test success (no initial IC)
+    let user = await User.findById(USER1_ID)
+    let res = await request(app)
+      .post(`/api/update-ic/${USER1_ID}`)
+      .set(env.X_ACCESS_TOKEN, token)
+      .attach('file', IC1_PATH)
+    expect(res.statusCode).toBe(200)
+    let filename = res.body as string
+    expect(filename).toBeTruthy()
+    expect(await helper.pathExists(path.join(env.CDN_IC, filename))).toBeTruthy()
+    user = await User.findById(USER1_ID)
+    expect(user).toBeTruthy()
+    expect(user?.ic).toBe(filename)
+
+    // test success (initial IC)
+    res = await request(app)
+      .post(`/api/update-ic/${USER1_ID}`)
+      .set(env.X_ACCESS_TOKEN, token)
+      .attach('file', IC2_PATH)
+    expect(res.statusCode).toBe(200)
+    filename = res.body as string
+    expect(filename).toBeTruthy()
+    expect(await helper.pathExists(path.join(env.CDN_IC, filename))).toBeTruthy()
+    user = await User.findById(USER1_ID)
+    expect(filename).toBe(user?.ic)
+
+    // test success (IC file does not exist)
+    user!.ic = `${nanoid()}.pdf`
+    await user?.save()
+    res = await request(app)
+      .post(`/api/update-ic/${USER1_ID}`)
+      .set(env.X_ACCESS_TOKEN, token)
+      .attach('file', IC1_PATH)
+    expect(res.statusCode).toBe(200)
+    filename = res.body as string
+    expect(filename).toBeTruthy()
+    expect(await helper.pathExists(path.join(env.CDN_IC, filename))).toBeTruthy()
+    user = await User.findById(USER1_ID)
+    expect(filename).toBe(user?.ic)
+    user!.ic = filename
+    await user?.save()
+
+    // test failure (file not sent)
+    res = await request(app)
+      .post(`/api/update-ic/${USER1_ID}`)
+      .set(env.X_ACCESS_TOKEN, token)
+    expect(res.statusCode).toBe(400)
+
+    // test failure (filename not valid)
+    const invalidIc = path.join(env.CDN_TEMP_IC, `${nanoid()}`)
+    await asyncFs.copyFile(IC1_PATH, invalidIc)
+    res = await request(app)
+      .post(`/api/update-ic/${USER1_ID}`)
+      .set(env.X_ACCESS_TOKEN, token)
+      .attach('file', invalidIc)
+    expect(res.statusCode).toBe(400)
+    await asyncFs.unlink(invalidIc)
+
+    // test failure (user not found)
+    res = await request(app)
+      .post(`/api/update-ic/${testHelper.GetRandromObjectIdAsString()}`)
+      .set(env.X_ACCESS_TOKEN, token)
+      .attach('file', IC1_PATH)
+    expect(res.statusCode).toBe(204)
+
+    // test failure (user id not valid)
+    res = await request(app)
+      .post('/api/update-ic/0')
+      .set(env.X_ACCESS_TOKEN, token)
+      .attach('file', IC1_PATH)
+    expect(res.statusCode).toBe(400)
+
+    await testHelper.signout(token)
+  })
+})
+
+describe('POST /api/delete-ic/:id', () => {
+  it('should delete an IC document', async () => {
+    const token = await testHelper.signinAsUser()
+
+    // test success
+    let user = await User.findById(USER1_ID)
+    expect(user).toBeTruthy()
+    expect(user?.ic).toBeTruthy()
+    const filename = user?.ic as string
+    let imageExists = await helper.pathExists(path.join(env.CDN_IC, filename))
+    expect(imageExists).toBeTruthy()
+    let res = await request(app)
+      .post(`/api/delete-ic/${USER1_ID}`)
+      .set(env.X_ACCESS_TOKEN, token)
+    expect(res.statusCode).toBe(200)
+    imageExists = await helper.pathExists(path.join(env.CDN_IC, filename))
+    expect(imageExists).toBeFalsy()
+    user = await User.findById(USER1_ID)
+    expect(user?.ic).toBeFalsy()
+
+    // test success (no IC)
+    user = await User.findById(USER1_ID)
+    expect(user).toBeTruthy()
+    user!.ic = undefined
+    await user!.save()
+    res = await request(app)
+      .post(`/api/delete-ic/${USER1_ID}`)
+      .set(env.X_ACCESS_TOKEN, token)
+    expect(res.statusCode).toBe(200)
+
+    // test success (IC with no file)
+    user = await User.findById(USER1_ID)
+    expect(user).toBeTruthy()
+    user!.ic = null
+    await user!.save()
+    res = await request(app)
+      .post(`/api/delete-ic/${USER1_ID}`)
+      .set(env.X_ACCESS_TOKEN, token)
+    expect(res.statusCode).toBe(200)
+
+    // test success (IC with file not found)
+    user = await User.findById(USER1_ID)
+    expect(user).toBeTruthy()
+    user!.ic = `${nanoid()}.pdf`
+    await user!.save()
+    res = await request(app)
+      .post(`/api/delete-ic/${USER1_ID}`)
+      .set(env.X_ACCESS_TOKEN, token)
+    expect(res.statusCode).toBe(200)
+
+    // test failure (user not found)
+    res = await request(app)
+      .post(`/api/delete-ic/${testHelper.GetRandromObjectIdAsString()}`)
+      .set(env.X_ACCESS_TOKEN, token)
+    expect(res.statusCode).toBe(204)
+
+    // test failure (user id not valid)
+    res = await request(app)
+      .post('/api/delete-ic/invalid-id')
+      .set(env.X_ACCESS_TOKEN, token)
+    expect(res.statusCode).toBe(400)
+
+    await testHelper.signout(token)
+  })
+})
+
+describe('POST /api/delete-temp-ic/:file', () => {
+  it('should delete a temporary IC document', async () => {
+    // init
+    const tempImage = path.join(env.CDN_TEMP_IC, IC1)
+    if (!(await helper.pathExists(tempImage))) {
+      await asyncFs.copyFile(IC1_PATH, tempImage)
+    }
+
+    // test success (temp file exists)
+    let res = await request(app)
+      .post(`/api/delete-temp-ic/${IC1}`)
+    expect(res.statusCode).toBe(200)
+    const tempImageExists = await helper.pathExists(tempImage)
+    expect(tempImageExists).toBeFalsy()
+
+    // test success (temp file not found)
+    res = await request(app)
+      .post('/api/delete-temp-ic/unknown.pdf')
+    expect(res.statusCode).toBe(200)
+
+    // test failure (temp file not valid)
+    res = await request(app)
+      .post('/api/delete-temp-ic/unknown')
+    expect(res.statusCode).toBe(400)
+  })
+})
+
 describe('POST /api/delete-users', () => {
   it('should delete users', async () => {
     const token = await testHelper.signinAsAdmin()
@@ -1807,9 +2024,16 @@ describe('POST /api/delete-users', () => {
     let payload: string[] = [USER1_ID, USER2_ID, ADMIN_ID, supplier1Id, supplier2Id]
     const user1 = await User.findById(USER1_ID)
     user1!.avatar = `${nanoid()}.jpg`
+    user1!.ic = `${nanoid()}.pdf`
     user1!.license = `${nanoid()}.pdf`
     await user1?.save()
     const user2 = await User.findById(USER2_ID)
+    const icFilename = `${user2!.id}.pdf`
+    const ic = path.join(env.CDN_IC, icFilename)
+    if (!(await helper.pathExists(ic))) {
+      await asyncFs.copyFile(IC1_PATH, ic)
+    }
+    user2!.ic = icFilename
     const licenseFilename = `${user2!.id}.pdf`
     const license = path.join(env.CDN_LICENSES, licenseFilename)
     if (!(await helper.pathExists(license))) {

@@ -37,6 +37,8 @@ const env = {
   CDN_TEMP_CONTRACTS: String(import.meta.env.VITE_BC_CDN_TEMP_CONTRACTS),
   CDN_LICENSES: String(import.meta.env.VITE_BC_CDN_LICENSES),
   CDN_TEMP_LICENSES: String(import.meta.env.VITE_BC_CDN_TEMP_LICENSES),
+  CDN_IC: String(import.meta.env.VITE_BC_CDN_IC || import.meta.env.VITE_BC_CDN_LICENSES),
+  CDN_TEMP_IC: String(import.meta.env.VITE_BC_CDN_TEMP_IC || import.meta.env.VITE_BC_CDN_TEMP_LICENSES),
   PAGE_OFFSET: 200,
   INFINITE_SCROLL_OFFSET: 40,
   SUPPLIER_IMAGE_WIDTH: Number.parseInt(String(import.meta.env.VITE_BC_SUPPLIER_IMAGE_WIDTH), 10) || 60,

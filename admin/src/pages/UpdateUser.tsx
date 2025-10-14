@@ -31,6 +31,7 @@ import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
 import DatePicker from '@/components/DatePicker'
 import DriverLicense from '@/components/DriverLicense'
+import ICDocument from '@/components/ICDocument'
 import { schema, FormFields } from '@/models/UserForm'
 
 import '@/assets/css/update-user.css'
@@ -160,6 +161,9 @@ const UpdateUser = () => {
               setValue('location', _user.location || '')
               setValue('bio', _user.bio || '')
               setValue('birthDate', _user && _user.birthDate ? new Date(_user.birthDate) : undefined)
+              setValue('icNumber', _user.icNumber || '')
+              setValue('driverLicenseNumber', _user.driverLicenseNumber || '')
+              setValue('licenseExpiryDate', _user && _user.licenseExpiryDate ? new Date(_user.licenseExpiryDate) : undefined)
               setValue('payLater', _user.payLater || false)
               setValue('licenseRequired', _user.licenseRequired || false)
               setValue('minimumRentalDays', _user.minimumRentalDays?.toString() || '')
@@ -219,6 +223,9 @@ const UpdateUser = () => {
         type: data.type,
         avatar,
         birthDate: data.birthDate,
+        icNumber: data.icNumber,
+        driverLicenseNumber: data.driverLicenseNumber,
+        licenseExpiryDate: data.licenseExpiryDate,
         minimumRentalDays: data.minimumRentalDays ? Number(data.minimumRentalDays) : undefined,
         priceChangeRate: data.priceChangeRate ? Number(data.priceChangeRate) : undefined,
         supplierCarLimit: data.supplierCarLimit ? Number(data.supplierCarLimit) : undefined,
@@ -374,7 +381,63 @@ const UpdateUser = () => {
                     <FormHelperText error={!!errors.birthDate}>{errors.birthDate?.message || ''}</FormHelperText>
                   </FormControl>
 
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel>{commonStrings.IC_NUMBER}</InputLabel>
+                    <Input
+                      {...register('icNumber')}
+                      type="text"
+                      autoComplete="off"
+                      placeholder="YYMMDD-PB-###G"
+                      error={!!errors.icNumber}
+                      onChange={() => {
+                        if (errors.icNumber) {
+                          clearErrors('icNumber')
+                        }
+                      }}
+                    />
+                    <FormHelperText error={!!errors.icNumber}>
+                      {errors.icNumber?.message || ''}
+                    </FormHelperText>
+                  </FormControl>
+
+                  <ICDocument user={user} className="driver-license-field" />
+
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel>{commonStrings.DRIVER_LICENSE_NUMBER}</InputLabel>
+                    <Input
+                      {...register('driverLicenseNumber')}
+                      type="text"
+                      autoComplete="off"
+                      error={!!errors.driverLicenseNumber}
+                      onChange={() => {
+                        if (errors.driverLicenseNumber) {
+                          clearErrors('driverLicenseNumber')
+                        }
+                      }}
+                    />
+                    <FormHelperText error={!!errors.driverLicenseNumber}>
+                      {errors.driverLicenseNumber?.message || ''}
+                    </FormHelperText>
+                  </FormControl>
+
                   <DriverLicense user={user} className="driver-license-field" />
+
+                  <FormControl fullWidth margin="dense">
+                    <DatePicker
+                      label={commonStrings.LICENSE_EXPIRY_DATE}
+                      variant="standard"
+                      onChange={(licenseExpiryDate) => {
+                        if (licenseExpiryDate) {
+                          if (errors.licenseExpiryDate) {
+                            clearErrors('licenseExpiryDate')
+                          }
+                          setValue('licenseExpiryDate', licenseExpiryDate, { shouldValidate: true })
+                        }
+                      }}
+                      language={(user && user.language) || env.DEFAULT_LANGUAGE}
+                    />
+                    <FormHelperText error={!!errors.licenseExpiryDate}>{errors.licenseExpiryDate?.message || ''}</FormHelperText>
+                  </FormControl>
                 </>
               )}
 

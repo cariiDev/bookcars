@@ -1819,3 +1819,151 @@ export const deleteTempLicense = async (req: Request, res: Response) => {
     res.status(400).send(i18n.t('ERROR') + err)
   }
 }
+
+/**
+ * Upload an IC document to temp folder.
+ *
+ * @export
+ * @async
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {unknown}
+ */
+export const createIC = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      throw new Error('req.file not found')
+    }
+    if (!req.file.originalname.includes('.')) {
+      throw new Error('File extension not found')
+    }
+
+    const filename = `${nanoid()}${path.extname(req.file.originalname)}`
+    const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
+
+    await asyncFs.writeFile(filepath, req.file.buffer)
+    res.json(filename)
+  } catch (err) {
+    logger.error(`[user.createIC] ${i18n.t('DB_ERROR')}`, err)
+    res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
+
+/**
+* Update an IC document.
+*
+* @export
+* @async
+* @param {Request} req
+* @param {Response} res
+* @returns {unknown}
+*/
+export const updateIC = async (req: Request, res: Response) => {
+  const { id } = req.params
+  const { file } = req
+
+  try {
+    if (!file) {
+      throw new Error('req.file not found')
+    }
+    if (!file.originalname.includes('.')) {
+      throw new Error('File extension not found')
+    }
+    if (!helper.isValidObjectId(id)) {
+      throw new Error('User Id not valid')
+    }
+
+    const user = await User.findOne({ _id: id, type: bookcarsTypes.UserType.User })
+
+    if (user) {
+      if (user.ic) {
+        const icFile = path.join(env.CDN_IC, user.ic)
+        if (await helper.pathExists(icFile)) {
+          await asyncFs.unlink(icFile)
+        }
+      }
+
+      const filename = `ic_${user.id}${path.extname(file.originalname)}`
+      const filepath = path.join(env.CDN_IC, filename)
+
+      await asyncFs.writeFile(filepath, file.buffer)
+
+      user.ic = filename
+      await user.save()
+      res.json(filename)
+      return
+    }
+
+    res.sendStatus(204)
+  } catch (err) {
+    logger.error(`[user.updateIC] ${i18n.t('DB_ERROR')} ${id}`, err)
+    res.status(400).send(i18n.t('DB_ERROR') + err)
+  }
+}
+
+/**
+* Delete an IC document.
+*
+* @export
+* @async
+* @param {Request} req
+* @param {Response} res
+* @returns {unknown}
+*/
+export const deleteIC = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  try {
+    if (!helper.isValidObjectId(id)) {
+      throw new Error('User Id not valid')
+    }
+
+    const user = await User.findOne({ _id: id, type: bookcarsTypes.UserType.User })
+
+    if (user) {
+      if (user.ic) {
+        const icFile = path.join(env.CDN_IC, user.ic)
+        if (await helper.pathExists(icFile)) {
+          await asyncFs.unlink(icFile)
+        }
+        user.ic = null
+      }
+
+      await user.save()
+      res.sendStatus(200)
+      return
+    }
+    res.sendStatus(204)
+  } catch (err) {
+    logger.error(`[user.deleteIC] ${i18n.t('DB_ERROR')} ${id}`, err)
+    res.status(400).send(i18n.t('DB_ERROR') + err)
+  }
+}
+
+/**
+* Delete a temp IC document.
+*
+* @export
+* @async
+* @param {Request} req
+* @param {Response} res
+* @returns {*}
+*/
+export const deleteTempIC = async (req: Request, res: Response) => {
+  const { file } = req.params
+
+  try {
+    if (!file.includes('.')) {
+      throw new Error('Filename not valid')
+    }
+    const icFile = path.join(env.CDN_TEMP_LICENSES, file)
+    if (await helper.pathExists(icFile)) {
+      await asyncFs.unlink(icFile)
+    }
+
+    res.sendStatus(200)
+  } catch (err) {
+    logger.error(`[user.deleteTempIC] ${i18n.t('DB_ERROR')} ${file}`, err)
+    res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
