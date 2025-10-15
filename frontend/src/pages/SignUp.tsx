@@ -28,6 +28,8 @@ import SocialLogin from '@/components/SocialLogin'
 import Footer from '@/components/Footer'
 import { schema, FormFields } from '@/models/SignUpForm'
 import PasswordInput from '@/components/PasswordInput'
+import DriverLicense from '@/components/DriverLicense'
+import ICDocument from '@/components/ICDocument'
 
 import '@/assets/css/signup.css'
 
@@ -73,6 +75,11 @@ const SignUp = () => {
         password: data.password,
         fullName: data.fullName,
         birthDate: data.birthDate,
+        icNumber: data.icNumber,
+        icDocument: data.icDocument,
+        driverLicenseNumber: data.driverLicenseNumber,
+        license: data.license,
+        licenseExpiryDate: data.licenseExpiryDate,
         language: UserService.getLanguage()
       }
 
@@ -171,6 +178,85 @@ const SignUp = () => {
                   language={language}
                 />
                 <FormHelperText error={!!errors.birthDate}>{errors.birthDate?.message || ''}</FormHelperText>
+              </FormControl>
+              <FormControl fullWidth margin="dense" error={!!errors.icNumber}>
+                <InputLabel>{commonStrings.IC_NUMBER}</InputLabel>
+                <OutlinedInput
+                  type="text"
+                  {...register('icNumber')}
+                  label={commonStrings.IC_NUMBER}
+                  autoComplete="off"
+                  placeholder="YYMMDD-PB-###G"
+                  onChange={() => {
+                    if (errors.icNumber) {
+                      clearErrors('icNumber')
+                    }
+                  }}
+                />
+                <FormHelperText error={!!errors.icNumber}>{errors.icNumber?.message || ''}</FormHelperText>
+              </FormControl>
+              <FormControl fullWidth margin="dense">
+                <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'rgba(0, 0, 0, 0.6)', marginBottom: '8px' }}>
+                    {commonStrings.IC_DOCUMENT}
+                  </label>
+                  <ICDocument
+                    variant="outlined"
+                    onUpload={(filename) => {
+                      setValue('icDocument', filename)
+                    }}
+                    onDelete={() => {
+                      setValue('icDocument', undefined)
+                    }}
+                  />
+                </div>
+              </FormControl>
+              <FormControl fullWidth margin="dense" error={!!errors.driverLicenseNumber}>
+                <InputLabel>{commonStrings.DRIVER_LICENSE_NUMBER}</InputLabel>
+                <OutlinedInput
+                  type="text"
+                  {...register('driverLicenseNumber')}
+                  label={commonStrings.DRIVER_LICENSE_NUMBER}
+                  autoComplete="off"
+                  onChange={() => {
+                    if (errors.driverLicenseNumber) {
+                      clearErrors('driverLicenseNumber')
+                    }
+                  }}
+                />
+                <FormHelperText error={!!errors.driverLicenseNumber}>{errors.driverLicenseNumber?.message || ''}</FormHelperText>
+              </FormControl>
+              <FormControl fullWidth margin="dense">
+                <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'rgba(0, 0, 0, 0.6)', marginBottom: '8px' }}>
+                    {commonStrings.DRIVER_LICENSE}
+                  </label>
+                  <DriverLicense
+                    variant="outlined"
+                    onUpload={(filename) => {
+                      setValue('license', filename)
+                    }}
+                    onDelete={() => {
+                      setValue('license', undefined)
+                    }}
+                  />
+                </div>
+              </FormControl>
+              <FormControl fullWidth margin="dense" error={!!errors.licenseExpiryDate}>
+                <DatePicker
+                  label={commonStrings.LICENSE_EXPIRY_DATE}
+                  variant="outlined"
+                  onChange={(licenseExpiryDate) => {
+                    if (licenseExpiryDate) {
+                      if (errors.licenseExpiryDate) {
+                        clearErrors('licenseExpiryDate')
+                      }
+                      setValue('licenseExpiryDate', licenseExpiryDate, { shouldValidate: true })
+                    }
+                  }}
+                  language={language}
+                />
+                <FormHelperText error={!!errors.licenseExpiryDate}>{errors.licenseExpiryDate?.message || ''}</FormHelperText>
               </FormControl>
 
               <PasswordInput

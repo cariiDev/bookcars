@@ -567,3 +567,78 @@ export const deleteTempLicense = (file: string): Promise<number> =>
       { withCredentials: true }
     )
     .then((res) => res.status)
+
+/**
+* Create temporary IC document.
+*
+* @param {Blob} file
+* @returns {Promise<string>}
+*/
+export const createIC = (file: Blob): Promise<string> => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  return axiosInstance
+    .post(
+      '/api/create-ic',
+      formData,
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      },
+    )
+    .then((res) => res.data)
+}
+
+/**
+ * Update IC document.
+ *
+ * @param {string} userId
+ * @param {Blob} file
+ * @returns {Promise<bookcarsTypes.Response<string>>}
+ */
+export const updateIC = (userId: string, file: Blob): Promise<bookcarsTypes.Response<string>> => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  return axiosInstance
+    .post(
+      `/api/update-ic/${userId}`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      },
+    )
+    .then((res) => ({ status: res.status, data: res.data }))
+}
+
+/**
+ * Delete IC document.
+ *
+ * @param {string} userId
+ * @returns {Promise<number>}
+ */
+export const deleteIC = (userId: string): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/delete-ic/${userId}`,
+      null,
+      { withCredentials: true }
+    )
+    .then((res) => res.status)
+
+/**
+* Delete a temporary IC document file.
+*
+* @param {string} file
+* @returns {Promise<number>}
+*/
+export const deleteTempIC = (file: string): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/delete-temp-ic/${encodeURIComponent(file)}`,
+      null,
+      { withCredentials: true }
+    )
+    .then((res) => res.status)

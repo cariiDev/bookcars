@@ -313,6 +313,22 @@ export const CDN_LICENSES = __env__('BC_CDN_LICENSES', true)
 export const CDN_TEMP_LICENSES = __env__('BC_CDN_TEMP_LICENSES', true)
 
 /**
+ * IC documents' cdn folder path.
+ * Falls back to CDN_LICENSES if not set.
+ *
+ * @type {string}
+ */
+export const CDN_IC = __env__('BC_CDN_IC', false) || CDN_LICENSES
+
+/**
+ * IC documents' temp cdn folder path.
+ * Falls back to CDN_TEMP_LICENSES if not set.
+ *
+ * @type {string}
+ */
+export const CDN_TEMP_IC = __env__('BC_CDN_TEMP_IC', false) || CDN_TEMP_LICENSES
+
+/**
  * Backend host.
  *
  * @type {string}
@@ -536,6 +552,10 @@ export interface User extends Document {
   contracts?: bookcarsTypes.Contract[]
   licenseRequired?: boolean
   license?: string | null
+  icNumber?: string
+  ic?: string | null
+  driverLicenseNumber?: string
+  licenseExpiryDate?: Date
   minimumRentalDays?: number
   expireAt?: Date
   priceChangeRate?: number

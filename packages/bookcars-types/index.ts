@@ -298,6 +298,11 @@ export interface SignUpPayload {
   type?: string
   avatar?: string
   birthDate?: number | Date
+  icNumber?: string
+  icDocument?: string
+  driverLicenseNumber?: string
+  license?: string
+  licenseExpiryDate?: Date
 }
 
 export type Contract = { language: string, file: string | null }
@@ -311,6 +316,11 @@ export interface CreateUserPayload {
   type?: string
   avatar?: string
   birthDate?: number | Date
+  icNumber?: string
+  icDocument?: string
+  driverLicenseNumber?: string
+  license?: string
+  licenseExpiryDate?: Date
   language?: string
   password?: string
   verified?: boolean
@@ -320,7 +330,6 @@ export interface CreateUserPayload {
   contracts?: Contract[]
   licenseRequired?: boolean
   minimumRentalDays?: number
-  license?: string
   priceChangeRate?: number
   supplierCarLimit?: number
   notifyAdminOnNewCar?: boolean
@@ -425,6 +434,10 @@ export interface User {
   contracts?: Contract[]
   licenseRequired?: boolean
   license?: string | null
+  icNumber?: string
+  icDocument?: string | null
+  driverLicenseNumber?: string
+  licenseExpiryDate?: Date
   minimumRentalDays?: number
   priceChangeRate?: number
   supplierCarLimit?: number
