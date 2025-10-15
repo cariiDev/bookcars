@@ -226,9 +226,9 @@ const VoucherList = ({
                         {strings.DISCOUNT_TYPE}:
                       </Typography>
                       <Typography variant="body2">
-                        {voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage 
-                          ? `${voucher.discountValue}%` 
-                          : `$${voucher.discountValue}`}
+                        {voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage
+                          ? `${voucher.discountValue}%`
+                          : `${commonStrings.CURRENCY}${voucher.discountValue}`}
                       </Typography>
                     </div>
                     

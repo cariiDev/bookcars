@@ -35,7 +35,7 @@ import {
   Cookie as CookiePolicyIcon,
 } from '@mui/icons-material'
 import { toast } from 'react-toastify'
-import { CircleFlag } from 'react-circle-flags'
+// import { CircleFlag } from 'react-circle-flags'
 import * as bookcarsTypes from ':bookcars-types'
 import env from '@/config/env.config'
 import { strings as commonStrings } from '@/lang/common'
@@ -51,7 +51,7 @@ import { useUserContext, UserContextType } from '@/context/UserContext'
 
 import '@/assets/css/header.css'
 
-const flagHeight = 28
+// const flagHeight = 28
 
 interface HeaderProps {
   hidden?: boolean
@@ -301,10 +301,7 @@ const Header = ({
       {
         env._LANGUAGES.map((language) => (
           <MenuItem onClick={handleLangMenuClose} data-code={language.code} key={language.code}>
-            <div className="language">
-              <CircleFlag countryCode={language.countryCode as string} height={flagHeight} className="flag" title={language.label} />
-              <span>{language.label}</span>
-            </div>
+            <span>{language.label}</span>
           </MenuItem>
         ))
       }
@@ -480,9 +477,7 @@ const Header = ({
               )}
               {isLoaded && (
                 <Button variant="contained" onClick={handleLangMenuOpen} disableElevation className="btn">
-                  <div className="language">
-                    <CircleFlag countryCode={lang?.countryCode as string} height={flagHeight} className="flag" title={lang?.label} />
-                  </div>
+                  <span className="language-code">{lang?.code?.toUpperCase()}</span>
                 </Button>
               )}
               {!hideSignin && !isSignedIn && isLoaded && (
@@ -513,10 +508,7 @@ const Header = ({
                 {PaymentService.getCurrency()}
               </Button>
               <Button variant="contained" onClick={handleLangMenuOpen} disableElevation fullWidth className="btn">
-                <div className="language">
-                  <CircleFlag countryCode={lang?.countryCode as string} height={flagHeight} className="flag" title={lang?.label} />
-                  {/* <span>{lang?.label}</span> */}
-                </div>
+                <span className="language-code">{lang?.code?.toUpperCase()}</span>
               </Button>
               {isSignedIn && (
                 <IconButton onClick={handleNotificationsClick} className="btn">
