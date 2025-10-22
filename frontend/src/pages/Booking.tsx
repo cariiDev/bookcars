@@ -318,6 +318,9 @@ const Booking = () => {
   }
 
   const days = bookcarsHelper.days(from, to)
+  // Calculate hours for short rentals
+  const diffMs = from && to ? (new Date(to)).getTime() - (new Date(from)).getTime() : 0
+  const hours = Math.ceil(diffMs / (1000 * 3600))
 
   return (
     <Layout onLoad={onLoad} strict>
@@ -508,7 +511,12 @@ const Booking = () => {
               <div className="price">
                 <span className="price-days">{helper.getDays(days)}</span>
                 <span className="price-main">{bookcarsHelper.formatPrice(price as number, commonStrings.CURRENCY, language)}</span>
-                <span className="price-day">{`${csStrings.PRICE_PER_DAY} ${bookcarsHelper.formatPrice((price as number) / days, commonStrings.CURRENCY, language)}`}</span>
+                <span className="price-day">
+                  {hours < 24 ?
+                    `${csStrings.PRICE_PER_HOUR} ${bookcarsHelper.formatPrice((price as number) / hours, commonStrings.CURRENCY, language)}` :
+                    `${csStrings.PRICE_PER_DAY} ${bookcarsHelper.formatPrice((price as number) / days, commonStrings.CURRENCY, language)}`
+                  }
+                </span>
               </div>
             </div>
             <CarList

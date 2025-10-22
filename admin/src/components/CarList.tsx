@@ -442,7 +442,7 @@ const CarList = ({
                   <div className="car-info">
                     <div className="car-info-header">
                       <div className="name"><h2>{car.name}</h2></div>
-                      {!hidePrice && <div className="price">{`${bookcarsHelper.formatPrice(car.dailyPrice, commonStrings.CURRENCY, language as string)}${commonStrings.DAILY}`}</div>}
+                      {!hidePrice && <div className="price">{`${bookcarsHelper.formatPrice(car.hourlyPrice || car.dailyPrice, commonStrings.CURRENCY, language as string)}${car.hourlyPrice ? commonStrings.HOURLY : commonStrings.DAILY}`}</div>}
                     </div>
                     <ul className="car-info-list">
                       {car.type !== bookcarsTypes.CarType.Unknown && (

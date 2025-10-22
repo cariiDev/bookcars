@@ -69,6 +69,7 @@ const Car = ({
 
   const [language, setLanguage] = useState('')
   const [days, setDays] = useState(0)
+  const [hours, setHours] = useState(0)
   const [totalPrice, setTotalPrice] = useState(0)
   const [cancellation, setCancellation] = useState('')
   const [amendments, setAmendments] = useState('')
@@ -87,7 +88,12 @@ const Car = ({
       if (from && to) {
         const _totalPrice = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from as Date, to as Date, car.supplier.priceChangeRate || 0))
         setTotalPrice(_totalPrice)
-        setDays(bookcarsHelper.days(from, to))
+        const _days = bookcarsHelper.days(from, to)
+        setDays(_days)
+        // Calculate hours for short rentals
+        const diffMs = (new Date(to)).getTime() - (new Date(from)).getTime()
+        const _hours = Math.ceil(diffMs / (1000 * 3600))
+        setHours(_hours)
       }
     }
 
@@ -222,8 +228,17 @@ const Car = ({
                 <span className="price-days">{helper.getDays(days)}</span>
                 <span className="price-main">{bookcarsHelper.formatPrice(totalPrice, commonStrings.CURRENCY, language)}</span>
                 <span className="price-day">
-                  <span>{`${strings.PRICE_PER_DAY} `}</span>
-                  <span className="price-day-value">{bookcarsHelper.formatPrice(totalPrice / days, commonStrings.CURRENCY, language)}</span>
+                  {hours < 24 ? (
+                    <>
+                      <span>{`${strings.PRICE_PER_HOUR} `}</span>
+                      <span className="price-day-value">{bookcarsHelper.formatPrice(totalPrice / hours, commonStrings.CURRENCY, language)}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{`${strings.PRICE_PER_DAY} `}</span>
+                      <span className="price-day-value">{bookcarsHelper.formatPrice(totalPrice / days, commonStrings.CURRENCY, language)}</span>
+                    </>
+                  )}
                 </span>
                 {
                   car.comingSoon ? (
