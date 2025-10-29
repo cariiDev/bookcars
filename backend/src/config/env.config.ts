@@ -973,13 +973,14 @@ export interface Voucher extends Document {
   discountValue: number
   fundingType: bookcarsTypes.VoucherFundingType
   minimumRentalAmount?: number
+  maximumRentalAmount?: number
   usageLimit?: number
   usageCount: number
   validFrom: Date
   validTo: Date
   isActive: boolean
   supplier?: Types.ObjectId
-  
+
   // Time restrictions
   timeRestrictionEnabled?: boolean
   allowedTimeSlots?: bookcarsTypes.TimeSlot[]

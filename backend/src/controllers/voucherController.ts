@@ -609,6 +609,15 @@ export const validateVoucher = async (req: Request, res: Response) => {
       return
     }
 
+    // Check maximum amount
+    if (voucher.maximumRentalAmount && bookingAmount > voucher.maximumRentalAmount) {
+      res.json({
+        valid: false,
+        message: `Maximum booking amount of RM${voucher.maximumRentalAmount} exceeded`,
+      })
+      return
+    }
+
     // Check if user has already used this voucher (if userId provided)
     if (userId) {
       const previousUsage = await VoucherUsage.findOne({
@@ -1160,6 +1169,15 @@ export const validateStackableVouchers = async (req: Request, res: Response): Pr
     const validationError = validateVoucherInput({ voucherCodes, bookingAmount })
     if (validationError) {
       res.json({ valid: false, message: validationError })
+      return
+    }
+
+    // Check max stack limit of 2 vouchers
+    if (voucherCodes.length > 2) {
+      res.json({
+        valid: false,
+        message: 'Maximum of 2 vouchers can be stacked per booking',
+      })
       return
     }
 

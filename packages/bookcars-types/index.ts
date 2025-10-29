@@ -727,13 +727,14 @@ export interface Voucher {
   discountValue: number
   fundingType: VoucherFundingType
   minimumRentalAmount?: number
+  maximumRentalAmount?: number
   usageLimit?: number
   usageCount: number
   validFrom: Date
   validTo: Date
   isActive: boolean
   supplier?: string | User
-  
+
   // Time restrictions
   timeRestrictionEnabled?: boolean
   allowedTimeSlots?: TimeSlot[]
@@ -751,7 +752,7 @@ export interface Voucher {
   minimumRentalHours?: number // Minimum rental hours required
   freeHoursRatio?: { rent: number; free: number } // For duration-based free hours
   deductCheapestHours?: boolean // Deduct from cheapest time slots first
-  
+
   createdAt?: Date
   updatedAt?: Date
 }
@@ -781,11 +782,12 @@ export interface CreateVoucherPayload {
   discountValue: number
   fundingType: VoucherFundingType
   minimumRentalAmount?: number
+  maximumRentalAmount?: number
   usageLimit?: number
   validFrom: Date
   validTo: Date
   supplier?: string
-  
+
   // Time restrictions
   timeRestrictionEnabled?: boolean
   allowedTimeSlots?: TimeSlot[]
