@@ -658,6 +658,27 @@ describe('Voucher Sub-Features Tests', () => {
       expect(res.body.conflictingVouchers).toEqual([NEW_USER_CODE])
     })
 
+    it('should validate single non-stackable voucher', async () => {
+      // Bug fix: Single voucher should work regardless of isStackable flag
+      const payload: bookcarsTypes.ValidateStackableVouchersPayload = {
+        voucherCodes: [NEW_USER_CODE], // Single non-stackable voucher
+        bookingAmount: 48, // 6 hours * RM8 = RM48
+        userId: USER_ID,
+        carId: BEZZA_CAR_ID,
+        bookingStartTime: new Date(2025, 0, 15, 9, 0, 0).toISOString(),
+        bookingEndTime: new Date(2025, 0, 15, 15, 0, 0).toISOString(), // 6 hours
+      }
+
+      const res = await request(app)
+        .post('/api/validate-stackable-vouchers')
+        .send(payload)
+
+      expect(res.statusCode).toBe(200)
+      expect(res.body.valid).toBe(true)
+      expect(res.body.totalSavings).toBe(16) // 2 free hours * RM8 = RM16
+      expect(res.body.finalAmount).toBe(32) // RM48 - RM16 = RM32
+    })
+
     it('should apply best single voucher when stacking not possible', async () => {
       const payload: bookcarsTypes.ValidateBestVoucherPayload = {
         availableVoucherCodes: [NEW_USER_CODE, MORNING_PROMO_CODE, RENT5_GET1_CODE, WEEKDAY_CODE],

@@ -609,6 +609,15 @@ export const validateVoucher = async (req: Request, res: Response) => {
       return
     }
 
+    // Check maximum amount
+    if (voucher.maximumRentalAmount && bookingAmount > voucher.maximumRentalAmount) {
+      res.json({
+        valid: false,
+        message: `Maximum booking amount of RM${voucher.maximumRentalAmount} exceeded`,
+      })
+      return
+    }
+
     // Check if user has already used this voucher (if userId provided)
     if (userId) {
       const previousUsage = await VoucherUsage.findOne({
@@ -1163,6 +1172,15 @@ export const validateStackableVouchers = async (req: Request, res: Response): Pr
       return
     }
 
+    // Check max stack limit of 2 vouchers
+    if (voucherCodes.length > 2) {
+      res.json({
+        valid: false,
+        message: 'Maximum of 2 vouchers can be stacked per booking',
+      })
+      return
+    }
+
     // Get all vouchers
     const vouchers = await Voucher.find({ code: { $in: voucherCodes }, isActive: true })
 
@@ -1171,17 +1189,19 @@ export const validateStackableVouchers = async (req: Request, res: Response): Pr
       return
     }
 
-    // Check if all vouchers are stackable
-    const nonStackable = vouchers.filter(v => !v.isStackable)
-    if (nonStackable.length > 0) {
-      // For the test expectation, only report the first conflicting voucher
-      const firstConflicting = nonStackable[0]
-      res.json({
-        valid: false,
-        message: `Some vouchers cannot be combined: ${firstConflicting.code}`,
-        conflictingVouchers: [firstConflicting.code]
-      })
-      return
+    // Check if all vouchers are stackable (only if multiple vouchers)
+    if (vouchers.length > 1) {
+      const nonStackable = vouchers.filter(v => !v.isStackable)
+      if (nonStackable.length > 0) {
+        // For the test expectation, only report the first conflicting voucher
+        const firstConflicting = nonStackable[0]
+        res.json({
+          valid: false,
+          message: `Some vouchers cannot be combined: ${firstConflicting.code}`,
+          conflictingVouchers: [firstConflicting.code]
+        })
+        return
+      }
     }
 
     // Validate each voucher individually and calculate combined savings with cumulative validation

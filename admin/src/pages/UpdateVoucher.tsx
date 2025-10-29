@@ -100,6 +100,7 @@ const UpdateVoucher = () => {
         setValue('discountValue', voucherData.discountValue.toString())
         setValue('fundingType', voucherData.fundingType)
         setValue('minimumRentalAmount', voucherData.minimumRentalAmount?.toString() || '')
+        setValue('maximumRentalAmount', voucherData.maximumRentalAmount?.toString() || '')
         setValue('usageLimit', voucherData.usageLimit?.toString() || '')
         setValue('validFrom', new Date(voucherData.validFrom))
         setValue('validTo', new Date(voucherData.validTo))
@@ -147,6 +148,7 @@ const UpdateVoucher = () => {
         discountValue: parseFloat(data.discountValue),
         fundingType: data.fundingType,
         minimumRentalAmount: data.minimumRentalAmount ? parseFloat(data.minimumRentalAmount) : undefined,
+        maximumRentalAmount: data.maximumRentalAmount ? parseFloat(data.maximumRentalAmount) : undefined,
         usageLimit: data.usageLimit ? parseInt(data.usageLimit, 10) : undefined,
         validFrom: data.validFrom,
         validTo: data.validTo,
@@ -301,6 +303,20 @@ const UpdateVoucher = () => {
                   />
                   <FormHelperText error={!!errors.minimumRentalAmount}>
                     {errors.minimumRentalAmount?.message}
+                  </FormHelperText>
+                </FormControl>
+
+                <FormControl fullWidth margin="dense">
+                  <InputLabel>{strings.MAXIMUM_RENTAL_AMOUNT}</InputLabel>
+                  <Input
+                    type="number"
+                    {...register('maximumRentalAmount')}
+                    error={!!errors.maximumRentalAmount}
+                    autoComplete="off"
+                    inputProps={{ step: '0.01', min: '0' }}
+                  />
+                  <FormHelperText error={!!errors.maximumRentalAmount}>
+                    {errors.maximumRentalAmount?.message}
                   </FormHelperText>
                 </FormControl>
 

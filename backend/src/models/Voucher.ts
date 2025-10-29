@@ -45,6 +45,22 @@ const voucherSchema = new Schema<env.Voucher>(
       default: 0,
       min: [0, 'Minimum rental amount must be 0 or greater'],
     },
+    maximumRentalAmount: {
+      type: Number,
+      min: [0, 'Maximum rental amount must be 0 or greater'],
+      validate: {
+        validator: function (this: env.Voucher, maximumRentalAmount?: number) {
+          if (!maximumRentalAmount) {
+            return true
+          }
+          if (!this.minimumRentalAmount) {
+            return true
+          }
+          return maximumRentalAmount >= this.minimumRentalAmount
+        },
+        message: 'Maximum rental amount must be greater than or equal to minimum rental amount',
+      },
+    },
     usageLimit: {
       type: Number,
       min: [1, 'Usage limit must be at least 1'],
