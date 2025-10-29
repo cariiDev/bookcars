@@ -1189,17 +1189,19 @@ export const validateStackableVouchers = async (req: Request, res: Response): Pr
       return
     }
 
-    // Check if all vouchers are stackable
-    const nonStackable = vouchers.filter(v => !v.isStackable)
-    if (nonStackable.length > 0) {
-      // For the test expectation, only report the first conflicting voucher
-      const firstConflicting = nonStackable[0]
-      res.json({
-        valid: false,
-        message: `Some vouchers cannot be combined: ${firstConflicting.code}`,
-        conflictingVouchers: [firstConflicting.code]
-      })
-      return
+    // Check if all vouchers are stackable (only if multiple vouchers)
+    if (vouchers.length > 1) {
+      const nonStackable = vouchers.filter(v => !v.isStackable)
+      if (nonStackable.length > 0) {
+        // For the test expectation, only report the first conflicting voucher
+        const firstConflicting = nonStackable[0]
+        res.json({
+          valid: false,
+          message: `Some vouchers cannot be combined: ${firstConflicting.code}`,
+          conflictingVouchers: [firstConflicting.code]
+        })
+        return
+      }
     }
 
     // Validate each voucher individually and calculate combined savings with cumulative validation
