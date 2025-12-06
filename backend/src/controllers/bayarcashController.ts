@@ -36,11 +36,24 @@ export const createBayarCashPayment = async (req: Request, res: Response) => {
     const callbackUrl = `${helper.trimEnd(env.BACKEND_HOST, '/')}/api/bayarcash/callback`
     const returnUrl = `${helper.trimEnd(env.FRONTEND_HOST, '/')}/payment-status/${bookingId}`
 
+    // Validate payment channel against allowed list
+    const normalizedChannel = Number(paymentChannel)
+    const allowedChannels = env.BAYARCASH_ALLOWED_CHANNELS.length > 0
+      ? env.BAYARCASH_ALLOWED_CHANNELS
+      : Object.values(bayarcash.PAYMENT_CHANNELS) as number[]
+
+    if (Number.isNaN(normalizedChannel) || !allowedChannels.includes(normalizedChannel)) {
+      const msg = `Unsupported BayarCash payment channel: ${paymentChannel}`
+      logger.warn(`[bayarcash.createBayarCashPayment] ${msg}`)
+      res.status(400).send(msg)
+      return
+    }
+
     const paymentIntent = await bayarcash.createPaymentIntent(
       bookingId,
       amount,
       currency,
-      paymentChannel,
+      normalizedChannel,
       payerName,
       payerEmail,
       name,

@@ -619,6 +619,25 @@ export interface CreatePayPalOrderPayload {
   description: string
 }
 
+/**
+ * Available BayarCash payment channels.
+ */
+export const BAYARCASH_PAYMENT_CHANNELS = [
+  1, // FPX (Default payment channel)
+  2, // Manual Bank Transfer
+  3, // Direct Debit (enrollment, maintenance and termination via FPX)
+  4, // FPX Line of Credit
+  5, // DuitNow Online Banking/Wallets
+  6, // DuitNow QR
+  7, // SPayLater (BNPL from Shopee)
+  8, // Boost PayFlex (BNPL from Boost)
+  9, // QRIS Indonesia Online Banking
+  10, // QRIS Indonesia eWallet
+  11, // NETS Singapore
+] as const
+
+export type BayarCashChannel = (typeof BAYARCASH_PAYMENT_CHANNELS)[number]
+
 export interface CreateBayarCashPayload {
   bookingId: string
   amount: number
