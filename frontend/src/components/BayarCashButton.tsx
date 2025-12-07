@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Button, CircularProgress } from '@mui/material'
+import { Button, CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material'
+import type { SelectChangeEvent } from '@mui/material/Select'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import * as BayarCashService from '@/services/BayarCashService'
@@ -7,6 +8,7 @@ import * as BookingService from '@/services/BookingService'
 import * as PaymentService from '@/services/PaymentService'
 import * as UserService from '@/services/UserService'
 import env from '@/config/env.config'
+import { strings as checkoutStrings } from '@/lang/checkout'
 import * as helper from '@/utils/helper'
 
 interface BayarCashButtonProps {
@@ -64,6 +66,14 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
   onError,
 }) => {
   const [processing, setProcessing] = useState(false)
+  const [selectedChannel, setSelectedChannel] = useState<number>(env.BAYARCASH_PAYMENT_CHANNEL)
+
+  const bayarCashChannels = env.BAYARCASH_ALLOWED_CHANNELS?.length ? env.BAYARCASH_ALLOWED_CHANNELS : [env.BAYARCASH_PAYMENT_CHANNEL]
+
+  const handleChannelChange = (event: SelectChangeEvent<number>) => {
+    const channel = Number(event.target.value)
+    setSelectedChannel(channel)
+  }
 
   const handlePayment = async () => {
     if (!isFormValid) {
@@ -140,7 +150,7 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
           bookingId,
           amount,
           currency: PaymentService.getCurrency(),
-          paymentChannel: env.BAYARCASH_PAYMENT_CHANNEL,
+          paymentChannel: selectedChannel,
           payerName: authenticated ? (user?.fullName || '') : (formData.fullName || ''),
           payerEmail: authenticated ? (user?.email || '') : (formData.email || ''),
           payerTelephoneNumber: authenticated ? (user?.phone || '') : (formData.phone || ''),
@@ -175,8 +185,22 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
 
   return (
     <div className="payment-options-container">
+      <FormControl fullWidth margin="normal" size="small" disabled={processing}>
+        <InputLabel id="bayarcash-channel-label">{checkoutStrings.BAYARCASH_CHANNEL_LABEL}</InputLabel>
+        <Select<number>
+          labelId="bayarcash-channel-label"
+          value={selectedChannel}
+          label={checkoutStrings.BAYARCASH_CHANNEL_LABEL}
+          onChange={handleChannelChange}
+        >
+          {bayarCashChannels.map((channel) => (
+            <MenuItem key={channel} value={channel}>{BayarCashService.getPaymentChannelName(channel)}</MenuItem>
+          ))}
+        </Select>
+        <FormHelperText>{checkoutStrings.BAYARCASH_CHANNEL_HELP}</FormHelperText>
+      </FormControl>
       <div className="bayarcash-payment-info">
-        <p>You will be redirected to {BayarCashService.getPaymentChannelName(env.BAYARCASH_PAYMENT_CHANNEL)} to complete your payment.</p>
+        <p>You will be redirected to {BayarCashService.getPaymentChannelName(selectedChannel)} to complete your payment.</p>
       </div>
       <Button
         variant="contained"
@@ -192,7 +216,7 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
             Processing...
           </>
         ) : (
-          `Pay with ${BayarCashService.getPaymentChannelName(env.BAYARCASH_PAYMENT_CHANNEL)}`
+          `Pay with ${BayarCashService.getPaymentChannelName(selectedChannel)}`
         )}
       </Button>
     </div>

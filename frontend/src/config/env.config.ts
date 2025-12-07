@@ -52,6 +52,30 @@ const CURRENCIES: Currency[] = [
   },
 ]
 
+/**
+ * Parse BayarCash allowed channels from env.
+ */
+const parseBayarCashAllowedChannels = (): bookcarsTypes.BayarCashChannel[] => {
+  const raw = String(import.meta.env.VITE_BC_BAYARCASH_ALLOWED_CHANNELS || '')
+  const parsed = raw
+    .split(',')
+    .map((channel) => Number.parseInt(channel.trim(), 10))
+    .filter((channel) => !Number.isNaN(channel) && bookcarsTypes.BAYARCASH_PAYMENT_CHANNELS.includes(channel as bookcarsTypes.BayarCashChannel)) as bookcarsTypes.BayarCashChannel[]
+
+  if (parsed.length === 0) {
+    return [...bookcarsTypes.BAYARCASH_PAYMENT_CHANNELS]
+  }
+
+  return Array.from(new Set(parsed)) as bookcarsTypes.BayarCashChannel[]
+}
+
+const BAYARCASH_ALLOWED_CHANNELS = parseBayarCashAllowedChannels()
+
+const bayarCashDefaultChannel = Number.parseInt(String(import.meta.env.VITE_BC_BAYARCASH_PAYMENT_CHANNEL), 10) || 1
+const BAYARCASH_PAYMENT_CHANNEL = BAYARCASH_ALLOWED_CHANNELS.includes(bayarCashDefaultChannel as bookcarsTypes.BayarCashChannel)
+  ? bayarCashDefaultChannel
+  : BAYARCASH_ALLOWED_CHANNELS[0]
+
 const getPaymentGateway = () => {
   const paymentGateway = String(import.meta.env.VITE_BC_PAYMENT_GATEWAY || 'stripe').toUpperCase()
 
@@ -119,7 +143,8 @@ const env = {
   STRIPE_PUBLISHABLE_KEY: String(import.meta.env.VITE_BC_STRIPE_PUBLISHABLE_KEY),
   PAYPAL_CLIENT_ID: String(import.meta.env.VITE_BC_PAYPAL_CLIENT_ID),
   PAYPAL_DEBUG: (import.meta.env.VITE_BC_PAYPAL_DEBUG && import.meta.env.VITE_BC_PAYPAL_DEBUG.toLowerCase()) === 'true',
-  BAYARCASH_PAYMENT_CHANNEL: Number.parseInt(String(import.meta.env.VITE_BC_BAYARCASH_PAYMENT_CHANNEL), 10) || 1,
+  BAYARCASH_ALLOWED_CHANNELS,
+  BAYARCASH_PAYMENT_CHANNEL,
   SET_LANGUAGE_FROM_IP: (import.meta.env.VITE_BC_SET_LANGUAGE_FROM_IP && import.meta.env.VITE_BC_SET_LANGUAGE_FROM_IP.toLowerCase()) === 'true',
   GOOGLE_ANALYTICS_ENABLED: (import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ENABLED && import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ENABLED.toLowerCase()) === 'true',
   GOOGLE_ANALYTICS_ID: String(import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ID),

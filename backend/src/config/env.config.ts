@@ -440,6 +440,28 @@ export const BAYARCASH_PORTAL_KEY = __env__('BC_BAYARCASH_PORTAL_KEY', false, 'B
 export const BAYARCASH_API_SECRET = __env__('BC_BAYARCASH_API_SECRET', false, 'BAYARCASH_API_SECRET')
 
 /**
+ * BayarCash allowed payment channels.
+ * If not set, all known channels are allowed.
+ *
+ * @type {bookcarsTypes.BayarCashChannel[]}
+ */
+const parseBayarCashAllowedChannels = (): bookcarsTypes.BayarCashChannel[] => {
+  const raw = __env__('BC_BAYARCASH_ALLOWED_CHANNELS', false, '')
+  const parsed = raw
+    .split(',')
+    .map((channel) => Number.parseInt(channel.trim(), 10))
+    .filter((channel) => !Number.isNaN(channel) && bookcarsTypes.BAYARCASH_PAYMENT_CHANNELS.includes(channel as bookcarsTypes.BayarCashChannel)) as bookcarsTypes.BayarCashChannel[]
+
+  if (parsed.length === 0) {
+    return [...bookcarsTypes.BAYARCASH_PAYMENT_CHANNELS]
+  }
+
+  return Array.from(new Set(parsed)) as bookcarsTypes.BayarCashChannel[]
+}
+
+export const BAYARCASH_ALLOWED_CHANNELS = parseBayarCashAllowedChannels()
+
+/**
  * Booking expiration in seconds.
  * Bookings created from checkout with Stripe are temporary and are automatically deleted if the payment checkout session expires.
  *
