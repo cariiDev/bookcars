@@ -24,7 +24,7 @@ interface VoucherInputProps {
   bookingStartTime?: Date
   bookingEndTime?: Date
   userId?: string
-  onVoucherChange?: (voucher: bookcarsTypes.Voucher | null, code: string) => void
+  onVoucherChange?: (voucher: bookcarsTypes.Voucher | null, code: string, discountAmount?: number) => void
   disabled?: boolean
 }
 
@@ -63,7 +63,7 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
       
       if (result.valid && result.voucher) {
         setAppliedVoucher(result.voucher)
-        onVoucherChange?.(result.voucher, voucherCode.trim())
+        onVoucherChange?.(result.voucher, voucherCode.trim(), result.discountAmount)
         helper.info(strings.VOUCHER_APPLIED)
       } else {
         let errorMessage = result.message || strings.VOUCHER_INVALID
@@ -83,12 +83,12 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
         
         setError(errorMessage)
         setAppliedVoucher(null)
-        onVoucherChange?.(null, '')
+        onVoucherChange?.(null, '', undefined)
       }
     } catch (err: any) {
       setError(strings.VOUCHER_INVALID)
       setAppliedVoucher(null)
-      onVoucherChange?.(null, '')
+      onVoucherChange?.(null, '', undefined)
     } finally {
       setLoading(false)
     }
@@ -98,7 +98,7 @@ const VoucherInput: React.FC<VoucherInputProps> = ({
     setVoucherCode('')
     setAppliedVoucher(null)
     setError('')
-    onVoucherChange?.(null, '')
+    onVoucherChange?.(null, '', undefined)
   }
 
   return (

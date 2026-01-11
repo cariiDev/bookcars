@@ -84,12 +84,6 @@ export enum PaymentGateway {
 export enum VoucherDiscountType {
   Percentage = 'percentage',
   FixedAmount = 'fixedAmount',
-  FreeHours = 'freeHours',
-  MorningBookings = 'morningBookings',
-  Rent5Get1 = 'rent5Get1',
-  WeekdayTrips = 'weekdayTrips',
-  HourlyPriceReduction = 'hourlyPriceReduction',
-  DurationBasedFreeHours = 'durationBasedFreeHours',
 }
 
 export enum VoucherFundingType {
@@ -761,17 +755,14 @@ export interface Voucher {
   allowedDaysOfWeek?: number[] // 0-6 (Sunday-Saturday)
   dailyUsageLimit?: number // max hours per day per user
   dailyUsageLimitEnabled?: boolean
+  hourlyDiscountEnabled?: boolean // Apply discount per eligible hour
 
   // Sub-feature fields
   allowedCarModels?: string[] // Car model restrictions (e.g., ['Bezza', 'Saga'])
   maxUsesPerUser?: number // Maximum uses per individual user
-  freeHoursAmount?: number // For FreeHours discount type
 
   // Advanced features
   isStackable?: boolean // Can be combined with other promos
-  minimumRentalHours?: number // Minimum rental hours required
-  freeHoursRatio?: { rent: number; free: number } // For duration-based free hours
-  deductCheapestHours?: boolean // Deduct from cheapest time slots first
 
   createdAt?: Date
   updatedAt?: Date
@@ -814,17 +805,14 @@ export interface CreateVoucherPayload {
   allowedDaysOfWeek?: number[]
   dailyUsageLimit?: number
   dailyUsageLimitEnabled?: boolean
+  hourlyDiscountEnabled?: boolean
 
   // Sub-feature fields
   allowedCarModels?: string[]
   maxUsesPerUser?: number
-  freeHoursAmount?: number
 
   // Advanced features
   isStackable?: boolean
-  minimumRentalHours?: number
-  freeHoursRatio?: { rent: number; free: number }
-  deductCheapestHours?: boolean
 }
 
 export interface UpdateVoucherPayload extends CreateVoucherPayload {
@@ -876,17 +864,9 @@ export interface VoucherUsageResult {
   }
 }
 
-// Advanced voucher validation interfaces
-export interface HourlyBreakdown {
-  hour: string // e.g., "09:00-10:00"
-  originalRate: number
-  discountedRate: number
-}
-
 export interface PromoBreakdown {
   promoName: string
   savings: number
-  freeHours?: number
 }
 
 export interface ValidateStackableVouchersPayload {
@@ -913,22 +893,8 @@ export interface EnhancedVoucherValidationResult {
   discountAmount?: number
   message?: string
 
-  // New User Programme fields
-  freeHoursDeducted?: number
-  newRentalDuration?: number
+  // Optional helper fields
   finalAmount?: number
-  savings?: number
-
-  // Morning Promo fields
-  eligibleHours?: number
-
-  // Rent 5 Get 1 fields
-  freeHours?: number
-  finalRentalHours?: number
-  deductedHours?: HourlyBreakdown[]
-
-  // Weekday Trips fields
-  discountPercentage?: number
 
   // Stackable fields
   totalSavings?: number

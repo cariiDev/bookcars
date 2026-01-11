@@ -70,6 +70,7 @@ export const strings = {
   SATURDAY: 'Saturday',
   DAILY_USAGE_LIMIT: 'Daily Usage Limit (hours)',
   DAILY_USAGE_LIMIT_ENABLED: 'Enable Daily Usage Limit',
+  HOURLY_DISCOUNT_ENABLED: 'Enable Hourly Discount',
   INVALID_TIME_RANGE: 'End hour must be different from start hour',
   ...commonStrings
 }

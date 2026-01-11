@@ -73,6 +73,7 @@ const UpdateVoucher = () => {
   const allowedTimeSlots = useWatch({ control, name: 'allowedTimeSlots' })
   const allowedDaysOfWeek = useWatch({ control, name: 'allowedDaysOfWeek' })
   const dailyUsageLimitEnabled = useWatch({ control, name: 'dailyUsageLimitEnabled' })
+  const hourlyDiscountEnabled = useWatch({ control, name: 'hourlyDiscountEnabled' })
 
 
   useEffect(() => {
@@ -113,6 +114,7 @@ const UpdateVoucher = () => {
         setValue('allowedDaysOfWeek', voucherData.allowedDaysOfWeek || [])
         setValue('dailyUsageLimit', voucherData.dailyUsageLimit?.toString() || '')
         setValue('dailyUsageLimitEnabled', voucherData.dailyUsageLimitEnabled || false)
+        setValue('hourlyDiscountEnabled', voucherData.hourlyDiscountEnabled || false)
       } catch (err) {
         helper.error(err)
         setNoMatch(true)
@@ -160,7 +162,8 @@ const UpdateVoucher = () => {
         allowedTimeSlots: data.allowedTimeSlots || [],
         allowedDaysOfWeek: data.allowedDaysOfWeek || [],
         dailyUsageLimit: data.dailyUsageLimit ? parseInt(data.dailyUsageLimit, 10) : undefined,
-        dailyUsageLimitEnabled: data.dailyUsageLimitEnabled || false
+        dailyUsageLimitEnabled: data.dailyUsageLimitEnabled || false,
+        hourlyDiscountEnabled: data.hourlyDiscountEnabled || false
       }
 
       const status = await VoucherService.update(voucher._id, payload)
@@ -425,6 +428,19 @@ const UpdateVoucher = () => {
                         </FormHelperText>
                       </FormControl>
                     )}
+
+                    <FormControl fullWidth margin="dense">
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={hourlyDiscountEnabled || false}
+                            onChange={(e) => setValue('hourlyDiscountEnabled', e.target.checked)}
+                          />
+                        }
+                        label={strings.HOURLY_DISCOUNT_ENABLED}
+                        className="voucher-switch"
+                      />
+                    </FormControl>
                   </>
                 )}
 

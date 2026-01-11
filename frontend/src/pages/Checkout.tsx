@@ -171,18 +171,20 @@ const Checkout = () => {
     return validator.isMobilePhone(phone)
   }
 
-  const handleVoucherChange = (voucher: bookcarsTypes.Voucher | null, code: string) => {
+  const handleVoucherChange = (voucher: bookcarsTypes.Voucher | null, code: string, discountAmount?: number) => {
     setValue('voucherCode', code)
     setAppliedVoucher(voucher)
 
     const currentPrice = originalPrice || price
 
     if (voucher && currentPrice > 0) {
-      let discountAmount = 0
-      if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
-        discountAmount = currentPrice * (voucher.discountValue / 100)
+      let calculatedDiscount = 0
+      if (typeof discountAmount === 'number') {
+        calculatedDiscount = discountAmount
+      } else if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
+        calculatedDiscount = currentPrice * (voucher.discountValue / 100)
       } else {
-        discountAmount = voucher.discountValue
+        calculatedDiscount = voucher.discountValue
       }
 
       // Apply minimum rental amount validation
@@ -191,7 +193,7 @@ const Checkout = () => {
         return
       }
 
-      const newPrice = Math.max(0, currentPrice - discountAmount)
+      const newPrice = Math.max(0, currentPrice - calculatedDiscount)
       setPrice(newPrice)
     } else if (currentPrice > 0) {
       setPrice(currentPrice)

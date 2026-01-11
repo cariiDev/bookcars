@@ -26,82 +26,46 @@ const calculateEnhancedDiscount = async (
   let discountAmount = 0
   const enhancedFields: any = {}
 
-  const car = carId ? await Car.findById(carId) : null
+  if (voucher.hourlyDiscountEnabled) {
+    if (!bookingStartTime || !bookingEndTime) {
+      return { valid: false, message: 'Booking time is required for hourly discount' }
+    }
+    if (!voucher.allowedTimeSlots || voucher.allowedTimeSlots.length === 0) {
+      return { valid: false, message: 'Voucher time slots are required for hourly discount' }
+    }
+
+    const overlapHours = voucherTimeHelper.calculateAllowedTimeSlotOverlapHours(
+      bookingStartTime,
+      bookingEndTime,
+      voucher.allowedTimeSlots
+    )
+    const eligibleHours = Math.floor(overlapHours)
+
+    if (eligibleHours < 1) {
+      return { valid: false, message: 'No eligible hours for this voucher' }
+    }
+
+    const durationHours = (bookingEndTime.getTime() - bookingStartTime.getTime()) / (1000 * 60 * 60)
+    if (durationHours <= 0) {
+      return { valid: false, message: 'Invalid booking time' }
+    }
+
+    const hourlyRate = bookingAmount / durationHours
+    const eligibleAmount = hourlyRate * eligibleHours
+
+    if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
+      discountAmount = (eligibleAmount * voucher.discountValue) / 100
+    } else {
+      discountAmount = voucher.discountValue * eligibleHours
+    }
+
+    discountAmount = Math.min(discountAmount, eligibleAmount, bookingAmount)
+    enhancedFields.finalAmount = bookingAmount - discountAmount
+
+    return { valid: true, discountAmount, ...enhancedFields }
+  }
 
   switch (voucher.discountType) {
-    case bookcarsTypes.VoucherDiscountType.FreeHours:
-      if (car && car.hourlyPrice && voucher.freeHoursAmount) {
-        const freeHoursValue = voucher.freeHoursAmount * car.hourlyPrice
-        discountAmount = Math.min(freeHoursValue, bookingAmount)
-
-        enhancedFields.freeHoursDeducted = voucher.freeHoursAmount
-        enhancedFields.savings = discountAmount
-
-        if (bookingStartTime && bookingEndTime) {
-          const totalHours = (bookingEndTime.getTime() - bookingStartTime.getTime()) / (1000 * 60 * 60)
-          enhancedFields.newRentalDuration = Math.max(0, totalHours - voucher.freeHoursAmount)
-          enhancedFields.finalAmount = bookingAmount - discountAmount
-        }
-      }
-      break
-
-    case bookcarsTypes.VoucherDiscountType.HourlyPriceReduction:
-      if (bookingStartTime && bookingEndTime && car) {
-        const result = calculateHourlyPriceReduction(
-          bookingStartTime.toISOString(),
-          bookingEndTime.toISOString(),
-          car.hourlyPrice || 0,
-          voucher.discountValue || 3
-        )
-
-        // Check if any hours are eligible
-        if (result.eligibleHours === 0) {
-          return {
-            valid: false,
-            message: 'No hours in this booking qualify for the morning promo discount'
-          }
-        }
-
-        discountAmount = result.totalDiscount
-        enhancedFields.eligibleHours = result.eligibleHours
-        enhancedFields.discountAmount = result.totalDiscount
-        enhancedFields.finalAmount = bookingAmount - result.totalDiscount
-      } else {
-        return { valid: false, message: 'Invalid booking time or car information' }
-      }
-      break
-
-    case bookcarsTypes.VoucherDiscountType.DurationBasedFreeHours:
-      if (bookingStartTime && bookingEndTime && car) {
-        const totalHours = (bookingEndTime.getTime() - bookingStartTime.getTime()) / (1000 * 60 * 60)
-
-        // Check minimum rental hours requirement
-        if (voucher.minimumRentalHours && totalHours < voucher.minimumRentalHours) {
-          return {
-            valid: false,
-            message: `This promo requires a minimum booking of ${voucher.minimumRentalHours} hours`
-          }
-        }
-
-        const result = calculateDurationBasedFreeHours(
-          bookingStartTime.toISOString(),
-          bookingEndTime.toISOString(),
-          car,
-          voucher
-        )
-        discountAmount = result.totalDiscount
-        enhancedFields.freeHours = result.freeHours
-        enhancedFields.finalRentalHours = result.finalRentalHours
-        enhancedFields.savings = result.totalDiscount
-        enhancedFields.finalAmount = bookingAmount - result.totalDiscount
-        if (result.deductedHours) {
-          enhancedFields.deductedHours = result.deductedHours
-        }
-      } else {
-        return { valid: false, message: 'Invalid booking time or car information' }
-      }
-      break
-
     case bookcarsTypes.VoucherDiscountType.Percentage:
       // For Weekday Trips voucher
       if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage &&
@@ -129,134 +93,17 @@ const calculateEnhancedDiscount = async (
       }
 
       discountAmount = (bookingAmount * voucher.discountValue) / 100
-      enhancedFields.discountPercentage = voucher.discountValue
       enhancedFields.discountAmount = discountAmount
       enhancedFields.finalAmount = bookingAmount - discountAmount
       break
 
     default:
       discountAmount = Math.min(voucher.discountValue, bookingAmount)
+      enhancedFields.finalAmount = bookingAmount - discountAmount
       break
   }
 
   return { valid: true, discountAmount, ...enhancedFields }
-}
-
-/**
- * Calculate hourly price reduction for time-based vouchers
- */
-const calculateHourlyPriceReduction = (
-  startTime: string,
-  endTime: string,
-  hourlyRate: number,
-  reductionAmount: number
-) => {
-  const start = new Date(startTime)
-  const end = new Date(endTime)
-  let eligibleHours = 0
-  let totalDiscount = 0
-
-  // Calculate fractional hours more precisely
-  let currentTime = new Date(start)
-
-  while (currentTime < end) {
-    const hour = currentTime.getHours()
-    const nextHour = new Date(Math.min(
-      currentTime.getTime() + (60 - currentTime.getMinutes()) * 60 * 1000, // End of current hour
-      end.getTime() // End of booking
-    ))
-
-    // Calculate actual duration for this hour segment
-    const segmentDuration = (nextHour.getTime() - currentTime.getTime()) / (1000 * 60 * 60)
-
-    // Check if hour is eligible (23:00-24:00, 00:00-10:00)
-    if (hour >= 23 || hour < 10) {
-      eligibleHours += segmentDuration
-      totalDiscount += reductionAmount * segmentDuration
-    }
-
-    // Move to next hour boundary
-    currentTime = new Date(currentTime)
-    currentTime.setHours(currentTime.getHours() + 1)
-    currentTime.setMinutes(0)
-    currentTime.setSeconds(0)
-    currentTime.setMilliseconds(0)
-  }
-
-  return { eligibleHours, totalDiscount }
-}
-
-/**
- * Calculate duration-based free hours
- */
-const calculateDurationBasedFreeHours = (
-  startTime: string,
-  endTime: string,
-  car: any,
-  voucher: any
-) => {
-  const totalHours = (new Date(endTime).getTime() - new Date(startTime).getTime()) / (1000 * 60 * 60)
-
-  let freeHours = 0
-  if (voucher.freeHoursRatio) {
-    // Use ratio from voucher (e.g., rent 5 get 1)
-    freeHours = Math.floor(totalHours / voucher.freeHoursRatio.rent) * voucher.freeHoursRatio.free
-  } else {
-    // Default: 1 free hour for every 6 hours
-    freeHours = Math.floor(totalHours / 6)
-  }
-
-  const finalRentalHours = totalHours - freeHours
-  const hourlyRate = car.hourlyPrice || 0
-
-  // Calculate which hours to deduct (cheapest first if enabled)
-  let deductedHours = null
-  let totalDiscount = freeHours * hourlyRate
-
-  if (voucher.deductCheapestHours && freeHours > 0) {
-    deductedHours = calculateCheapestHours(startTime, endTime, hourlyRate, freeHours)
-    // Calculate discount based on actual deducted hour rates
-    totalDiscount = deductedHours.reduce((sum: number, hour: any) => sum + hour.discountedRate, 0)
-  }
-
-  return { freeHours, finalRentalHours, totalDiscount, deductedHours }
-}
-
-/**
- * Calculate cheapest hours to deduct
- */
-const calculateCheapestHours = (
-  startTime: string,
-  endTime: string,
-  baseRate: number,
-  hoursToDeduct: number
-) => {
-  const hours = []
-  const start = new Date(startTime)
-  const end = new Date(endTime)
-
-  // Build hour breakdown with rates (considering morning promo)
-  for (let current = new Date(start); current < end; current.setHours(current.getHours() + 1)) {
-    const hour = current.getHours()
-    const nextHour = hour === 23 ? 0 : hour + 1
-    const hourStr = `${hour.toString().padStart(2, '0')}:00-${nextHour.toString().padStart(2, '0')}:00`
-
-    let discountedRate = baseRate
-    // Apply morning promo discount to eligible hours
-    if (hour >= 23 || hour < 10) {
-      discountedRate = baseRate - 3 // RM3 reduction
-    }
-
-    hours.push({
-      hour: hourStr,
-      originalRate: baseRate,
-      discountedRate: Math.max(0, discountedRate)
-    })
-  }
-
-  // Sort by discounted rate (cheapest first) and return the required number
-  hours.sort((a, b) => a.discountedRate - b.discountedRate)
-  return hours.slice(0, hoursToDeduct)
 }
 
 /**
@@ -288,6 +135,7 @@ export const create = async (req: Request, res: Response) => {
       discountValue: body.discountValue,
       fundingType: body.fundingType,
       minimumRentalAmount: body.minimumRentalAmount || 0,
+      maximumRentalAmount: body.maximumRentalAmount,
       usageLimit: body.usageLimit,
       usageCount: 0,
       validFrom: body.validFrom,
@@ -301,17 +149,14 @@ export const create = async (req: Request, res: Response) => {
       allowedDaysOfWeek: body.allowedDaysOfWeek || [],
       dailyUsageLimit: body.dailyUsageLimit,
       dailyUsageLimitEnabled: body.dailyUsageLimitEnabled || false,
+      hourlyDiscountEnabled: body.hourlyDiscountEnabled || false,
 
       // Sub-feature fields
       allowedCarModels: body.allowedCarModels || [],
       maxUsesPerUser: body.maxUsesPerUser,
-      freeHoursAmount: body.freeHoursAmount,
 
       // Advanced features
       isStackable: body.isStackable || false,
-      minimumRentalHours: body.minimumRentalHours,
-      freeHoursRatio: body.freeHoursRatio,
-      deductCheapestHours: body.deductCheapestHours || false,
     })
 
     await voucher.save()
@@ -361,6 +206,7 @@ export const update = async (req: Request, res: Response) => {
         discountValue: body.discountValue,
         fundingType: body.fundingType,
         minimumRentalAmount: body.minimumRentalAmount || 0,
+        maximumRentalAmount: body.maximumRentalAmount,
         usageLimit: body.usageLimit,
         validFrom: body.validFrom,
         validTo: body.validTo,
@@ -373,17 +219,14 @@ export const update = async (req: Request, res: Response) => {
         allowedDaysOfWeek: body.allowedDaysOfWeek || [],
         dailyUsageLimit: body.dailyUsageLimit,
         dailyUsageLimitEnabled: body.dailyUsageLimitEnabled || false,
+        hourlyDiscountEnabled: body.hourlyDiscountEnabled || false,
 
         // Sub-feature fields
         allowedCarModels: body.allowedCarModels || [],
         maxUsesPerUser: body.maxUsesPerUser,
-        freeHoursAmount: body.freeHoursAmount,
 
         // Advanced features
         isStackable: body.isStackable || false,
-        minimumRentalHours: body.minimumRentalHours,
-        freeHoursRatio: body.freeHoursRatio,
-        deductCheapestHours: body.deductCheapestHours || false,
       },
       { new: true }
     )
@@ -633,9 +476,8 @@ export const validateVoucher = async (req: Request, res: Response) => {
       }
     }
 
-    // Time restriction validations (skip for HourlyPriceReduction as it handles time validation internally)
-    if (voucher.timeRestrictionEnabled && bookingStartTime && bookingEndTime &&
-        voucher.discountType !== bookcarsTypes.VoucherDiscountType.HourlyPriceReduction) {
+    // Time restriction validations
+    if (voucher.timeRestrictionEnabled && bookingStartTime && bookingEndTime) {
       const startTime = new Date(bookingStartTime)
       const endTime = new Date(bookingEndTime)
       const errorMessages = voucherTimeHelper.getTimeRestrictionErrorMessages()
@@ -796,7 +638,7 @@ export const applyVoucher = async (req: Request, res: Response) => {
     const voucher = await Voucher.findOne({
       code: voucherCode.toString().trim().toUpperCase(),
       isActive: true
-    })
+    }).session(session)
 
     if (!voucher) {
       throw new Error('Invalid voucher code')
@@ -813,9 +655,54 @@ export const applyVoucher = async (req: Request, res: Response) => {
       throw new Error('Voucher usage limit exceeded')
     }
 
-    // Check minimum amount
-    if (voucher.minimumRentalAmount && booking.price < voucher.minimumRentalAmount) {
-      throw new Error(`Minimum booking amount of $${voucher.minimumRentalAmount} required`)
+    // Check car model restrictions
+    if (voucher.allowedCarModels && voucher.allowedCarModels.length > 0) {
+      const car = await Car.findById(booking.car)
+      if (!car) {
+        throw new Error('Car not found')
+      }
+      if (car.carModel && !voucher.allowedCarModels.includes(car.carModel)) {
+        throw new Error(`This voucher is only valid for ${voucher.allowedCarModels.join(' and ')} cars`)
+      }
+    }
+
+    // Check max uses per user
+    if (voucher.maxUsesPerUser) {
+      const userUsageCount = await VoucherUsage.countDocuments({
+        voucher: voucher._id,
+        user: currentUserId,
+      }).session(session)
+      if (userUsageCount >= voucher.maxUsesPerUser) {
+        throw new Error('This voucher is limited to one use per user')
+      }
+    }
+
+    // Weekday percentage voucher checks
+    if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage &&
+        voucher.allowedDaysOfWeek && voucher.allowedDaysOfWeek.length > 0) {
+      if (!booking.from || !booking.to) {
+        throw new Error('Booking time is required for this voucher')
+      }
+      const startDay = new Date(booking.from).getDay()
+      const endDay = new Date(booking.to).getDay()
+      if (!voucher.allowedDaysOfWeek.includes(startDay) ||
+          (startDay !== endDay && !voucher.allowedDaysOfWeek.includes(endDay))) {
+        throw new Error('This voucher is only valid for weekday bookings (Monday-Friday)')
+      }
+      if (voucher.minimumRentalAmount && booking.price < voucher.minimumRentalAmount) {
+        throw new Error(`This voucher requires a minimum booking amount of RM${voucher.minimumRentalAmount}`)
+      }
+    }
+
+    // Check minimum amount (for non-weekday vouchers)
+    if (voucher.minimumRentalAmount && booking.price < voucher.minimumRentalAmount &&
+        (!voucher.allowedDaysOfWeek || voucher.allowedDaysOfWeek.length === 0)) {
+      throw new Error(`Minimum booking amount of RM${voucher.minimumRentalAmount} required`)
+    }
+
+    // Check maximum amount
+    if (voucher.maximumRentalAmount && booking.price > voucher.maximumRentalAmount) {
+      throw new Error(`Maximum booking amount of RM${voucher.maximumRentalAmount} exceeded`)
     }
 
     // Check if user has already used this voucher
@@ -842,7 +729,8 @@ export const applyVoucher = async (req: Request, res: Response) => {
       }
 
       // Check allowed days of week
-      if (voucher.allowedDaysOfWeek && voucher.allowedDaysOfWeek.length > 0) {
+      if (voucher.allowedDaysOfWeek && voucher.allowedDaysOfWeek.length > 0 &&
+          !(voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage && voucher.allowedDaysOfWeek.length > 0)) {
         if (!voucherTimeHelper.isBookingWithinAllowedDays(startTime, endTime, voucher.allowedDaysOfWeek)) {
           throw new Error(errorMessages.INVALID_DAY_OF_WEEK)
         }
@@ -874,35 +762,44 @@ export const applyVoucher = async (req: Request, res: Response) => {
 
     // Calculate discount
     let discountAmount: number
-    if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
+    if (voucher.hourlyDiscountEnabled) {
+      if (!booking.from || !booking.to) {
+        throw new Error('Booking time is required for hourly discount')
+      }
+      if (!voucher.allowedTimeSlots || voucher.allowedTimeSlots.length === 0) {
+        throw new Error('Voucher time slots are required for hourly discount')
+      }
+
+      const startTime = new Date(booking.from)
+      const endTime = new Date(booking.to)
+      const overlapHours = voucherTimeHelper.calculateAllowedTimeSlotOverlapHours(
+        startTime,
+        endTime,
+        voucher.allowedTimeSlots
+      )
+      const eligibleHours = Math.floor(overlapHours)
+
+      if (eligibleHours < 1) {
+        throw new Error('No eligible hours for this voucher')
+      }
+
+      const durationHours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60)
+      if (durationHours <= 0) {
+        throw new Error('Invalid booking time')
+      }
+
+      const hourlyRate = booking.price / durationHours
+      const eligibleAmount = hourlyRate * eligibleHours
+
+      if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
+        discountAmount = (eligibleAmount * voucher.discountValue) / 100
+      } else {
+        discountAmount = voucher.discountValue * eligibleHours
+      }
+
+      discountAmount = Math.min(discountAmount, eligibleAmount, booking.price)
+    } else if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
       discountAmount = (booking.price * voucher.discountValue) / 100
-    } else if (voucher.discountType === bookcarsTypes.VoucherDiscountType.FreeHours) {
-      // For free hours, calculate discount based on car's hourly rate
-      if (voucher.freeHoursAmount) {
-        const car = await Car.findById(booking.car)
-        if (car && car.hourlyPrice) {
-          const freeHoursValue = voucher.freeHoursAmount * car.hourlyPrice
-          discountAmount = Math.min(freeHoursValue, booking.price)
-        } else {
-          discountAmount = 0
-        }
-      } else {
-        discountAmount = 0
-      }
-    } else if (voucher.discountType === bookcarsTypes.VoucherDiscountType.MorningBookings) {
-      // Morning Bookings: 20% discount
-      discountAmount = (booking.price * 20) / 100
-    } else if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Rent5Get1) {
-      // Rent 5 Get 1: Calculate 1 free day based on car's daily price
-      const car = await Car.findById(booking.car)
-      if (car && car.dailyPrice) {
-        discountAmount = Math.min(car.dailyPrice, booking.price)
-      } else {
-        discountAmount = 0
-      }
-    } else if (voucher.discountType === bookcarsTypes.VoucherDiscountType.WeekdayTrips) {
-      // Weekday Trips: 15% discount
-      discountAmount = (booking.price * 15) / 100
     } else {
       discountAmount = Math.min(voucher.discountValue, booking.price)
     }
@@ -1023,6 +920,11 @@ export const removeVoucher = async (req: Request, res: Response) => {
       throw new Error('No voucher applied to this booking')
     }
 
+    const voucher = await Voucher.findById(booking.voucher).session(session)
+    if (!voucher) {
+      throw new Error('Voucher not found')
+    }
+
     // Remove voucher usage record
     await VoucherUsage.findOneAndDelete({ booking: booking._id }, { session })
 
@@ -1032,6 +934,20 @@ export const removeVoucher = async (req: Request, res: Response) => {
       { $inc: { usageCount: -1 } },
       { session }
     )
+
+    // Update daily usage tracking if enabled
+    if (voucher.dailyUsageLimitEnabled && voucher.dailyUsageLimit && booking.from && booking.to) {
+      const startTime = new Date(booking.from)
+      const endTime = new Date(booking.to)
+      const bookingDurationHours = voucherTimeHelper.calculateBookingDurationHours(startTime, endTime)
+
+      await voucherTimeHelper.decrementDailyUsageTracking(
+        voucher._id as string,
+        currentUserId,
+        startTime,
+        bookingDurationHours
+      )
+    }
 
     // Restore original booking price
     if (booking.originalPrice) {
@@ -1241,20 +1157,16 @@ export const validateStackableVouchers = async (req: Request, res: Response): Pr
       totalSavings += savings
       remainingAmount -= savings
 
-      let promoName = 'Unknown Promo'
-      if (voucher.discountType === bookcarsTypes.VoucherDiscountType.HourlyPriceReduction) {
-        promoName = 'Morning Bookings Promo'
-      } else if (voucher.discountType === bookcarsTypes.VoucherDiscountType.DurationBasedFreeHours) {
-        promoName = 'Rent 5 Get 1'
-      }
+      const promoName = voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage
+        ? 'Percentage Voucher'
+        : 'Fixed Amount Voucher'
 
       // Debug logging removed
 
       promoBreakdown.push({
         promoName,
         code: voucher.code,
-        savings,
-        freeHours: validationResult.freeHours
+        savings
       })
     }
 

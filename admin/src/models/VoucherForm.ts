@@ -8,12 +8,6 @@ export const schema = z.object({
   discountType: z.enum([
     bookcarsTypes.VoucherDiscountType.Percentage,
     bookcarsTypes.VoucherDiscountType.FixedAmount,
-    bookcarsTypes.VoucherDiscountType.FreeHours,
-    bookcarsTypes.VoucherDiscountType.MorningBookings,
-    bookcarsTypes.VoucherDiscountType.Rent5Get1,
-    bookcarsTypes.VoucherDiscountType.WeekdayTrips,
-    bookcarsTypes.VoucherDiscountType.HourlyPriceReduction,
-    bookcarsTypes.VoucherDiscountType.DurationBasedFreeHours
   ]),
   discountValue: z.string().refine((val) => {
     const num = parseFloat(val)
@@ -36,7 +30,8 @@ export const schema = z.object({
   })).optional(),
   allowedDaysOfWeek: z.array(z.number().min(0).max(6)).optional(),
   dailyUsageLimit: z.string().refine((val) => !val || (!isNaN(parseInt(val, 10)) && parseInt(val, 10) > 0), { message: commonStrings.FIELD_NOT_VALID }).optional(),
-  dailyUsageLimitEnabled: z.boolean().optional()
+  dailyUsageLimitEnabled: z.boolean().optional(),
+  hourlyDiscountEnabled: z.boolean().optional()
 }).refine((data) => {
   // Check if percentage discount doesn't exceed 100%
   if (data.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
@@ -47,6 +42,16 @@ export const schema = z.object({
 }, {
   message: strings.PERCENTAGE_MAX_100,
   path: ['discountValue']
+}).refine((data) => {
+  // Require supplier for supplier/co-funded vouchers
+  if (data.fundingType === bookcarsTypes.VoucherFundingType.Supplier ||
+      data.fundingType === bookcarsTypes.VoucherFundingType.CoFunded) {
+    return !!data.supplier && data.supplier.trim().length > 0
+  }
+  return true
+}, {
+  message: commonStrings.FIELD_NOT_VALID,
+  path: ['supplier']
 }).refine((data) => {
   // Check if validTo is after validFrom
   return data.validTo > data.validFrom

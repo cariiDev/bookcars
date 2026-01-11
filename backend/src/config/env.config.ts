@@ -1009,17 +1009,14 @@ export interface Voucher extends Document {
   allowedDaysOfWeek?: number[]
   dailyUsageLimit?: number
   dailyUsageLimitEnabled?: boolean
+  hourlyDiscountEnabled?: boolean
 
   // Sub-feature fields
   allowedCarModels?: string[]
   maxUsesPerUser?: number
-  freeHoursAmount?: number
 
   // Advanced features
   isStackable?: boolean
-  minimumRentalHours?: number
-  freeHoursRatio?: { rent: number; free: number }
-  deductCheapestHours?: boolean
 }
 
 /**

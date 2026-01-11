@@ -71,7 +71,8 @@ const CreateVoucher = () => {
       allowedTimeSlots: [],
       allowedDaysOfWeek: [],
       dailyUsageLimit: '',
-      dailyUsageLimitEnabled: false
+      dailyUsageLimitEnabled: false,
+      hourlyDiscountEnabled: false
     }
   })
 
@@ -87,6 +88,7 @@ const CreateVoucher = () => {
   const allowedTimeSlots = useWatch({ control, name: 'allowedTimeSlots' })
   const allowedDaysOfWeek = useWatch({ control, name: 'allowedDaysOfWeek' })
   const dailyUsageLimitEnabled = useWatch({ control, name: 'dailyUsageLimitEnabled' })
+  const hourlyDiscountEnabled = useWatch({ control, name: 'hourlyDiscountEnabled' })
 
   const onLoad = (_user?: bookcarsTypes.User) => {
     if (_user && _user.verified) {
@@ -116,7 +118,8 @@ const CreateVoucher = () => {
         allowedTimeSlots: data.allowedTimeSlots || [],
         allowedDaysOfWeek: data.allowedDaysOfWeek || [],
         dailyUsageLimit: data.dailyUsageLimit ? parseInt(data.dailyUsageLimit, 10) : undefined,
-        dailyUsageLimitEnabled: data.dailyUsageLimitEnabled || false
+        dailyUsageLimitEnabled: data.dailyUsageLimitEnabled || false,
+        hourlyDiscountEnabled: data.hourlyDiscountEnabled || false
       }
 
       const voucher = await VoucherService.create(payload)
@@ -377,6 +380,19 @@ const CreateVoucher = () => {
                         </FormHelperText>
                       </FormControl>
                     )}
+
+                    <FormControl fullWidth margin="dense">
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={hourlyDiscountEnabled || false}
+                            onChange={(e) => setValue('hourlyDiscountEnabled', e.target.checked)}
+                          />
+                        }
+                        label={strings.HOURLY_DISCOUNT_ENABLED}
+                        className="voucher-switch"
+                      />
+                    </FormControl>
                   </>
                 )}
 
