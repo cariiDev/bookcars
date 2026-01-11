@@ -69,6 +69,8 @@ export const calculateAllowedTimeSlotOverlapHours = (
 
   const bookingStart = getTimeZonedDate(bookingStartTime)
   const bookingEnd = getTimeZonedDate(bookingEndTime)
+  bookingStart.setUTCSeconds(0, 0)
+  bookingEnd.setUTCSeconds(0, 0)
   let overlapMsTotal = 0
 
   for (let day = new Date(bookingStart); day <= bookingEnd; day.setUTCDate(day.getUTCDate() + 1)) {
