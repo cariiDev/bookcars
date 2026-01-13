@@ -139,6 +139,9 @@ const userSchema = new Schema<env.User>(
       type: String,
       trim: true,
     },
+    studentIdDocument: {
+      type: String,
+    },
     minimumRentalDays: {
       type: Number,
     },

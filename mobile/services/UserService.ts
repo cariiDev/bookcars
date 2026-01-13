@@ -617,3 +617,90 @@ export const deleteTempLicense = (file: string): Promise<number> =>
       null,
     )
     .then((res) => res.status)
+
+/**
+* Create temporary student ID document.
+*
+* @param {BlobInfo} file
+* @returns {Promise<string>}
+*/
+export const createStudentIdDocument = (file: BlobInfo): Promise<string> => {
+  const uri = Platform.OS === 'android' ? file.uri : file.uri.replace('file://', '')
+  const formData = new FormData()
+  formData.append('file', {
+    uri,
+    name: file.name,
+    type: file.type,
+  } as any)
+
+  return axiosInstance
+    .post(
+      '/api/create-student-id-document',
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    )
+    .then((res) => res.data)
+}
+
+/**
+ * Update student ID document.
+ *
+ * @param {string} userId
+ * @param {BlobInfo} file
+ * @returns {Promise<bookcarsTypes.Response<string>>}
+ */
+export const updateStudentIdDocument = async (userId: string, file: BlobInfo): Promise<bookcarsTypes.Response<string>> => {
+  const uri = Platform.OS === 'android' ? file.uri : file.uri.replace('file://', '')
+  const formData = new FormData()
+  formData.append('file', {
+    uri,
+    name: file.name,
+    type: file.type,
+  } as any)
+
+  const headers = await authHeader()
+
+  return axiosInstance
+    .post(
+      `/api/update-student-id-document/${userId}`,
+      formData,
+      {
+        headers: {
+          ...headers,
+          'Content-Type': 'multipart/form-data'
+        },
+      },
+    )
+    .then((res) => ({ status: res.status, data: res.data }))
+}
+
+/**
+ * Delete student ID document.
+ *
+ * @param {string} userId
+ * @returns {Promise<number>}
+ */
+export const deleteStudentIdDocument = async (userId: string): Promise<number> => {
+  const headers = await authHeader()
+  return axiosInstance
+    .post(
+      `/api/delete-student-id-document/${userId}`,
+      null,
+      { headers }
+    )
+    .then((res) => res.status)
+}
+
+/**
+* Delete a temporary student ID document file.
+*
+* @param {string} file
+* @returns {Promise<number>}
+*/
+export const deleteTempStudentIdDocument = (file: string): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/delete-temp-student-id-document/${encodeURIComponent(file)}`,
+      null,
+    )
+    .then((res) => res.status)

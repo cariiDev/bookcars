@@ -1152,6 +1152,7 @@ export const getUser = async (req: Request, res: Response) => {
       licenseRequired: 1,
       license: 1,
       studentId: 1,
+      studentIdDocument: 1,
       minimumRentalDays: 1,
       priceChangeRate: 1,
       supplierCarLimit: 1,
@@ -1967,6 +1968,154 @@ export const deleteTempIC = async (req: Request, res: Response) => {
     res.sendStatus(200)
   } catch (err) {
     logger.error(`[user.deleteTempIC] ${i18n.t('DB_ERROR')} ${file}`, err)
+    res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
+
+/**
+* Upload a student ID document to temp folder.
+*
+* @export
+* @async
+* @param {Request} req
+* @param {Response} res
+* @returns {unknown}
+*/
+export const createStudentIdDocument = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      throw new Error('req.file not found')
+    }
+    if (!req.file.originalname.includes('.')) {
+      throw new Error('File extension not found')
+    }
+
+    const filename = `${nanoid()}${path.extname(req.file.originalname)}`
+    const filepath = path.join(env.CDN_TEMP_STUDENT_IDS, filename)
+
+    await asyncFs.writeFile(filepath, req.file.buffer)
+    res.json(filename)
+  } catch (err) {
+    logger.error(`[user.createStudentIdDocument] ${i18n.t('DB_ERROR')}`, err)
+    res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
+
+/**
+* Update a student ID document.
+*
+* @export
+* @async
+* @param {Request} req
+* @param {Response} res
+* @returns {unknown}
+*/
+export const updateStudentIdDocument = async (req: Request, res: Response) => {
+  const { id } = req.params
+  const { file } = req
+
+  try {
+    if (!file) {
+      throw new Error('req.file not found')
+    }
+    if (!file.originalname.includes('.')) {
+      throw new Error('File extension not found')
+    }
+    if (!helper.isValidObjectId(id)) {
+      throw new Error('User Id not valid')
+    }
+
+    const user = await User.findOne({ _id: id, type: bookcarsTypes.UserType.User })
+
+    if (user) {
+      if (user.studentIdDocument) {
+        const studentIdFile = path.join(env.CDN_STUDENT_IDS, user.studentIdDocument)
+        if (await helper.pathExists(studentIdFile)) {
+          await asyncFs.unlink(studentIdFile)
+        }
+      }
+
+      const filename = `student_id_${user.id}${path.extname(file.originalname)}`
+      const filepath = path.join(env.CDN_STUDENT_IDS, filename)
+
+      await asyncFs.writeFile(filepath, file.buffer)
+
+      user.studentIdDocument = filename
+      await user.save()
+      res.json(filename)
+      return
+    }
+
+    res.sendStatus(204)
+  } catch (err) {
+    logger.error(`[user.updateStudentIdDocument] ${i18n.t('DB_ERROR')} ${id}`, err)
+    res.status(400).send(i18n.t('DB_ERROR') + err)
+  }
+}
+
+/**
+* Delete a student ID document.
+*
+* @export
+* @async
+* @param {Request} req
+* @param {Response} res
+* @returns {unknown}
+*/
+export const deleteStudentIdDocument = async (req: Request, res: Response) => {
+  const { id } = req.params
+
+  try {
+    if (!helper.isValidObjectId(id)) {
+      throw new Error('User Id not valid')
+    }
+
+    const user = await User.findOne({ _id: id, type: bookcarsTypes.UserType.User })
+
+    if (user) {
+      if (user.studentIdDocument) {
+        const studentIdFile = path.join(env.CDN_STUDENT_IDS, user.studentIdDocument)
+        if (await helper.pathExists(studentIdFile)) {
+          await asyncFs.unlink(studentIdFile)
+        }
+        user.studentIdDocument = null
+      }
+
+      await user.save()
+      res.sendStatus(200)
+      return
+    }
+    res.sendStatus(204)
+  } catch (err) {
+    logger.error(`[user.deleteStudentIdDocument] ${i18n.t('DB_ERROR')} ${id}`, err)
+    res.status(400).send(i18n.t('DB_ERROR') + err)
+  }
+}
+
+/**
+* Delete a temp student ID document.
+*
+* @export
+* @async
+* @param {Request} req
+* @param {Response} res
+* @returns {*}
+*/
+export const deleteTempStudentIdDocument = async (req: Request, res: Response) => {
+  const { file } = req.params
+
+  try {
+    if (!file.includes('.')) {
+      throw new Error('Filename not valid')
+    }
+    const studentIdFile = path.join(env.CDN_TEMP_STUDENT_IDS, file)
+    if (await helper.pathExists(studentIdFile)) {
+      await asyncFs.unlink(studentIdFile)
+    }
+
+    res.sendStatus(200)
+  } catch (err) {
+    logger.error(`[user.deleteTempStudentIdDocument] ${i18n.t('DB_ERROR')} ${file}`, err)
     res.status(400).send(i18n.t('ERROR') + err)
   }
 }

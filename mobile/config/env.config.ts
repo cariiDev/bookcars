@@ -170,6 +170,20 @@ export const CDN_LICENSES: string = BC_CDN_LICENSES
 export const CDN_TEMP_LICENSES: string = BC_CDN_TEMP_LICENSES
 
 /**
+ * Student ID documents CDN.
+ *
+ * @type {string}
+ */
+export const CDN_STUDENT_IDS: string = BC_CDN_LICENSES
+
+/**
+ * Temp student ID documents CDN.
+ *
+ * @type {string}
+ */
+export const CDN_TEMP_STUDENT_IDS: string = BC_CDN_TEMP_LICENSES
+
+/**
  * Page offset.
  *
  * @type {number}

@@ -434,6 +434,7 @@ export interface User {
   driverLicenseNumber?: string
   licenseExpiryDate?: Date
   studentId?: string
+  studentIdDocument?: string | null
   minimumRentalDays?: number
   priceChangeRate?: number
   supplierCarLimit?: number

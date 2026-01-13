@@ -23,6 +23,7 @@ import DatePicker from '@/components/DatePicker'
 import Avatar from '@/components/Avatar'
 import * as helper from '@/utils/helper'
 import DriverLicense from '@/components/DriverLicense'
+import StudentIdDocument from '@/components/StudentIdDocument'
 import Footer from '@/components/Footer'
 import { useUserContext, UserContextType } from '@/context/UserContext'
 import { schema, FormFields } from '@/models/SettingsForm'
@@ -227,6 +228,11 @@ const Settings = () => {
             <Paper className="settings-form settings-form-wrapper" elevation={10}>
               <h1 className="settings-form-title">{commonStrings.DRIVER_LICENSE}</h1>
               <DriverLicense user={user} />
+            </Paper>
+
+            <Paper className="settings-form settings-form-wrapper" elevation={10}>
+              <h1 className="settings-form-title">{commonStrings.STUDENT_ID_DOCUMENT}</h1>
+              <StudentIdDocument user={user} />
             </Paper>
 
             <Paper className="settings-net settings-net-wrapper" elevation={10}>

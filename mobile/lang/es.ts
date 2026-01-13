@@ -14,6 +14,7 @@ export const es = {
   LOCATION: 'Ubicación',
   BIO: 'Biografía',
   STUDENT_ID: 'ID de estudiante',
+  STUDENT_ID_DOCUMENT: 'Documento de estudiante',
   IMAGE_REQUIRED: 'Por favor, agregue una imagen.',
   LOADING: 'Cargando...',
   PLEASE_WAIT: 'Por favor, espere...',

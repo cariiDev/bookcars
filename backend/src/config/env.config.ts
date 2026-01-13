@@ -329,6 +329,22 @@ export const CDN_IC = __env__('BC_CDN_IC', false) || CDN_LICENSES
 export const CDN_TEMP_IC = __env__('BC_CDN_TEMP_IC', false) || CDN_TEMP_LICENSES
 
 /**
+ * Student ID documents' cdn folder path.
+ * Falls back to CDN_IC if not set.
+ *
+ * @type {string}
+ */
+export const CDN_STUDENT_IDS = __env__('BC_CDN_STUDENT_IDS', false) || CDN_IC
+
+/**
+ * Student ID documents' temp cdn folder path.
+ * Falls back to CDN_TEMP_IC if not set.
+ *
+ * @type {string}
+ */
+export const CDN_TEMP_STUDENT_IDS = __env__('BC_CDN_TEMP_STUDENT_IDS', false) || CDN_TEMP_IC
+
+/**
  * Backend host.
  *
  * @type {string}
@@ -579,6 +595,7 @@ export interface User extends Document {
   driverLicenseNumber?: string
   licenseExpiryDate?: Date
   studentId?: string
+  studentIdDocument?: string | null
   minimumRentalDays?: number
   expireAt?: Date
   priceChangeRate?: number
@@ -615,6 +632,7 @@ export interface UserInfo {
   licenseRequired?: boolean
   license?: string
   studentId?: string
+  studentIdDocument?: string | null
   priceChangeRate?: number
   supplierCarLimit?: number
   notifyAdminOnNewCar?: boolean

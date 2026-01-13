@@ -39,6 +39,10 @@ const routes = {
   updateIC: '/api/update-ic/:id',
   deleteIC: '/api/delete-ic/:id',
   deleteTempIC: '/api/delete-temp-ic/:file',
+  createStudentIdDocument: '/api/create-student-id-document',
+  updateStudentIdDocument: '/api/update-student-id-document/:id',
+  deleteStudentIdDocument: '/api/delete-student-id-document/:id',
+  deleteTempStudentIdDocument: '/api/delete-temp-student-id-document/:file',
 }
 
 export default routes

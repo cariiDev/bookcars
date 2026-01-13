@@ -642,3 +642,78 @@ export const deleteTempIC = (file: string): Promise<number> =>
       { withCredentials: true }
     )
     .then((res) => res.status)
+
+/**
+* Create temporary student ID document.
+*
+* @param {Blob} file
+* @returns {Promise<string>}
+*/
+export const createStudentIdDocument = (file: Blob): Promise<string> => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  return axiosInstance
+    .post(
+      '/api/create-student-id-document',
+      formData,
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      },
+    )
+    .then((res) => res.data)
+}
+
+/**
+ * Update student ID document.
+ *
+ * @param {string} userId
+ * @param {Blob} file
+ * @returns {Promise<bookcarsTypes.Response<string>>}
+ */
+export const updateStudentIdDocument = (userId: string, file: Blob): Promise<bookcarsTypes.Response<string>> => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  return axiosInstance
+    .post(
+      `/api/update-student-id-document/${userId}`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      },
+    )
+    .then((res) => ({ status: res.status, data: res.data }))
+}
+
+/**
+ * Delete student ID document.
+ *
+ * @param {string} userId
+ * @returns {Promise<number>}
+ */
+export const deleteStudentIdDocument = (userId: string): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/delete-student-id-document/${userId}`,
+      null,
+      { withCredentials: true }
+    )
+    .then((res) => res.status)
+
+/**
+* Delete a temporary student ID document file.
+*
+* @param {string} file
+* @returns {Promise<number>}
+*/
+export const deleteTempStudentIdDocument = (file: string): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/delete-temp-student-id-document/${encodeURIComponent(file)}`,
+      null,
+      { withCredentials: true }
+    )
+    .then((res) => res.status)

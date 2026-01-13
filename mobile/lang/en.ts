@@ -14,6 +14,7 @@ export const en = {
   LOCATION: 'Location',
   BIO: 'Bio',
   STUDENT_ID: 'Student ID',
+  STUDENT_ID_DOCUMENT: 'Student ID Document',
   IMAGE_REQUIRED: 'Please add an image.',
   LOADING: 'Loading...',
   PLEASE_WAIT: 'Please wait...',
