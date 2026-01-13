@@ -1008,6 +1008,7 @@ export const update = async (req: Request, res: Response) => {
       supplierCarLimit,
       notifyAdminOnNewCar,
       blacklisted,
+      studentId,
     } = body
 
     if (fullName) {
@@ -1022,6 +1023,7 @@ export const update = async (req: Request, res: Response) => {
     user.supplierCarLimit = supplierCarLimit
     user.notifyAdminOnNewCar = notifyAdminOnNewCar
     user.blacklisted = !!blacklisted
+    user.studentId = studentId
     if (type) {
       user.type = type as bookcarsTypes.UserType
     }
@@ -1149,6 +1151,7 @@ export const getUser = async (req: Request, res: Response) => {
       customerId: 1,
       licenseRequired: 1,
       license: 1,
+      studentId: 1,
       minimumRentalDays: 1,
       priceChangeRate: 1,
       supplierCarLimit: 1,

@@ -578,6 +578,7 @@ export interface User extends Document {
   ic?: string | null
   driverLicenseNumber?: string
   licenseExpiryDate?: Date
+  studentId?: string
   minimumRentalDays?: number
   expireAt?: Date
   priceChangeRate?: number
@@ -613,6 +614,7 @@ export interface UserInfo {
   payLater?: boolean
   licenseRequired?: boolean
   license?: string
+  studentId?: string
   priceChangeRate?: number
   supplierCarLimit?: number
   notifyAdminOnNewCar?: boolean

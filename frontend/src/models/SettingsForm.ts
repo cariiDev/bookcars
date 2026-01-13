@@ -15,6 +15,7 @@ export const schema = z.object({
   }, { message: commonStrings.BIRTH_DATE_NOT_VALID }),
   location: z.string().optional(),
   bio: z.string().optional(),
+  studentId: z.string().optional(),
 })
 
 export type FormFields = z.infer<typeof schema>

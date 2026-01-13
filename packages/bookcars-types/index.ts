@@ -315,6 +315,7 @@ export interface CreateUserPayload {
   driverLicenseNumber?: string
   license?: string
   licenseExpiryDate?: Date
+  studentId?: string
   language?: string
   password?: string
   verified?: boolean
@@ -432,6 +433,7 @@ export interface User {
   icDocument?: string | null
   driverLicenseNumber?: string
   licenseExpiryDate?: Date
+  studentId?: string
   minimumRentalDays?: number
   priceChangeRate?: number
   supplierCarLimit?: number

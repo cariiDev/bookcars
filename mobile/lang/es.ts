@@ -13,6 +13,7 @@ export const es = {
   PHONE: 'Teléfono',
   LOCATION: 'Ubicación',
   BIO: 'Biografía',
+  STUDENT_ID: 'ID de estudiante',
   IMAGE_REQUIRED: 'Por favor, agregue una imagen.',
   LOADING: 'Cargando...',
   PLEASE_WAIT: 'Por favor, espere...',

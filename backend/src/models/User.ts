@@ -135,6 +135,10 @@ const userSchema = new Schema<env.User>(
     licenseExpiryDate: {
       type: Date,
     },
+    studentId: {
+      type: String,
+      trim: true,
+    },
     minimumRentalDays: {
       type: Number,
     },

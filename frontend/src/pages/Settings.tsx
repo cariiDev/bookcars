@@ -92,6 +92,7 @@ const Settings = () => {
         phone: data.phone,
         location: data.location || '',
         bio: data.bio || '',
+        studentId: data.studentId || '',
       }
 
       const status = await UserService.updateUser(payload)
@@ -115,6 +116,7 @@ const Settings = () => {
       setValue('birthDate', new Date(_user.birthDate!))
       setValue('location', _user.location || '')
       setValue('bio', _user.bio || '')
+      setValue('studentId', _user.studentId || '')
       setEnableEmailNotifications(_user.enableEmailNotifications ?? true)
       setVisible(true)
       setLoading(false)
@@ -179,6 +181,10 @@ const Settings = () => {
                     language={user.language}
                   />
                   <FormHelperText>{errors.birthDate?.message || ''}</FormHelperText>
+                </FormControl>
+                <FormControl fullWidth margin="dense">
+                  <InputLabel>{commonStrings.STUDENT_ID}</InputLabel>
+                  <Input {...register('studentId')} type="text" autoComplete="off" />
                 </FormControl>
                 <FormControl fullWidth margin="dense">
                   <InputLabel>{commonStrings.LOCATION}</InputLabel>

@@ -33,6 +33,7 @@ const SettingsScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
   const [birthDate, setBirthDate] = useState<Date>()
   const [location, setLocation] = useState('')
   const [bio, setBio] = useState('')
+  const [studentId, setStudentId] = useState('')
   const [enableEmailNotifications, setEnableEmailNotifications] = useState(false)
   const [avatar, setAvatar] = useState<string | null>(null)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
@@ -83,6 +84,11 @@ const SettingsScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
       }
       if (_user.bio) {
         setBio(_user.bio)
+      }
+      if (_user.studentId) {
+        setStudentId(_user.studentId)
+      } else {
+        setStudentId('')
       }
       if (typeof _user.enableEmailNotifications !== 'undefined') {
         setEnableEmailNotifications(_user.enableEmailNotifications)
@@ -180,6 +186,10 @@ const SettingsScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
     setBio(text)
   }
 
+  const onChangeStudentId = (text: string) => {
+    setStudentId(text)
+  }
+
   const onChangeEnableEmailNotificationsChecked = (checked: boolean) => {
     setEnableEmailNotifications(checked)
   }
@@ -212,6 +222,7 @@ const SettingsScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
         phone,
         location,
         bio,
+        studentId,
         enableEmailNotifications,
       }
 
@@ -349,6 +360,8 @@ const SettingsScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
               <TextInput style={styles.component} label={i18n.t('LOCATION')} value={location} onChangeText={onChangeLocation} />
 
               <TextInput style={styles.component} label={i18n.t('BIO')} value={bio} onChangeText={onChangeBio} />
+
+              <TextInput style={styles.component} label={i18n.t('STUDENT_ID')} value={studentId} onChangeText={onChangeStudentId} />
 
               <DriverLicense user={user} />
 
