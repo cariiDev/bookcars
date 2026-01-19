@@ -86,14 +86,14 @@ const ICDocument = ({
     <div className={`driver-license ${className || ''}`}>
       {variant === 'standard' ? (
         <Input
-          value={icDocument || commonStrings.UPLOAD_FILE}
+          value={icDocument || commonStrings.UPLOAD_IC}
           readOnly
           onClick={handleClick}
           className="filename"
         />
       ) : (
         <OutlinedInput
-          value={icDocument || commonStrings.UPLOAD_FILE}
+          value={icDocument || commonStrings.UPLOAD_IC}
           readOnly
           onClick={handleClick}
           className="filename"

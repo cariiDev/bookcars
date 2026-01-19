@@ -11,6 +11,7 @@ export const schema = z.object({
     blacklisted: z.boolean().optional(),
     payLater: z.boolean().optional(),
     licenseRequired: z.boolean().optional(),
+    studentIdRequired: z.boolean().optional(),
     minimumRentalDays: z.string().refine((val) => !val || /^\d+$/.test(val), { message: commonStrings.FIELD_NOT_VALID }).optional(),
     priceChangeRate: z.string().refine((val) => !val || /^-?\d+(\.\d+)?$/.test(val), { message: commonStrings.FIELD_NOT_VALID }).optional(),
     supplierCarLimit: z.string().refine((val) => !val || /^\d+$/.test(val), { message: commonStrings.FIELD_NOT_VALID }).optional(),

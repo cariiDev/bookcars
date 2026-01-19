@@ -198,7 +198,7 @@ const SignUp = () => {
               <FormControl fullWidth margin="dense">
                 <div style={{ marginTop: '8px', marginBottom: '8px' }}>
                   <label style={{ display: 'block', fontSize: '12px', color: 'rgba(0, 0, 0, 0.6)', marginBottom: '8px' }}>
-                    {commonStrings.IC_DOCUMENT}
+                    {commonStrings.IC_NUMBER}
                   </label>
                   <ICDocument
                     variant="outlined"

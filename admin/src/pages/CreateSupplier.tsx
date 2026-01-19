@@ -63,6 +63,7 @@ const CreateSupplier = () => {
       bio: '',
       payLater: false,
       licenseRequired: false,
+      studentIdRequired: false,
       minimumRentalDays: '',
       priceChangeRate: '',
       supplierCarLimit: '',
@@ -72,6 +73,7 @@ const CreateSupplier = () => {
 
   const payLater = useWatch({ control, name: 'payLater' })
   const licenseRequired = useWatch({ control, name: 'licenseRequired' })
+  const studentIdRequired = useWatch({ control, name: 'studentIdRequired' })
   const notifyAdminOnNewCar = useWatch({ control, name: 'notifyAdminOnNewCar' })
 
   const onBeforeUpload = () => {
@@ -146,6 +148,7 @@ const CreateSupplier = () => {
         avatar,
         payLater: data.payLater,
         licenseRequired: data.licenseRequired,
+        studentIdRequired: data.studentIdRequired,
         contracts,
         minimumRentalDays: data.minimumRentalDays ? Number(data.minimumRentalDays) : undefined,
         priceChangeRate: data.priceChangeRate ? Number(data.priceChangeRate) : undefined,
@@ -252,6 +255,22 @@ const CreateSupplier = () => {
                   />
                 )}
                 label={commonStrings.LICENSE_REQUIRED}
+              />
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
+              <FormControlLabel
+                control={(
+                  <Switch
+                    {...register('studentIdRequired')}
+                    checked={studentIdRequired}
+                    onChange={(e) => {
+                      setValue('studentIdRequired', e.target.checked)
+                    }}
+                    color="primary"
+                  />
+                )}
+                label={commonStrings.STUDENT_ID_REQUIRED}
               />
             </FormControl>
 

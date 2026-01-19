@@ -207,12 +207,18 @@ export const checkout = async (req: Request, res: Response) => {
     }
 
     if (driver) {
-      const { license } = driver
+      const { license, studentIdDocument } = driver
       if (supplier.licenseRequired && !license) {
         throw new Error("Driver's license required")
       }
       if (supplier.licenseRequired && !(await helper.pathExists(path.join(env.CDN_TEMP_LICENSES, license!)))) {
         throw new Error("Driver's license file not found")
+      }
+      if (supplier.studentIdRequired && !studentIdDocument) {
+        throw new Error('Student ID document required')
+      }
+      if (supplier.studentIdRequired && !(await helper.pathExists(path.join(env.CDN_TEMP_STUDENT_IDS, studentIdDocument)))) {
+        throw new Error('Student ID document file not found')
       }
       driver.verified = false
       driver.blacklisted = false
@@ -229,6 +235,15 @@ export const checkout = async (req: Request, res: Response) => {
         const filepath = path.join(env.CDN_LICENSES, filename)
         await asyncFs.rename(tempLicense, filepath)
         user.license = filename
+        await user.save()
+      }
+
+      if (studentIdDocument) {
+        const tempStudentId = path.join(env.CDN_TEMP_STUDENT_IDS, studentIdDocument)
+        const filename = `student_id_${user.id}${path.extname(tempStudentId)}`
+        const filepath = path.join(env.CDN_STUDENT_IDS, filename)
+        await asyncFs.rename(tempStudentId, filepath)
+        user.studentIdDocument = filename
         await user.save()
       }
 
@@ -263,6 +278,12 @@ export const checkout = async (req: Request, res: Response) => {
     }
     if (supplier.licenseRequired && !(await helper.pathExists(path.join(env.CDN_LICENSES, user!.license!)))) {
       throw new Error("Driver's license file not found")
+    }
+    if (supplier.studentIdRequired && !user.studentIdDocument) {
+      throw new Error('Student ID document required')
+    }
+    if (supplier.studentIdRequired && !(await helper.pathExists(path.join(env.CDN_STUDENT_IDS, user.studentIdDocument)))) {
+      throw new Error('Student ID document file not found')
     }
 
     if (!body.payLater) {

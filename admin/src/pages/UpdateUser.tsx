@@ -32,6 +32,7 @@ import Avatar from '@/components/Avatar'
 import DatePicker from '@/components/DatePicker'
 import DriverLicense from '@/components/DriverLicense'
 import ICDocument from '@/components/ICDocument'
+import StudentIdDocument from '@/components/StudentIdDocument'
 import { schema, FormFields } from '@/models/UserForm'
 
 import '@/assets/css/update-user.css'
@@ -69,8 +70,10 @@ const UpdateUser = () => {
       phone: '',
       location: '',
       bio: '',
+      studentId: '',
       payLater: false,
       licenseRequired: false,
+      studentIdRequired: false,
       minimumRentalDays: '',
       priceChangeRate: '',
       supplierCarLimit: '',
@@ -84,6 +87,7 @@ const UpdateUser = () => {
   const blacklisted = useWatch({ control, name: 'blacklisted' })
   const payLater = useWatch({ control, name: 'payLater' })
   const licenseRequired = useWatch({ control, name: 'licenseRequired' })
+  const studentIdRequired = useWatch({ control, name: 'studentIdRequired' })
   const notifyAdminOnNewCar = useWatch({ control, name: 'notifyAdminOnNewCar' })
 
   const onBeforeUpload = () => {
@@ -163,9 +167,11 @@ const UpdateUser = () => {
               setValue('birthDate', _user && _user.birthDate ? new Date(_user.birthDate) : undefined)
               setValue('icNumber', _user.icNumber || '')
               setValue('driverLicenseNumber', _user.driverLicenseNumber || '')
+              setValue('studentId', _user.studentId || '')
               setValue('licenseExpiryDate', _user && _user.licenseExpiryDate ? new Date(_user.licenseExpiryDate) : undefined)
               setValue('payLater', _user.payLater || false)
               setValue('licenseRequired', _user.licenseRequired || false)
+              setValue('studentIdRequired', _user.studentIdRequired || false)
               setValue('minimumRentalDays', _user.minimumRentalDays?.toString() || '')
               setValue('priceChangeRate', _user.priceChangeRate?.toString() || '')
               setValue('supplierCarLimit', _user.supplierCarLimit?.toString() || '')
@@ -224,6 +230,7 @@ const UpdateUser = () => {
         avatar,
         birthDate: data.birthDate,
         icNumber: data.icNumber,
+        studentId: data.studentId,
         driverLicenseNumber: data.driverLicenseNumber,
         licenseExpiryDate: data.licenseExpiryDate,
         minimumRentalDays: data.minimumRentalDays ? Number(data.minimumRentalDays) : undefined,
@@ -236,6 +243,7 @@ const UpdateUser = () => {
       if (type === bookcarsTypes.RecordType.Supplier) {
         payload.payLater = payLater
         payload.licenseRequired = licenseRequired
+        payload.studentIdRequired = studentIdRequired
       }
 
       const status = await UserService.updateUser(payload)
@@ -400,7 +408,34 @@ const UpdateUser = () => {
                     </FormHelperText>
                   </FormControl>
 
-                  <ICDocument user={user} className="driver-license-field" />
+                  <FormControl fullWidth margin="dense">
+                    <div style={{ marginTop: '8px', marginBottom: '8px' }}>
+                      <label style={{ display: 'block', fontSize: '12px', color: 'rgba(0, 0, 0, 0.6)', marginBottom: '8px' }}>
+                        {commonStrings.IC_NUMBER}
+                      </label>
+                      <ICDocument user={user} className="driver-license-field" />
+                    </div>
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel>{commonStrings.STUDENT_ID}</InputLabel>
+                    <Input
+                      {...register('studentId')}
+                      type="text"
+                      autoComplete="off"
+                      error={!!errors.studentId}
+                      onChange={() => {
+                        if (errors.studentId) {
+                          clearErrors('studentId')
+                        }
+                      }}
+                    />
+                    <FormHelperText error={!!errors.studentId}>
+                      {errors.studentId?.message || ''}
+                    </FormHelperText>
+                  </FormControl>
+
+                  <StudentIdDocument user={user} className="driver-license-field" />
 
                   <FormControl fullWidth margin="dense">
                     <InputLabel>{commonStrings.DRIVER_LICENSE_NUMBER}</InputLabel>
@@ -472,6 +507,22 @@ const UpdateUser = () => {
                         />
                       )}
                       label={commonStrings.LICENSE_REQUIRED}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <FormControlLabel
+                      control={(
+                        <Switch
+                          {...register('studentIdRequired')}
+                          checked={studentIdRequired}
+                          onChange={(e) => {
+                            setValue('studentIdRequired', e.target.checked)
+                          }}
+                          color="primary"
+                        />
+                      )}
+                      label={commonStrings.STUDENT_ID_REQUIRED}
                     />
                   </FormControl>
 

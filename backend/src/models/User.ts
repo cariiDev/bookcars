@@ -118,6 +118,10 @@ const userSchema = new Schema<env.User>(
       type: Boolean,
       default: false,
     },
+    studentIdRequired: {
+      type: Boolean,
+      default: false,
+    },
     license: {
       type: String,
     },

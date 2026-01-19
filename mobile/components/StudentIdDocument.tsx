@@ -123,9 +123,9 @@ const StudentIdDocument = ({
   return (
     <View style={{ ...styles.container, ...style }}>
       <Pressable hitSlop={15} onPress={handleUpload} style={styles.component}>
-        {!hideLabel && <Text style={styles.label}>{i18n.t('STUDENT_ID_DOCUMENT')}</Text>}
+        {!hideLabel && <Text style={styles.label}>{i18n.t('STUDENT_ID')}</Text>}
         <View style={styles.inputContainer}>
-          <Text style={styles.input} numberOfLines={1} ellipsizeMode="tail">{studentIdDocument || i18n.t('UPLOAD_FILE') || ''}</Text>
+          <Text style={styles.input} numberOfLines={1} ellipsizeMode="tail">{studentIdDocument || i18n.t('UPLOAD_STUDENT_ID') || ''}</Text>
         </View>
       </Pressable>
       <View style={styles.actions}>

@@ -24,6 +24,7 @@ interface BayarCashButtonProps {
   payDeposit: boolean
   daysLabel: string
   license?: string | null
+  studentIdDocument?: string | null
   additionalDriver?: boolean
   formData: {
     email?: string
@@ -59,6 +60,7 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
   payDeposit,
   daysLabel,
   license,
+  studentIdDocument,
   additionalDriver,
   formData,
   additionalDriverRequired,
@@ -95,6 +97,7 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
           birthDate: formData.birthDate,
           language: UserService.getLanguage(),
           license: license || undefined,
+          studentIdDocument: studentIdDocument || undefined,
         }
       }
 

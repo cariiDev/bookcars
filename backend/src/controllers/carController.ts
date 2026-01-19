@@ -519,6 +519,7 @@ export const getCar = async (req: Request, res: Response) => {
         avatar,
         payLater,
         licenseRequired,
+        studentIdRequired,
         priceChangeRate,
       } = car.supplier
       car.supplier = {
@@ -527,6 +528,7 @@ export const getCar = async (req: Request, res: Response) => {
         avatar,
         payLater,
         licenseRequired,
+        studentIdRequired,
         priceChangeRate,
       }
 

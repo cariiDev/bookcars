@@ -30,6 +30,7 @@ import * as env from '@/config/env.config'
 import Backdrop from '@/components/Backdrop'
 import Indicator from '@/components/Indicator'
 import DriverLicense from '@/components/DriverLicense'
+import StudentIdDocument from '@/components/StudentIdDocument'
 
 const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParams, 'Checkout'>) => {
   const isFocused = useIsFocused()
@@ -96,6 +97,8 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
   const [adManuallyChecked, setAdManuallyChecked] = useState(false)
   const [licenseRequired, setLicenseRequired] = useState(false)
   const [license, setLicense] = useState<string | null>(null)
+  const [studentIdRequired, setStudentIdRequired] = useState(false)
+  const [studentIdDocument, setStudentIdDocument] = useState<string | null>(null)
   const [depositPrice, setDepositPrice] = useState(0)
   const [payDeposit, setPayDeposit] = useState(false)
   const adRequired = true
@@ -260,6 +263,8 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
       setFullInsurance(included(_car.fullInsurance))
       setLicenseRequired(false)
       setLicense(_user?.license || null)
+      setStudentIdRequired(false)
+      setStudentIdDocument(_user?.studentIdDocument || null)
 
       setCurrencySymbol(await StripeService.getCurrencySymbol())
 
@@ -612,6 +617,10 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
         setLicenseRequired(true)
         return
       }
+      if (car.supplier.studentIdRequired && !studentIdDocument) {
+        setStudentIdRequired(true)
+        return
+      }
 
       if (adManuallyChecked && additionalDriver) {
         const fullNameValid = _validateFullName()
@@ -648,6 +657,7 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
           birthDate,
           language: await UserService.getLanguage(),
           license: license || undefined,
+          studentIdDocument: studentIdDocument || undefined,
         }
       }
 
@@ -1006,6 +1016,32 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
                     </View>
                   )}
 
+                  {car.supplier.studentIdRequired && (
+                    <View style={styles.section}>
+                      <View style={styles.sectionHeader}>
+                        <MaterialIcons name="payment" size={iconSize} color={iconColor} />
+                        <Text style={styles.sectionHeaderText}>{i18n.t('STUDENT_ID')}</Text>
+                      </View>
+
+                      <StudentIdDocument
+                        user={user || undefined}
+                        hideLabel
+                        onUpload={(filename) => {
+                          if (filename) {
+                            setStudentIdRequired(false)
+                          } else {
+                            setStudentIdRequired(true)
+                          }
+                          setStudentIdDocument(filename)
+                        }}
+                        onDelete={() => {
+                          setStudentIdRequired(true)
+                          setStudentIdDocument(null)
+                        }}
+                      />
+                    </View>
+                  )}
+
                   {(adManuallyChecked && additionalDriver) && (
                     <View style={styles.section}>
                       <View style={styles.sectionHeader}>
@@ -1130,6 +1166,7 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
                       {error && <Error message={i18n.t('FIX_ERRORS')} />}
                       {tosError && <Error message={i18n.t('TOS_ERROR')} />}
                       {licenseRequired && <Error message={i18n.t('LICENSE_REQUIRED')} />}
+                      {(car?.supplier.studentIdRequired && studentIdRequired) && <Error message={i18n.t('STUDENT_ID_REQUIRED')} />}
                     </View>
                   </View>
                 </View>

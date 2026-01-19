@@ -589,6 +589,7 @@ export interface User extends Document {
   customerId?: string
   contracts?: bookcarsTypes.Contract[]
   licenseRequired?: boolean
+  studentIdRequired?: boolean
   license?: string | null
   icNumber?: string
   ic?: string | null
@@ -630,6 +631,7 @@ export interface UserInfo {
   blacklisted?: boolean
   payLater?: boolean
   licenseRequired?: boolean
+  studentIdRequired?: boolean
   license?: string
   studentId?: string
   studentIdDocument?: string | null

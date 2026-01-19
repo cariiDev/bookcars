@@ -190,11 +190,24 @@ const User = () => {
                 {user.phone}
               </Typography>
             )}
+            {user.studentId && (
+              <Typography variant="h6" className="user-info">
+                {commonStrings.STUDENT_ID}: {user.studentId}
+              </Typography>
+            )}
             {user.license && (
               <div className="license">
                 <span>{commonStrings.LICENSE}</span>
                 <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.license)} target="_blank">
                   {user.license}
+                </Link>
+              </div>
+            )}
+            {user.studentIdDocument && (
+              <div className="license">
+                <span>{commonStrings.STUDENT_ID}</span>
+                <Link href={bookcarsHelper.joinURL(env.CDN_STUDENT_IDS, user.studentIdDocument)} target="_blank">
+                  {user.studentIdDocument}
                 </Link>
               </div>
             )}

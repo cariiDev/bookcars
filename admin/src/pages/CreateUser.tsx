@@ -67,6 +67,7 @@ const CreateUser = () => {
       bio: '',
       payLater: false,
       licenseRequired: false,
+      studentIdRequired: false,
       minimumRentalDays: '',
       priceChangeRate: '',
       supplierCarLimit: '',
@@ -77,6 +78,7 @@ const CreateUser = () => {
   const type = useWatch({ control, name: 'type' })
   const payLater = useWatch({ control, name: 'payLater' })
   const licenseRequired = useWatch({ control, name: 'licenseRequired' })
+  const studentIdRequired = useWatch({ control, name: 'studentIdRequired' })
   const notifyAdminOnNewCar = useWatch({ control, name: 'notifyAdminOnNewCar' })
 
   const onBeforeUpload = () => {
@@ -183,6 +185,7 @@ const CreateUser = () => {
       if (type === bookcarsTypes.UserType.Supplier) {
         payload.payLater = data.payLater
         payload.licenseRequired = data.licenseRequired
+        payload.studentIdRequired = data.studentIdRequired
       }
 
       const formStatus = await UserService.create(payload)
@@ -393,6 +396,22 @@ const CreateUser = () => {
                         />
                       )}
                       label={commonStrings.LICENSE_REQUIRED}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <FormControlLabel
+                      control={(
+                        <Switch
+                          {...register('studentIdRequired')}
+                          checked={studentIdRequired}
+                          onChange={(e) => {
+                            setValue('studentIdRequired', e.target.checked)
+                          }}
+                          color="primary"
+                        />
+                      )}
+                      label={commonStrings.STUDENT_ID_REQUIRED}
                     />
                   </FormControl>
 

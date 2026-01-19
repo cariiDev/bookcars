@@ -76,6 +76,7 @@ export const update = async (req: Request, res: Response) => {
         bio,
         payLater,
         licenseRequired,
+        studentIdRequired,
         minimumRentalDays,
         priceChangeRate,
         supplierCarLimit,
@@ -88,6 +89,7 @@ export const update = async (req: Request, res: Response) => {
       supplier.bio = bio
       supplier.payLater = payLater
       supplier.licenseRequired = licenseRequired
+      supplier.studentIdRequired = studentIdRequired
       supplier.minimumRentalDays = minimumRentalDays
       supplier.priceChangeRate = priceChangeRate
       supplier.supplierCarLimit = supplierCarLimit
@@ -106,6 +108,7 @@ export const update = async (req: Request, res: Response) => {
         contracts: supplier.contracts,
         minimumRentalDays: supplier.minimumRentalDays,
         licenseRequired: supplier.licenseRequired,
+        studentIdRequired: supplier.studentIdRequired,
         priceChangeRate: supplier.priceChangeRate,
         supplierCarLimit: supplier.supplierCarLimit,
         notifyAdminOnNewCar: supplier.notifyAdminOnNewCar,
@@ -224,6 +227,7 @@ export const getSupplier = async (req: Request, res: Response) => {
       payLater,
       contracts,
       licenseRequired,
+      studentIdRequired,
       minimumRentalDays,
       priceChangeRate,
       supplierCarLimit,
@@ -242,6 +246,7 @@ export const getSupplier = async (req: Request, res: Response) => {
       payLater,
       contracts,
       licenseRequired,
+      studentIdRequired,
       minimumRentalDays,
       priceChangeRate,
       supplierCarLimit,

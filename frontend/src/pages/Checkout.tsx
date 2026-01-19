@@ -55,6 +55,7 @@ import DatePicker from '@/components/DatePicker'
 import SocialLogin from '@/components/SocialLogin'
 import Map from '@/components/Map'
 import DriverLicense from '@/components/DriverLicense'
+import StudentIdDocument from '@/components/StudentIdDocument'
 import Progress from '@/components/Progress'
 import CheckoutStatus from '@/components/CheckoutStatus'
 import NoMatch from './NoMatch'
@@ -108,6 +109,8 @@ const Checkout = () => {
   // const [distance, setDistance] = useState('')
   const [licenseRequired, setLicenseRequired] = useState(false)
   const [license, setLicense] = useState<string | null>(null)
+  const [studentIdRequired, setStudentIdRequired] = useState(false)
+  const [studentIdDocument, setStudentIdDocument] = useState<string | null>(null)
   const [openMapDialog, setOpenMapDialog] = useState(false)
   const [payPalLoaded, setPayPalLoaded] = useState(false)
   const [payPalInit, setPayPalInit] = useState(false)
@@ -252,6 +255,10 @@ const Checkout = () => {
         setLicenseRequired(true)
         return
       }
+      if (car.supplier.studentIdRequired && !studentIdDocument) {
+        setStudentIdRequired(true)
+        return
+      }
 
       setPaymentFailed(false)
 
@@ -266,6 +273,7 @@ const Checkout = () => {
           birthDate: data.birthDate,
           language: UserService.getLanguage(),
           license: license || undefined,
+          studentIdDocument: studentIdDocument || undefined,
         }
       }
 
@@ -459,6 +467,7 @@ const Checkout = () => {
       setValue('collisionDamageWaiver', included(_car.collisionDamageWaiver))
       setValue('fullInsurance', included(_car.fullInsurance))
       setLicense(_user?.license || null)
+      setStudentIdDocument(_user?.studentIdDocument || null)
       setVisible(true)
     } catch (err) {
       helper.error(err)
@@ -784,6 +793,34 @@ const Checkout = () => {
                       </div>
                     )}
 
+                    {car.supplier.studentIdRequired && (
+                      <div className="driver-details">
+                        <div className="checkout-info">
+                          <LicenseIcon />
+                          <span>{commonStrings.STUDENT_ID}</span>
+                        </div>
+                        <div className="driver-details-form">
+                          <StudentIdDocument
+                            user={user}
+                            variant="outlined"
+                            onUpload={(filename) => {
+                              if (filename) {
+                                setStudentIdRequired(false)
+                              } else {
+                                setStudentIdRequired(true)
+                              }
+                              setStudentIdDocument(filename)
+                            }}
+                            onDelete={() => {
+                              setStudentIdRequired(true)
+                              setStudentIdDocument(null)
+                            }}
+                            hideDelete={!!clientSecret || payPalLoaded}
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     {(adManuallyChecked && additionalDriver) && (
                       <div className="driver-details">
                         <div className="checkout-info">
@@ -1039,6 +1076,7 @@ const Checkout = () => {
                             payDeposit={payDeposit || false}
                             daysLabel={daysLabel || ''}
                             license={license}
+                            studentIdDocument={studentIdDocument}
                             additionalDriver={additionalDriver}
                             formData={getValues()}
                             additionalDriverRequired={adRequired}
@@ -1088,6 +1126,9 @@ const Checkout = () => {
                             if (!authenticated && license) {
                               await UserService.deleteTempLicense(license)
                             }
+                            if (!authenticated && studentIdDocument) {
+                              await UserService.deleteTempStudentIdDocument(studentIdDocument)
+                            }
                           } catch (err) {
                             helper.error(err)
                           } finally {
@@ -1103,6 +1144,7 @@ const Checkout = () => {
                     {paymentFailed && <Error message={strings.PAYMENT_FAILED} />}
                     {recaptchaError && <Error message={commonStrings.RECAPTCHA_ERROR} />}
                     {licenseRequired && <Error message={strings.LICENSE_REQUIRED} />}
+                    {(car?.supplier.studentIdRequired && studentIdRequired) && <Error message={strings.STUDENT_ID_REQUIRED} />}
                   </div>
                 </form>
               </Paper>

@@ -231,7 +231,7 @@ const Settings = () => {
             </Paper>
 
             <Paper className="settings-form settings-form-wrapper" elevation={10}>
-              <h1 className="settings-form-title">{commonStrings.STUDENT_ID_DOCUMENT}</h1>
+              <h1 className="settings-form-title">{commonStrings.STUDENT_ID}</h1>
               <StudentIdDocument user={user} />
             </Paper>
 

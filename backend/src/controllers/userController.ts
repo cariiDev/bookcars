@@ -1003,6 +1003,7 @@ export const update = async (req: Request, res: Response) => {
       enableEmailNotifications,
       payLater,
       licenseRequired,
+      studentIdRequired,
       minimumRentalDays,
       priceChangeRate,
       supplierCarLimit,
@@ -1035,6 +1036,9 @@ export const update = async (req: Request, res: Response) => {
     }
     if (typeof licenseRequired !== 'undefined') {
       user.licenseRequired = licenseRequired
+    }
+    if (typeof studentIdRequired !== 'undefined') {
+      user.studentIdRequired = studentIdRequired
     }
 
     await user.save()
@@ -1150,6 +1154,7 @@ export const getUser = async (req: Request, res: Response) => {
       payLater: 1,
       customerId: 1,
       licenseRequired: 1,
+      studentIdRequired: 1,
       license: 1,
       studentId: 1,
       studentIdDocument: 1,
@@ -1538,6 +1543,12 @@ export const deleteUsers = async (req: Request, res: Response) => {
 
         if (user.license) {
           const file = path.join(env.CDN_LICENSES, user.license)
+          if (await helper.pathExists(file)) {
+            await asyncFs.unlink(file)
+          }
+        }
+        if (user.studentIdDocument) {
+          const file = path.join(env.CDN_STUDENT_IDS, user.studentIdDocument)
           if (await helper.pathExists(file)) {
             await asyncFs.unlink(file)
           }

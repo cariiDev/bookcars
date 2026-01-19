@@ -65,6 +65,7 @@ const UpdateSupplier = () => {
       blacklisted: false,
       payLater: false,
       licenseRequired: false,
+      studentIdRequired: false,
       minimumRentalDays: '',
       priceChangeRate: '',
       supplierCarLimit: '',
@@ -74,6 +75,7 @@ const UpdateSupplier = () => {
 
   const payLater = useWatch({ control, name: 'payLater' })
   const licenseRequired = useWatch({ control, name: 'licenseRequired' })
+  const studentIdRequired = useWatch({ control, name: 'studentIdRequired' })
   const notifyAdminOnNewCar = useWatch({ control, name: 'notifyAdminOnNewCar' })
   const blacklisted = useWatch({ control, name: 'blacklisted' })
 
@@ -147,6 +149,7 @@ const UpdateSupplier = () => {
               setValue('bio', _supplier.bio || '')
               setValue('payLater', !!_supplier.payLater)
               setValue('licenseRequired', !!_supplier.licenseRequired)
+              setValue('studentIdRequired', !!_supplier.studentIdRequired)
               setValue('minimumRentalDays', _supplier.minimumRentalDays?.toString() || '')
               setValue('priceChangeRate', _supplier.priceChangeRate?.toString() || '')
               setValue('supplierCarLimit', _supplier.supplierCarLimit?.toString() || '')
@@ -206,6 +209,7 @@ const UpdateSupplier = () => {
         bio: data.bio!,
         payLater: !!data.payLater,
         licenseRequired: !!data.licenseRequired,
+        studentIdRequired: !!data.studentIdRequired,
         minimumRentalDays: data.minimumRentalDays ? Number(data.minimumRentalDays) : undefined,
         priceChangeRate: data.priceChangeRate ? Number(data.priceChangeRate) : undefined,
         supplierCarLimit: data.supplierCarLimit ? Number(data.supplierCarLimit) : undefined,
@@ -329,6 +333,22 @@ const UpdateSupplier = () => {
                     />
                   )}
                   label={commonStrings.LICENSE_REQUIRED}
+                />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <FormControlLabel
+                  control={(
+                    <Switch
+                      {...register('studentIdRequired')}
+                      checked={studentIdRequired}
+                      onChange={(e) => {
+                        setValue('studentIdRequired', e.target.checked)
+                      }}
+                      color="primary"
+                    />
+                  )}
+                  label={commonStrings.STUDENT_ID_REQUIRED}
                 />
               </FormControl>
 

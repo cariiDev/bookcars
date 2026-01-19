@@ -28,6 +28,7 @@ export const schema = z.object({
     return true
   }, { message: commonStrings.BIRTH_DATE_NOT_VALID }).optional(),
   icNumber: z.string().optional().refine(validateMalaysianIC, { message: commonStrings.IC_NUMBER_NOT_VALID }),
+  studentId: z.string().optional(),
   driverLicenseNumber: z.string().optional(),
   licenseExpiryDate: z.date().optional().refine((value) => {
     if (!value) {
@@ -38,6 +39,7 @@ export const schema = z.object({
   blacklisted: z.boolean().optional(),
   payLater: z.boolean().optional(),
   licenseRequired: z.boolean().optional(),
+  studentIdRequired: z.boolean().optional(),
   minimumRentalDays: z.string().refine((val) => !val || /^\d+$/.test(val), { message: commonStrings.FIELD_NOT_VALID }).optional(),
   priceChangeRate: z.string().refine((val) => !val || /^-?\d+(\.\d+)?$/.test(val), { message: commonStrings.FIELD_NOT_VALID }).optional(),
   supplierCarLimit: z.string().refine((val) => !val || /^\d+$/.test(val), { message: commonStrings.FIELD_NOT_VALID }).optional(),

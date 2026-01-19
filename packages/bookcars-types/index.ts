@@ -195,6 +195,7 @@ export interface UpdateSupplierPayload {
   bio: string
   payLater: boolean
   licenseRequired: boolean
+  studentIdRequired: boolean
   minimumRentalDays?: number
   priceChangeRate?: number
   supplierCarLimit?: number
@@ -324,6 +325,7 @@ export interface CreateUserPayload {
   supplier?: string
   contracts?: Contract[]
   licenseRequired?: boolean
+  studentIdRequired?: boolean
   minimumRentalDays?: number
   priceChangeRate?: number
   supplierCarLimit?: number
@@ -428,6 +430,7 @@ export interface User {
   carCount?: number
   contracts?: Contract[]
   licenseRequired?: boolean
+  studentIdRequired?: boolean
   license?: string | null
   icNumber?: string
   icDocument?: string | null
