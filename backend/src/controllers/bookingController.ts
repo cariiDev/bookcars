@@ -217,7 +217,7 @@ export const checkout = async (req: Request, res: Response) => {
       if (supplier.studentIdRequired && !studentIdDocument) {
         throw new Error('Student ID document required')
       }
-      if (supplier.studentIdRequired && !(await helper.pathExists(path.join(env.CDN_TEMP_STUDENT_IDS, studentIdDocument)))) {
+      if (supplier.studentIdRequired && !(await helper.pathExists(path.join(env.CDN_TEMP_STUDENT_IDS, studentIdDocument!)))) {
         throw new Error('Student ID document file not found')
       }
       driver.verified = false
@@ -282,7 +282,7 @@ export const checkout = async (req: Request, res: Response) => {
     if (supplier.studentIdRequired && !user.studentIdDocument) {
       throw new Error('Student ID document required')
     }
-    if (supplier.studentIdRequired && !(await helper.pathExists(path.join(env.CDN_STUDENT_IDS, user.studentIdDocument)))) {
+    if (supplier.studentIdRequired && !(await helper.pathExists(path.join(env.CDN_STUDENT_IDS, user.studentIdDocument!)))) {
       throw new Error('Student ID document file not found')
     }
 

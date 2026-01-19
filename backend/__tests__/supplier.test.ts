@@ -231,6 +231,7 @@ describe('PUT /api/update-supplier', () => {
       payLater,
       minimumRentalDays: 3,
       licenseRequired: true,
+      studentIdRequired: true,
       priceChangeRate: 5,
       supplierCarLimit: 3,
       notifyAdminOnNewCar: true,
