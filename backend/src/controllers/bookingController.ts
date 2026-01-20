@@ -208,16 +208,18 @@ export const checkout = async (req: Request, res: Response) => {
 
     if (driver) {
       const { license, studentIdDocument } = driver
-      if (supplier.licenseRequired && !license) {
+      const licenseRequired = supplier.licenseRequired || env.LICENSE_REQUIRED
+      const studentIdRequired = supplier.studentIdRequired || env.STUDENT_ID_REQUIRED
+      if (licenseRequired && !license) {
         throw new Error("Driver's license required")
       }
-      if (supplier.licenseRequired && !(await helper.pathExists(path.join(env.CDN_TEMP_LICENSES, license!)))) {
+      if (licenseRequired && !(await helper.pathExists(path.join(env.CDN_TEMP_LICENSES, license!)))) {
         throw new Error("Driver's license file not found")
       }
-      if (supplier.studentIdRequired && !studentIdDocument) {
+      if (studentIdRequired && !studentIdDocument) {
         throw new Error('Student ID document required')
       }
-      if (supplier.studentIdRequired && !(await helper.pathExists(path.join(env.CDN_TEMP_STUDENT_IDS, studentIdDocument!)))) {
+      if (studentIdRequired && !(await helper.pathExists(path.join(env.CDN_TEMP_STUDENT_IDS, studentIdDocument!)))) {
         throw new Error('Student ID document file not found')
       }
       driver.verified = false
@@ -273,16 +275,18 @@ export const checkout = async (req: Request, res: Response) => {
     if (!user) {
       throw new Error(`User ${body.booking.driver} not found`)
     }
-    if (supplier.licenseRequired && !user!.license) {
+    const licenseRequired = supplier.licenseRequired || env.LICENSE_REQUIRED
+    const studentIdRequired = supplier.studentIdRequired || env.STUDENT_ID_REQUIRED
+    if (licenseRequired && !user!.license) {
       throw new Error("Driver's license required")
     }
-    if (supplier.licenseRequired && !(await helper.pathExists(path.join(env.CDN_LICENSES, user!.license!)))) {
+    if (licenseRequired && !(await helper.pathExists(path.join(env.CDN_LICENSES, user!.license!)))) {
       throw new Error("Driver's license file not found")
     }
-    if (supplier.studentIdRequired && !user.studentIdDocument) {
+    if (studentIdRequired && !user.studentIdDocument) {
       throw new Error('Student ID document required')
     }
-    if (supplier.studentIdRequired && !(await helper.pathExists(path.join(env.CDN_STUDENT_IDS, user.studentIdDocument!)))) {
+    if (studentIdRequired && !(await helper.pathExists(path.join(env.CDN_STUDENT_IDS, user.studentIdDocument!)))) {
       throw new Error('Student ID document file not found')
     }
 

@@ -329,6 +329,20 @@ export const CDN_IC = __env__('BC_CDN_IC', false) || CDN_LICENSES
 export const CDN_TEMP_IC = __env__('BC_CDN_TEMP_IC', false) || CDN_TEMP_LICENSES
 
 /**
+ * Force driver license for all bookings.
+ *
+ * @type {boolean}
+ */
+export const LICENSE_REQUIRED = helper.StringToBoolean(__env__('BC_LICENSE_REQUIRED', false, 'false'))
+
+/**
+ * Force student ID for all bookings.
+ *
+ * @type {boolean}
+ */
+export const STUDENT_ID_REQUIRED = helper.StringToBoolean(__env__('BC_STUDENT_ID_REQUIRED', false, 'false'))
+
+/**
  * Student ID documents' cdn folder path.
  * Falls back to CDN_IC if not set.
  *

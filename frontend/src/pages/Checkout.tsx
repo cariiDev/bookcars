@@ -251,11 +251,14 @@ const Checkout = () => {
         }
       }
 
-      if (car.supplier.licenseRequired && !license) {
+      const licenseRequired = car.supplier.licenseRequired || env.LICENSE_REQUIRED
+      const studentIdRequired = car.supplier.studentIdRequired || env.STUDENT_ID_REQUIRED
+
+      if (licenseRequired && !license) {
         setLicenseRequired(true)
         return
       }
-      if (car.supplier.studentIdRequired && !studentIdDocument) {
+      if (studentIdRequired && !studentIdDocument) {
         setStudentIdRequired(true)
         return
       }
@@ -765,7 +768,7 @@ const Checkout = () => {
                       </div>
                     )}
 
-                    {car.supplier.licenseRequired && (
+                    {(car.supplier.licenseRequired || env.LICENSE_REQUIRED) && (
                       <div className="driver-details">
                         <div className="checkout-info">
                           <LicenseIcon />
@@ -793,7 +796,7 @@ const Checkout = () => {
                       </div>
                     )}
 
-                    {car.supplier.studentIdRequired && (
+                    {(car.supplier.studentIdRequired || env.STUDENT_ID_REQUIRED) && (
                       <div className="driver-details">
                         <div className="checkout-info">
                           <LicenseIcon />
@@ -1143,8 +1146,8 @@ const Checkout = () => {
                   <div className="form-error">
                     {paymentFailed && <Error message={strings.PAYMENT_FAILED} />}
                     {recaptchaError && <Error message={commonStrings.RECAPTCHA_ERROR} />}
-                    {licenseRequired && <Error message={strings.LICENSE_REQUIRED} />}
-                    {(car?.supplier.studentIdRequired && studentIdRequired) && <Error message={strings.STUDENT_ID_REQUIRED} />}
+                    {((car?.supplier.licenseRequired || env.LICENSE_REQUIRED) && licenseRequired) && <Error message={strings.LICENSE_REQUIRED} />}
+                    {((car?.supplier.studentIdRequired || env.STUDENT_ID_REQUIRED) && studentIdRequired) && <Error message={strings.STUDENT_ID_REQUIRED} />}
                   </div>
                 </form>
               </Paper>

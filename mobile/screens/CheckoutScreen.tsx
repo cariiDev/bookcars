@@ -613,11 +613,14 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
         }
       }
 
-      if (car.supplier.licenseRequired && !license) {
+      const licenseRequired = car.supplier.licenseRequired || env.LICENSE_REQUIRED
+      const studentIdRequired = car.supplier.studentIdRequired || env.STUDENT_ID_REQUIRED
+
+      if (licenseRequired && !license) {
         setLicenseRequired(true)
         return
       }
-      if (car.supplier.studentIdRequired && !studentIdDocument) {
+      if (studentIdRequired && !studentIdDocument) {
         setStudentIdRequired(true)
         return
       }
@@ -990,7 +993,7 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
                     </View>
                   )}
 
-                  {car.supplier.licenseRequired && (
+                  {(car.supplier.licenseRequired || env.LICENSE_REQUIRED) && (
                     <View style={styles.section}>
                       <View style={styles.sectionHeader}>
                         <MaterialIcons name="payment" size={iconSize} color={iconColor} />
@@ -1016,7 +1019,7 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
                     </View>
                   )}
 
-                  {car.supplier.studentIdRequired && (
+                  {(car.supplier.studentIdRequired || env.STUDENT_ID_REQUIRED) && (
                     <View style={styles.section}>
                       <View style={styles.sectionHeader}>
                         <MaterialIcons name="payment" size={iconSize} color={iconColor} />
@@ -1165,8 +1168,8 @@ const CheckoutScreen = ({ navigation, route }: NativeStackScreenProps<StackParam
                     <View style={styles.error}>
                       {error && <Error message={i18n.t('FIX_ERRORS')} />}
                       {tosError && <Error message={i18n.t('TOS_ERROR')} />}
-                      {licenseRequired && <Error message={i18n.t('LICENSE_REQUIRED')} />}
-                      {(car?.supplier.studentIdRequired && studentIdRequired) && <Error message={i18n.t('STUDENT_ID_REQUIRED')} />}
+                      {(car?.supplier.licenseRequired || env.LICENSE_REQUIRED) && licenseRequired && <Error message={i18n.t('LICENSE_REQUIRED')} />}
+                      {((car?.supplier.studentIdRequired || env.STUDENT_ID_REQUIRED) && studentIdRequired) && <Error message={i18n.t('STUDENT_ID_REQUIRED')} />}
                     </View>
                   </View>
                 </View>

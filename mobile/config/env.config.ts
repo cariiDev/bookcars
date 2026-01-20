@@ -8,6 +8,8 @@ import {
   BC_CDN_CARS,
   BC_CDN_LICENSES,
   BC_CDN_TEMP_LICENSES,
+  BC_LICENSE_REQUIRED,
+  BC_STUDENT_ID_REQUIRED,
   BC_SUPPLIER_IMAGE_WIDTH,
   BC_SUPPLIER_IMAGE_HEIGHT,
   BC_CAR_IMAGE_WIDTH,
@@ -182,6 +184,20 @@ export const CDN_STUDENT_IDS: string = BC_CDN_LICENSES
  * @type {string}
  */
 export const CDN_TEMP_STUDENT_IDS: string = BC_CDN_TEMP_LICENSES
+
+/**
+ * Force driver license for all bookings.
+ *
+ * @type {boolean}
+ */
+export const LICENSE_REQUIRED: boolean = (BC_LICENSE_REQUIRED || '').toLowerCase() === 'true'
+
+/**
+ * Force student ID for all bookings.
+ *
+ * @type {boolean}
+ */
+export const STUDENT_ID_REQUIRED: boolean = (BC_STUDENT_ID_REQUIRED || '').toLowerCase() === 'true'
 
 /**
  * Page offset.

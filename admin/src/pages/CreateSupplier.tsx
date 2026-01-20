@@ -16,6 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import Layout from '@/components/Layout'
+import env from '@/config/env.config'
 import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/create-supplier'
 import * as UserService from '@/services/UserService'
@@ -62,8 +63,8 @@ const CreateSupplier = () => {
       location: '',
       bio: '',
       payLater: false,
-      licenseRequired: false,
-      studentIdRequired: false,
+      licenseRequired: env.LICENSE_REQUIRED,
+      studentIdRequired: env.STUDENT_ID_REQUIRED,
       minimumRentalDays: '',
       priceChangeRate: '',
       supplierCarLimit: '',
