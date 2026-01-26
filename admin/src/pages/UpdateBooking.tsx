@@ -491,7 +491,14 @@ const UpdateBooking = () => {
                           additionalDriver,
                         }
 
-                        const _price = await bookcarsHelper.calculateTotalPrice(_car, from, to, _car.supplier.priceChangeRate || 0, options)
+                        const _price = await bookcarsHelper.calculateTotalPrice(
+                          _car,
+                          from,
+                          to,
+                          _car.supplier.priceChangeRate || 0,
+                          options,
+                          env.SST_TAX_RATE,
+                        )
                         setPrice(_price)
 
                         setBooking(_booking)
@@ -535,7 +542,14 @@ const UpdateBooking = () => {
                         additionalDriver,
                       }
 
-                      const _price = await bookcarsHelper.calculateTotalPrice(carObj!, date, to!, carObj!.supplier.priceChangeRate || 0, options)
+                      const _price = await bookcarsHelper.calculateTotalPrice(
+                        carObj!,
+                        date,
+                        to!,
+                        carObj!.supplier.priceChangeRate || 0,
+                        options,
+                        env.SST_TAX_RATE,
+                      )
                       setBooking(_booking)
                       setPrice(_price)
                       setValue('from', date)
@@ -585,7 +599,14 @@ const UpdateBooking = () => {
                         additionalDriver,
                       }
 
-                      const _price = await bookcarsHelper.calculateTotalPrice(carObj!, from!, date, carObj!.supplier.priceChangeRate || 0, options)
+                      const _price = await bookcarsHelper.calculateTotalPrice(
+                        carObj!,
+                        from!,
+                        date,
+                        carObj!.supplier.priceChangeRate || 0,
+                        options,
+                        env.SST_TAX_RATE,
+                      )
                       setBooking(_booking)
                       setPrice(_price)
                       setValue('to', date)
@@ -648,7 +669,14 @@ const UpdateBooking = () => {
                             additionalDriver,
                           }
 
-                          const _price = await bookcarsHelper.calculateTotalPrice(carObj, from, to, carObj.supplier.priceChangeRate || 0, options)
+                          const _price = await bookcarsHelper.calculateTotalPrice(
+                            carObj,
+                            from,
+                            to,
+                            carObj.supplier.priceChangeRate || 0,
+                            options,
+                            env.SST_TAX_RATE,
+                          )
                           setBooking(_booking)
                           setPrice(_price)
                           setValue('cancellation', _booking.cancellation || false)
@@ -683,7 +711,14 @@ const UpdateBooking = () => {
                             additionalDriver,
                           }
 
-                          const _price = await bookcarsHelper.calculateTotalPrice(carObj, from, to, carObj.supplier.priceChangeRate || 0, options)
+                          const _price = await bookcarsHelper.calculateTotalPrice(
+                            carObj,
+                            from,
+                            to,
+                            carObj.supplier.priceChangeRate || 0,
+                            options,
+                            env.SST_TAX_RATE,
+                          )
                           setBooking(_booking)
                           setPrice(_price)
                           setValue('amendments', _booking.amendments || false)
@@ -718,7 +753,14 @@ const UpdateBooking = () => {
                             additionalDriver,
                           }
 
-                          const _price = await bookcarsHelper.calculateTotalPrice(carObj, from, to, carObj.supplier.priceChangeRate || 0, options)
+                          const _price = await bookcarsHelper.calculateTotalPrice(
+                            carObj,
+                            from,
+                            to,
+                            carObj.supplier.priceChangeRate || 0,
+                            options,
+                            env.SST_TAX_RATE,
+                          )
                           setBooking(_booking)
                           setPrice(_price)
                           setValue('theftProtection', _booking.theftProtection || false)
@@ -753,7 +795,14 @@ const UpdateBooking = () => {
                             additionalDriver,
                           }
 
-                          const _price = await bookcarsHelper.calculateTotalPrice(carObj, from, to, carObj.supplier.priceChangeRate || 0, options)
+                          const _price = await bookcarsHelper.calculateTotalPrice(
+                            carObj,
+                            from,
+                            to,
+                            carObj.supplier.priceChangeRate || 0,
+                            options,
+                            env.SST_TAX_RATE,
+                          )
                           setBooking(_booking)
                           setPrice(_price)
                           setValue('collisionDamageWaiver', _booking.collisionDamageWaiver || false)
@@ -788,7 +837,14 @@ const UpdateBooking = () => {
                             additionalDriver,
                           }
 
-                          const _price = await bookcarsHelper.calculateTotalPrice(carObj, from, to, carObj.supplier.priceChangeRate || 0, options)
+                          const _price = await bookcarsHelper.calculateTotalPrice(
+                            carObj,
+                            from,
+                            to,
+                            carObj.supplier.priceChangeRate || 0,
+                            options,
+                            env.SST_TAX_RATE,
+                          )
                           setBooking(_booking)
                           setPrice(_price)
                           setValue('fullInsurance', _booking.fullInsurance || false)
@@ -823,7 +879,14 @@ const UpdateBooking = () => {
                             additionalDriver: _booking.additionalDriver,
                           }
 
-                          const _price = await bookcarsHelper.calculateTotalPrice(carObj, from, to, carObj.supplier.priceChangeRate || 0, options)
+                          const _price = await bookcarsHelper.calculateTotalPrice(
+                            carObj,
+                            from,
+                            to,
+                            carObj.supplier.priceChangeRate || 0,
+                            options,
+                            env.SST_TAX_RATE,
+                          )
                           setBooking(_booking)
                           setPrice(_price)
                           setValue('additionalDriver', _booking.additionalDriver || false)

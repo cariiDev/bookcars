@@ -63,7 +63,14 @@ const Car = ({
         const priceChangeRate = car.supplier.priceChangeRate || 0
         setCurrencySymbol(await StripeService.getCurrencySymbol())
         setDays(bookcarsHelper.days(from, to))
-        setTotalPrice(await StripeService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from as Date, to as Date, priceChangeRate)))
+        setTotalPrice(await StripeService.convertPrice(bookcarsHelper.calculateTotalPrice(
+          car,
+          from as Date,
+          to as Date,
+          priceChangeRate,
+          undefined,
+          env.SST_TAX_RATE,
+        )))
         setCancellation(await helper.getCancellation(car.cancellation, language, priceChangeRate))
         setAmendments(await helper.getAmendments(car.amendments, language, priceChangeRate))
         setCollisionDamageWaiver(await helper.getCollisionDamageWaiver(car.collisionDamageWaiver, language, priceChangeRate))

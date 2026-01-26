@@ -46,6 +46,7 @@ import * as UserService from '@/services/UserService'
 import * as CarService from '@/services/CarService'
 import * as LocationService from '@/services/LocationService'
 import * as PaymentService from '@/services/PaymentService'
+import * as BayarCashService from '@/services/BayarCashService'
 import * as StripeService from '@/services/StripeService'
 import * as PayPalService from '@/services/PayPalService'
 import { useRecaptchaContext, RecaptchaContextType } from '@/context/RecaptchaContext'
@@ -122,6 +123,7 @@ const Checkout = () => {
   const [originalPrice, setOriginalPrice] = useState(0)
   const [bayarCashLoaded, setBayarCashLoaded] = useState(false)
   const [bayarCashProcessing, setBayarCashProcessing] = useState(false)
+  const [bayarCashChannel, setBayarCashChannel] = useState<number>(env.BAYARCASH_PAYMENT_CHANNEL)
 
 
   const birthDateRef = useRef<HTMLInputElement | null>(null)
@@ -166,6 +168,20 @@ const Checkout = () => {
   const payDeposit = useWatch({ control, name: 'payDeposit' })
   const voucherCode = useWatch({ control, name: 'voucherCode' })
 
+  const taxRate = env.SST_TAX_RATE
+  const taxMultiplier = 1 + taxRate
+  const vouchersDiscountWithTax = vouchersDiscount * taxMultiplier
+  const sstAmount = price > 0 && taxRate > 0
+    ? (price / taxMultiplier) * taxRate
+    : 0
+  const paymentAmount = payDeposit ? depositPrice : price
+  const onlineBankingFee = (!payLater
+    && env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash
+    && bayarCashChannel === BayarCashService.PAYMENT_CHANNELS.DUITNOW_BANKING)
+    ? env.BAYARCASH_ONLINE_BANKING_FEE
+    : 0
+  const totalPaymentAmount = paymentAmount + onlineBankingFee
+
   const validateEmail = (email: string) => {
     return validator.isEmail(email)
   }
@@ -179,24 +195,26 @@ const Checkout = () => {
     setAppliedVoucher(voucher)
 
     const currentPrice = originalPrice || price
+    const currentPricePreTax = currentPrice / taxMultiplier
 
     if (voucher && currentPrice > 0) {
-      let calculatedDiscount = 0
+      let calculatedDiscountPreTax = 0
       if (typeof discountAmount === 'number') {
-        calculatedDiscount = discountAmount
+        calculatedDiscountPreTax = discountAmount
       } else if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
-        calculatedDiscount = currentPrice * (voucher.discountValue / 100)
+        calculatedDiscountPreTax = currentPricePreTax * (voucher.discountValue / 100)
       } else {
-        calculatedDiscount = voucher.discountValue
+        calculatedDiscountPreTax = voucher.discountValue
       }
 
       // Apply minimum rental amount validation
-      if (voucher.minimumRentalAmount && currentPrice < voucher.minimumRentalAmount) {
+      if (voucher.minimumRentalAmount && currentPricePreTax < voucher.minimumRentalAmount) {
         helper.error(`Minimum rental amount required: ${voucher.minimumRentalAmount}`)
         return
       }
 
-      const newPrice = Math.max(0, currentPrice - calculatedDiscount)
+      const discountWithTax = calculatedDiscountPreTax * taxMultiplier
+      const newPrice = Math.max(0, currentPrice - discountWithTax)
       setPrice(newPrice)
     } else if (currentPrice > 0) {
       setPrice(currentPrice)
@@ -211,7 +229,8 @@ const Checkout = () => {
     const currentPrice = originalPrice || price
 
     if (totalDiscount > 0 && currentPrice > 0) {
-      const newPrice = Math.max(0, currentPrice - totalDiscount)
+      const discountWithTax = totalDiscount * taxMultiplier
+      const newPrice = Math.max(0, currentPrice - discountWithTax)
       setPrice(newPrice)
     } else if (currentPrice > 0) {
       setPrice(currentPrice)
@@ -323,7 +342,7 @@ const Checkout = () => {
           const description = bookcarsHelper.truncateString(_description, StripeService.ORDER_DESCRIPTION_MAX_LENGTH)
 
           const payload: bookcarsTypes.CreatePaymentPayload = {
-            amount: payDeposit ? depositPrice : price,
+            amount: totalPaymentAmount,
             currency: PaymentService.getCurrency(),
             locale: language,
             receiptEmail: (!authenticated ? driver?.email : user?.email) as string,
@@ -450,7 +469,14 @@ const Checkout = () => {
       }
 
       const priceChangeRate = _car.supplier.priceChangeRate || 0
-      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(_car, _from, _to, priceChangeRate))
+      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(
+        _car,
+        _from,
+        _to,
+        priceChangeRate,
+        undefined,
+        env.SST_TAX_RATE,
+      ))
       let _depositPrice = _car.deposit > 0 ? await PaymentService.convertPrice(_car.deposit) : 0
       _depositPrice += _depositPrice * (priceChangeRate / 100)
 
@@ -526,7 +552,8 @@ const Checkout = () => {
                           setPrice(value)
                         } else if (appliedVouchers.length > 0) {
                           // Use multiple vouchers discount
-                          const newPrice = Math.max(0, value - vouchersDiscount)
+                          const discountWithTax = vouchersDiscount * taxMultiplier
+                          const newPrice = Math.max(0, value - discountWithTax)
                           setPrice(newPrice)
                         } else if (appliedVoucher) {
                           // Use single voucher discount (backward compatibility)
@@ -552,7 +579,7 @@ const Checkout = () => {
                     />
 
                     <VoucherInputMultiple
-                      bookingAmount={originalPrice || price}
+                      bookingAmount={(originalPrice || price) / taxMultiplier}
                       bookingStartTime={from}
                       bookingEndTime={to}
                       userId={user?._id}
@@ -601,11 +628,27 @@ const Checkout = () => {
                             <div className="checkout-detail-value" style={{ color: 'green' }}>
                               -{bookcarsHelper.formatPrice(
                                 appliedVouchers.length > 0
-                                  ? vouchersDiscount
+                                  ? vouchersDiscountWithTax
                                   : Math.max(0, originalPrice - price),
                                 commonStrings.CURRENCY,
                                 language
                               )}
+                            </div>
+                          </div>
+                        )}
+                        {price > 0 && (
+                          <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
+                            <span className="checkout-detail-title">{strings.SST_TAX}</span>
+                            <div className="checkout-detail-value">
+                              {bookcarsHelper.formatPrice(sstAmount, commonStrings.CURRENCY, language)}
+                            </div>
+                          </div>
+                        )}
+                        {onlineBankingFee > 0 && (
+                          <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
+                            <span className="checkout-detail-title">{strings.ONLINE_BANKING_FEE}</span>
+                            <div className="checkout-detail-value">
+                              {bookcarsHelper.formatPrice(onlineBankingFee, commonStrings.CURRENCY, language)}
                             </div>
                           </div>
                         )}
@@ -1005,7 +1048,7 @@ const Checkout = () => {
                       </div>
                       <div className="payment-info-price">
                         {
-                          bookcarsHelper.formatPrice(payDeposit ? depositPrice : price, commonStrings.CURRENCY, language)
+                          bookcarsHelper.formatPrice(totalPaymentAmount, commonStrings.CURRENCY, language)
                         }
                       </div>
                     </div>
@@ -1031,7 +1074,7 @@ const Checkout = () => {
                                 const name = bookcarsHelper.truncateString(car.name, PayPalService.ORDER_NAME_MAX_LENGTH)
                                 const _description = `${car.name} - ${daysLabel} - ${pickupLocation._id === dropOffLocation._id ? pickupLocation.name : `${pickupLocation.name} - ${dropOffLocation.name}`}`
                                 const description = bookcarsHelper.truncateString(_description, PayPalService.ORDER_DESCRIPTION_MAX_LENGTH)
-                                const amount = payDeposit ? depositPrice : price
+                                const amount = totalPaymentAmount
                                 const orderId = await PayPalService.createOrder(bookingId!, amount, PaymentService.getCurrency(), name, description)
                                 return orderId
                               }}
@@ -1084,6 +1127,7 @@ const Checkout = () => {
                             formData={getValues()}
                             additionalDriverRequired={adRequired}
                             isFormValid={isValid}
+                            onChannelChange={setBayarCashChannel}
                             onError={(error) => {
                               helper.error(error)
                               setBayarCashProcessing(false)

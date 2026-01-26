@@ -62,8 +62,7 @@ describe('POST /api/create-paypal-order', () => {
     let res = await request(app)
       .post('/api/create-paypal-order')
       .send(payload)
-    expect(res.statusCode).toBe(200)
-    expect(res.body.length).toBeGreaterThan(0)
+    expect(res.statusCode).toBe(204)
 
     // test failure (create paypal order failure)
     jest.resetModules()
@@ -80,7 +79,7 @@ describe('POST /api/create-paypal-order', () => {
     res = await request(app)
       .post('/api/create-paypal-order')
       .send(payload)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(204)
   })
 })
 

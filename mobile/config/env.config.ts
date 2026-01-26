@@ -23,6 +23,7 @@ import {
   BC_DEPOSIT_FILTER_VALUE_2,
   BC_DEPOSIT_FILTER_VALUE_3,
   BC_WEBSITE_NAME,
+  BC_SST_TAX_RATE,
 } from '@env'
 
 /**
@@ -121,6 +122,16 @@ export const AXIOS_RETRIES_INTERVAL: number = 500 // in milliseconds
  * @type {string}
  */
 export const DEFAULT_LANGUAGE: string = BC_DEFAULT_LANGUAGE || 'en'
+
+/**
+ * SST tax rate.
+ *
+ * @type {number}
+ */
+const parsedSstTaxRate = Number.parseFloat(BC_SST_TAX_RATE || '0.08')
+export const SST_TAX_RATE: number = Number.isNaN(parsedSstTaxRate)
+  ? 0.08
+  : Math.min(1, Math.max(0, parsedSstTaxRate))
 
 /**
  * Page size. Default is 20.

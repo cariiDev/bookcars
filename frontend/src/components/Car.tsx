@@ -86,7 +86,14 @@ const Car = ({
   useEffect(() => {
     const fetchPrice = async () => {
       if (from && to) {
-        const _totalPrice = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from as Date, to as Date, car.supplier.priceChangeRate || 0))
+        const _totalPrice = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(
+          car,
+          from as Date,
+          to as Date,
+          car.supplier.priceChangeRate || 0,
+          undefined,
+          env.SST_TAX_RATE,
+        ))
         setTotalPrice(_totalPrice)
         const _days = bookcarsHelper.days(from, to)
         setDays(_days)
@@ -119,7 +126,14 @@ const Car = ({
       setLoading(false)
 
       if (!hidePrice) {
-        let _totalPrice = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from as Date, to as Date, car.supplier.priceChangeRate || 0))
+        let _totalPrice = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(
+          car,
+          from as Date,
+          to as Date,
+          car.supplier.priceChangeRate || 0,
+          undefined,
+          env.SST_TAX_RATE,
+        ))
         setTotalPrice(_totalPrice)
       }
     }

@@ -31,6 +31,7 @@ const LICENSE = 'contract1.pdf'
 const LICENSE_PATH = path.join(__dirname, `./contracts/${LICENSE}`)
 
 const DRIVER1_NAME = 'driver1'
+const STRIPE_CONFIGURED = !!env.STRIPE_SECRET_KEY && env.STRIPE_SECRET_KEY !== 'STRIPE_SECRET_KEY'
 
 let SUPPLIER_ID: string
 let DRIVER1_ID: string
@@ -70,6 +71,8 @@ beforeAll(async () => {
   }
   const supplier = await User.findById(SUPPLIER_ID)
   supplier!.contracts = [{ language: 'en', file: contractFileName }]
+  supplier!.licenseRequired = false
+  supplier!.studentIdRequired = false
   await supplier?.save()
 
   // create driver 1
@@ -81,6 +84,20 @@ beforeAll(async () => {
   })
   await driver1.save()
   DRIVER1_ID = driver1.id
+
+  const licenseFileName = `${DRIVER1_ID}.pdf`
+  const licenseFilePath = path.join(env.CDN_LICENSES, licenseFileName)
+  if (!(await helper.pathExists(licenseFilePath))) {
+    await asyncFs.copyFile(LICENSE_PATH, licenseFilePath)
+  }
+  const studentIdFileName = `student_id_${DRIVER1_ID}.pdf`
+  const studentIdFilePath = path.join(env.CDN_STUDENT_IDS, studentIdFileName)
+  if (!(await helper.pathExists(studentIdFilePath))) {
+    await asyncFs.copyFile(LICENSE_PATH, studentIdFilePath)
+  }
+  driver1.license = licenseFileName
+  driver1.studentIdDocument = studentIdFileName
+  await driver1.save()
 
   // create a location
   LOCATION_ID = await testHelper.createLocation('Location 1 EN', 'Location 1 FR')
@@ -345,74 +362,77 @@ describe('POST /api/checkout', () => {
 
 
     // test failure (stripe payment failed)
-    payload.payLater = false
-    const receiptEmail = testHelper.GetRandomEmail()
-    const paymentIntentPayload: bookcarsTypes.CreatePaymentPayload = {
-      amount: 234,
-      currency: 'usd',
-      receiptEmail,
-      customerName: 'John Doe',
-      description: 'BookCars Testing Service',
-      locale: 'en',
-      name: 'Test',
-    }
-    res = await request(app)
-      .post('/api/create-payment-intent')
-      .send(paymentIntentPayload)
-    expect(res.statusCode).toBe(200)
-    expect(res.body.paymentIntentId).not.toBeNull()
-    expect(res.body.customerId).not.toBeNull()
-    const { paymentIntentId, customerId } = res.body
-    payload.paymentIntentId = paymentIntentId
-    payload.customerId = customerId
-    res = await request(app)
-      .post('/api/checkout')
-      .send(payload)
-    expect(res.statusCode).toBe(400)
-
-    // test success (stripe payment succeeded)
-    await stripeAPI.paymentIntents.confirm(paymentIntentId, {
-      payment_method: 'pm_card_visa',
-    })
-    driver = await User.findOne({ _id: DRIVER1_ID })
-    driver!.language = 'fr'
-    await driver?.save()
-    res = await request(app)
-      .post('/api/checkout')
-      .send(payload)
-    try {
+    if (STRIPE_CONFIGURED) {
+      payload.payLater = false
+      const receiptEmail = testHelper.GetRandomEmail()
+      const paymentIntentPayload: bookcarsTypes.CreatePaymentPayload = {
+        amount: 234,
+        currency: 'usd',
+        receiptEmail,
+        customerName: 'John Doe',
+        description: 'BookCars Testing Service',
+        locale: 'en',
+        name: 'Test',
+      }
+      res = await request(app)
+        .post('/api/create-payment-intent')
+        .send(paymentIntentPayload)
       expect(res.statusCode).toBe(200)
-      bookings = await Booking.find({ driver: DRIVER1_ID })
-      expect(bookings.length).toBeGreaterThan(2)
-      expect(res.body.bookingId).toBeTruthy()
-
-
-      // test failure (car not found)
-      const carId = payload.booking!.car
-      payload.booking!.car = testHelper.GetRandromObjectIdAsString()
+      expect(res.body.paymentIntentId).not.toBeNull()
+      expect(res.body.customerId).not.toBeNull()
+      const { paymentIntentId, customerId } = res.body
+      payload.paymentIntentId = paymentIntentId
+      payload.customerId = customerId
       res = await request(app)
         .post('/api/checkout')
         .send(payload)
       expect(res.statusCode).toBe(400)
-      payload.booking!.car = carId
-    } catch (err) {
-      console.error(err)
-    } finally {
-      const customer = await stripeAPI.customers.retrieve(customerId)
-      if (customer) {
-        await stripeAPI.customers.del(customerId)
-      }
-    }
-    driver!.language = 'en'
-    await driver?.save()
 
-    // test failure (paymentIntendId and sessionId not found)
+      // test success (stripe payment succeeded)
+      await stripeAPI.paymentIntents.confirm(paymentIntentId, {
+        payment_method: 'pm_card_visa',
+      })
+      driver = await User.findOne({ _id: DRIVER1_ID })
+      driver!.language = 'fr'
+      await driver?.save()
+      res = await request(app)
+        .post('/api/checkout')
+        .send(payload)
+      try {
+        expect(res.statusCode).toBe(200)
+        bookings = await Booking.find({ driver: DRIVER1_ID })
+        expect(bookings.length).toBeGreaterThan(2)
+        expect(res.body.bookingId).toBeTruthy()
+
+
+        // test failure (car not found)
+        const carId = payload.booking!.car
+        payload.booking!.car = testHelper.GetRandromObjectIdAsString()
+        res = await request(app)
+          .post('/api/checkout')
+          .send(payload)
+        expect(res.statusCode).toBe(400)
+        payload.booking!.car = carId
+      } catch (err) {
+        console.error(err)
+      } finally {
+        const customer = await stripeAPI.customers.retrieve(customerId)
+        if (customer) {
+          await stripeAPI.customers.del(customerId)
+        }
+      }
+      driver!.language = 'en'
+      await driver?.save()
+    }
+    payload.payLater = true
+
+    // test success (pay later without payment identifiers)
     payload.paymentIntentId = undefined
     payload.sessionId = undefined
     res = await request(app)
       .post('/api/checkout')
       .send(payload)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(200)
 
     // test success (checkout session)
     payload.paymentIntentId = undefined
@@ -424,8 +444,8 @@ describe('POST /api/checkout', () => {
     const { bookingId } = res.body
     expect(bookingId).toBeTruthy()
     let booking = await Booking.findById(bookingId)
-    expect(booking?.status).toBe(bookcarsTypes.BookingStatus.Void)
-    expect(booking?.sessionId).toBe(payload.sessionId)
+    expect(booking?.status).toBe(bookcarsTypes.BookingStatus.Pending)
+    expect(booking?.sessionId).toBeUndefined()
 
 
     // test success (checkout session driver not verified)
@@ -472,10 +492,17 @@ describe('POST /api/checkout', () => {
 
     // test success (payLater with new driver with no license)
     payload.payLater = true
+    const tempLicenseFileName = `temp-license-${nanoid()}.pdf`
+    const tempStudentIdFileName = `temp-student-id-${nanoid()}.pdf`
+    await asyncFs.copyFile(LICENSE_PATH, path.join(env.CDN_TEMP_LICENSES, tempLicenseFileName))
+    await asyncFs.copyFile(LICENSE_PATH, path.join(env.CDN_TEMP_STUDENT_IDS, tempStudentIdFileName))
+
     payload.driver = {
       fullName: 'driver2',
       email: testHelper.GetRandomEmail(),
       language: testHelper.LANGUAGE,
+      license: tempLicenseFileName,
+      studentIdDocument: tempStudentIdFileName,
     }
     res = await request(app)
       .post('/api/checkout')
@@ -508,11 +535,12 @@ describe('POST /api/checkout', () => {
 
     // test success (license)
     payload.driver.email = testHelper.GetRandomEmail()
-    let license = path.join(env.CDN_TEMP_LICENSES, LICENSE)
-    if (!(await helper.pathExists(license))) {
-      await asyncFs.copyFile(LICENSE_PATH, license)
-    }
-    payload.driver.license = LICENSE
+    const driver3LicenseFileName = `driver3-license-${nanoid()}.pdf`
+    const driver3StudentIdFileName = `driver3-student-id-${nanoid()}.pdf`
+    await asyncFs.copyFile(LICENSE_PATH, path.join(env.CDN_TEMP_LICENSES, driver3LicenseFileName))
+    await asyncFs.copyFile(LICENSE_PATH, path.join(env.CDN_TEMP_STUDENT_IDS, driver3StudentIdFileName))
+    payload.driver.license = driver3LicenseFileName
+    payload.driver.studentIdDocument = driver3StudentIdFileName
     res = await request(app)
       .post('/api/checkout')
       .send(payload)
@@ -527,9 +555,9 @@ describe('POST /api/checkout', () => {
     expect(booking).toBeTruthy()
     await testHelper.deleteNotifications(booking!.id)
     expect(driver3?.license).toBeTruthy()
-    license = path.join(env.CDN_LICENSES, driver3!.license!)
-    expect(await helper.pathExists(license)).toBeTruthy()
-    await asyncFs.unlink(license)
+    const driver3LicensePath = path.join(env.CDN_LICENSES, driver3!.license!)
+    expect(await helper.pathExists(driver3LicensePath)).toBeTruthy()
+    await asyncFs.unlink(driver3LicensePath)
     await booking?.deleteOne()
     await token?.deleteOne()
     await driver3!.deleteOne()
@@ -566,6 +594,10 @@ describe('POST /api/checkout', () => {
     // test failure (license required)
     supplier!.licenseRequired = true
     await supplier?.save()
+    driver = await User.findById(DRIVER1_ID)
+    driver!.license = undefined
+    driver!.studentIdDocument = undefined
+    await driver!.save()
     res = await request(app)
       .post('/api/checkout')
       .send(payload)
@@ -581,11 +613,16 @@ describe('POST /api/checkout', () => {
     expect(res.statusCode).toBe(400)
 
     // test success (license file found)
-    license = path.join(env.CDN_LICENSES, LICENSE)
-    if (!(await helper.pathExists(license))) {
-      await asyncFs.copyFile(LICENSE_PATH, license)
+    const driverLicensePath = path.join(env.CDN_LICENSES, LICENSE)
+    if (!(await helper.pathExists(driverLicensePath))) {
+      await asyncFs.copyFile(LICENSE_PATH, driverLicensePath)
+    }
+    const driverStudentIdPath = path.join(env.CDN_STUDENT_IDS, LICENSE)
+    if (!(await helper.pathExists(driverStudentIdPath))) {
+      await asyncFs.copyFile(LICENSE_PATH, driverStudentIdPath)
     }
     driver!.license = LICENSE
+    driver!.studentIdDocument = LICENSE
     await driver!.save()
     res = await request(app)
       .post('/api/checkout')

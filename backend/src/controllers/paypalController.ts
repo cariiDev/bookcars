@@ -8,6 +8,7 @@ import User from '../models/User'
 import Car from '../models/Car'
 import * as bookingController from './bookingController'
 import * as ipinfoHelper from '../utils/ipinfoHelper'
+import * as pricingHelper from '../utils/pricingHelper'
 
 /**
  * Create PayPal order.
@@ -22,10 +23,44 @@ export const createPayPalOrder = async (req: Request, res: Response) => {
     const paypal = await import('../payment/paypal.js')
     const { bookingId, amount, currency, name, description }: bookcarsTypes.CreatePayPalOrderPayload = req.body
 
+    const booking = await Booking.findById(bookingId)
+    if (!booking) {
+      const msg = `Booking with id ${bookingId} not found`
+      logger.info(`[paypal.createPayPalOrder] ${msg}`)
+      res.status(204).send(msg)
+      return
+    }
+
+    let amountToCharge = amount
+    const isBaseCurrency = currency.toUpperCase() === env.BASE_CURRENCY.toUpperCase()
+    if (isBaseCurrency) {
+      const pricingContext = await pricingHelper.loadPricingContext(bookingId)
+      if (!pricingContext) {
+        const msg = `Booking with id ${bookingId} not found`
+        logger.info(`[paypal.createPayPalOrder] ${msg}`)
+        res.status(204).send(msg)
+        return
+      }
+
+      const expectedAmount = pricingHelper.calculateExpectedPaymentAmount(
+        pricingContext.booking,
+        pricingContext.car,
+        pricingContext.supplier,
+      )
+
+      if (Math.abs(expectedAmount - amount) > 0.01) {
+        logger.warn(`[paypal.createPayPalOrder] Amount mismatch for booking ${bookingId}. Expected ${expectedAmount}, got ${amount}. Using expected amount.`)
+      }
+
+      amountToCharge = expectedAmount
+    } else {
+      logger.info(`[paypal.createPayPalOrder] Skipping amount enforcement for non-base currency ${currency}. Base currency is ${env.BASE_CURRENCY}.`)
+    }
+
     const clientIp = ipinfoHelper.getClientIp(req)
     const countryCode = await ipinfoHelper.getCountryCode(clientIp)
 
-    const orderId = await paypal.createOrder(bookingId, amount, currency, name, description, countryCode)
+    const orderId = await paypal.createOrder(bookingId, amountToCharge, currency, name, description, countryCode)
 
     res.json(orderId)
   } catch (err) {

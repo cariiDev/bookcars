@@ -45,6 +45,7 @@ interface BayarCashButtonProps {
   isFormValid: boolean
   onSuccess?: () => void
   onError?: (error: any) => void
+  onChannelChange?: (channel: number) => void
 }
 
 const BayarCashButton: React.FC<BayarCashButtonProps> = ({
@@ -66,6 +67,7 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
   additionalDriverRequired,
   isFormValid,
   onError,
+  onChannelChange,
 }) => {
   const [processing, setProcessing] = useState(false)
   const [selectedChannel, setSelectedChannel] = useState<number>(env.BAYARCASH_PAYMENT_CHANNEL)
@@ -75,6 +77,9 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
   const handleChannelChange = (event: SelectChangeEvent<number>) => {
     const channel = Number(event.target.value)
     setSelectedChannel(channel)
+    if (onChannelChange) {
+      onChannelChange(channel)
+    }
   }
 
   const handlePayment = async () => {
@@ -147,7 +152,11 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
         const name = bookcarsHelper.truncateString(car.name, BayarCashService.ORDER_NAME_MAX_LENGTH)
         const _description = `${car.name} - ${daysLabel} - ${pickupLocation._id === dropOffLocation._id ? pickupLocation.name : `${pickupLocation.name} - ${dropOffLocation.name}`}`
         const description = bookcarsHelper.truncateString(_description, BayarCashService.ORDER_DESCRIPTION_MAX_LENGTH)
-        const amount = payDeposit ? depositPrice : price
+        const paymentAmount = payDeposit ? depositPrice : price
+        const onlineBankingFee = selectedChannel === BayarCashService.PAYMENT_CHANNELS.DUITNOW_BANKING
+          ? env.BAYARCASH_ONLINE_BANKING_FEE
+          : 0
+        const amount = paymentAmount + onlineBankingFee
         
         const bayarCashPayload: bookcarsTypes.CreateBayarCashPayload = {
           bookingId,

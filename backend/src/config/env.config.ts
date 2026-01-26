@@ -23,6 +23,22 @@ export const __env__ = (name: string, required?: boolean, defaultValue?: string)
   return String(value)
 }
 
+const normalizeRate = (raw: string, fallback: number) => {
+  const parsed = Number.parseFloat(raw)
+  if (Number.isNaN(parsed)) {
+    return fallback
+  }
+  return Math.min(1, Math.max(0, parsed))
+}
+
+const normalizeAmount = (raw: string, fallback: number) => {
+  const parsed = Number.parseFloat(raw)
+  if (Number.isNaN(parsed)) {
+    return fallback
+  }
+  return Math.max(0, parsed)
+}
+
 /**
  * ISO 639-1 language codes supported
  * https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
@@ -387,6 +403,20 @@ export const FRONTEND_HOST = __env__('BC_FRONTEND_HOST', true)
 export const DEFAULT_LANGUAGE = __env__('BC_DEFAULT_LANGUAGE', false, 'en')
 
 /**
+ * Base currency used for prices stored in the database.
+ *
+ * @type {string}
+ */
+export const BASE_CURRENCY = __env__('BC_BASE_CURRENCY', false, 'USD')
+
+/**
+ * SST tax rate expressed as a decimal (e.g. 0.08).
+ *
+ * @type {number}
+ */
+export const SST_TAX_RATE = normalizeRate(__env__('BC_SST_TAX_RATE', false, '0.08'), 0.08)
+
+/**
  * Default Minimum age for rental. Default is 21 years.
  *
  * @type {number}
@@ -490,6 +520,13 @@ const parseBayarCashAllowedChannels = (): bookcarsTypes.BayarCashChannel[] => {
 }
 
 export const BAYARCASH_ALLOWED_CHANNELS = parseBayarCashAllowedChannels()
+
+/**
+ * Additional fee applied for DuitNow Online Banking/Wallets.
+ *
+ * @type {number}
+ */
+export const BAYARCASH_ONLINE_BANKING_FEE = normalizeAmount(__env__('BC_BAYARCASH_ONLINE_BANKING_FEE', false, '1'), 1)
 
 /**
  * Booking expiration in seconds.

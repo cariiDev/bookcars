@@ -12,6 +12,16 @@ const LANGUAGES = [
   }, 
 ]
 
+const normalizeRate = (raw: unknown, fallback: number) => {
+  const parsed = Number.parseFloat(String(raw))
+  if (Number.isNaN(parsed)) {
+    return fallback
+  }
+  return Math.min(1, Math.max(0, parsed))
+}
+
+const SST_TAX_RATE = normalizeRate(import.meta.env.VITE_BC_SST_TAX_RATE || '0.08', 0.08)
+
 const env = {
   isMobile: window.innerWidth <= 960,
   isSafari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
@@ -23,6 +33,7 @@ const env = {
   LANGUAGES: LANGUAGES.map((l) => l.code),
   _LANGUAGES: LANGUAGES,
   DEFAULT_LANGUAGE: String(import.meta.env.VITE_BC_DEFAULT_LANGUAGE || 'en'),
+  SST_TAX_RATE,
   PAGE_SIZE: Number.parseInt(String(import.meta.env.VITE_BC_PAGE_SIZE), 10) || 30,
   CARS_PAGE_SIZE: Number.parseInt(String(import.meta.env.VITE_BC_CARS_PAGE_SIZE), 10) || 15,
   BOOKINGS_PAGE_SIZE: Number.parseInt(String(import.meta.env.VITE_BC_BOOKINGS_PAGE_SIZE), 10) || 20,

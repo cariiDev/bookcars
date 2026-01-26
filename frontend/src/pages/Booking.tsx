@@ -79,7 +79,14 @@ const Booking = () => {
         if (_car && from && to) {
           const _booking = bookcarsHelper.clone(booking)
           _booking.car = _car
-          const _price = bookcarsHelper.calculateTotalPrice(_car, from, to, _booking)
+          const _price = bookcarsHelper.calculateTotalPrice(
+            _car,
+            from,
+            to,
+            _car.supplier.priceChangeRate || 0,
+            _booking as bookcarsTypes.CarOptions,
+            env.SST_TAX_RATE,
+          )
 
           setBooking(_booking)
           setPrice(_price)
@@ -113,6 +120,7 @@ const Booking = () => {
         new Date(booking.to),
         (booking.car as bookcarsTypes.Car).supplier.priceChangeRate || 0,
         booking as bookcarsTypes.CarOptions,
+        env.SST_TAX_RATE,
       )
       setBooking(_booking)
       setPrice(_price)
@@ -131,6 +139,7 @@ const Booking = () => {
         new Date(booking.to),
         (booking.car as bookcarsTypes.Car).supplier.priceChangeRate || 0,
         booking as bookcarsTypes.CarOptions,
+        env.SST_TAX_RATE,
       )
       setBooking(_booking)
       setPrice(_price)
@@ -149,6 +158,7 @@ const Booking = () => {
         new Date(booking.to),
         (booking.car as bookcarsTypes.Car).supplier.priceChangeRate || 0,
         booking as bookcarsTypes.CarOptions,
+        env.SST_TAX_RATE,
       )
       setBooking(_booking)
       setPrice(_price)
@@ -167,6 +177,7 @@ const Booking = () => {
         new Date(booking.to),
         (booking.car as bookcarsTypes.Car).supplier.priceChangeRate || 0,
         booking as bookcarsTypes.CarOptions,
+        env.SST_TAX_RATE,
       )
       setBooking(_booking)
       setPrice(_price)
@@ -185,6 +196,7 @@ const Booking = () => {
         new Date(booking.to),
         (booking.car as bookcarsTypes.Car).supplier.priceChangeRate || 0,
         booking as bookcarsTypes.CarOptions,
+        env.SST_TAX_RATE,
       )
       setBooking(_booking)
       setPrice(_price)
@@ -203,6 +215,7 @@ const Booking = () => {
         new Date(booking.to),
         (booking.car as bookcarsTypes.Car).supplier.priceChangeRate || 0,
         booking as bookcarsTypes.CarOptions,
+        env.SST_TAX_RATE,
       )
       setBooking(_booking)
       setPrice(_price)
@@ -392,6 +405,7 @@ const Booking = () => {
                         new Date(booking.to),
                         (booking.car as bookcarsTypes.Car).supplier.priceChangeRate || 0,
                         booking as bookcarsTypes.CarOptions,
+                        env.SST_TAX_RATE,
                       )
                       _booking.price = _price
                       setBooking(_booking)
@@ -421,6 +435,7 @@ const Booking = () => {
                         new Date(booking.to),
                         (booking.car as bookcarsTypes.Car).supplier.priceChangeRate || 0,
                         booking as bookcarsTypes.CarOptions,
+                        env.SST_TAX_RATE,
                       )
                       _booking.price = _price
                       setBooking(_booking)

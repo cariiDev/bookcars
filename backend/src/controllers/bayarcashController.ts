@@ -8,6 +8,7 @@ import Booking from '../models/Booking'
 import User from '../models/User'
 import Car from '../models/Car'
 import * as bookingController from './bookingController'
+import * as pricingHelper from '../utils/pricingHelper'
 
 /**
  * Create BayarCash payment intent.
@@ -49,9 +50,36 @@ export const createBayarCashPayment = async (req: Request, res: Response) => {
       return
     }
 
+    const pricingContext = await pricingHelper.loadPricingContext(bookingId)
+    if (!pricingContext) {
+      const msg = `Booking with id ${bookingId} not found`
+      logger.info(`[bayarcash.createBayarCashPayment] ${msg}`)
+      res.status(204).send(msg)
+      return
+    }
+
+    let amountToCharge = amount
+    const isBaseCurrency = currency.toUpperCase() === env.BASE_CURRENCY.toUpperCase()
+    if (isBaseCurrency) {
+      const expectedAmount = pricingHelper.calculateExpectedPaymentAmount(
+        pricingContext.booking,
+        pricingContext.car,
+        pricingContext.supplier,
+        normalizedChannel,
+      )
+
+      if (Math.abs(expectedAmount - amount) > 0.01) {
+        logger.warn(`[bayarcash.createBayarCashPayment] Amount mismatch for booking ${bookingId}. Expected ${expectedAmount}, got ${amount}. Using expected amount.`)
+      }
+
+      amountToCharge = expectedAmount
+    } else {
+      logger.info(`[bayarcash.createBayarCashPayment] Skipping amount enforcement for non-base currency ${currency}. Base currency is ${env.BASE_CURRENCY}.`)
+    }
+
     const paymentIntent = await bayarcash.createPaymentIntent(
       bookingId,
-      amount,
+      amountToCharge,
       currency,
       normalizedChannel,
       payerName,

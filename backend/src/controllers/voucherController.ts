@@ -623,6 +623,13 @@ export const applyVoucher = async (req: Request, res: Response) => {
       throw new Error('Unauthorized: You can only apply vouchers to your own bookings')
     }
 
+    const taxRate = env.SST_TAX_RATE
+    const taxMultiplier = 1 + taxRate
+    const roundToCurrency = (value: number) => Math.round(value * 100) / 100
+    const bookingAmountPreTax = taxRate > 0
+      ? roundToCurrency(booking.price / taxMultiplier)
+      : booking.price
+
     // Check if booking already has a voucher
     if (booking.voucher) {
       throw new Error('Booking already has a voucher applied')
@@ -689,19 +696,19 @@ export const applyVoucher = async (req: Request, res: Response) => {
           (startDay !== endDay && !voucher.allowedDaysOfWeek.includes(endDay))) {
         throw new Error('This voucher is only valid for weekday bookings (Monday-Friday)')
       }
-      if (voucher.minimumRentalAmount && booking.price < voucher.minimumRentalAmount) {
+      if (voucher.minimumRentalAmount && bookingAmountPreTax < voucher.minimumRentalAmount) {
         throw new Error(`This voucher requires a minimum booking amount of RM${voucher.minimumRentalAmount}`)
       }
     }
 
     // Check minimum amount (for non-weekday vouchers)
-    if (voucher.minimumRentalAmount && booking.price < voucher.minimumRentalAmount &&
+    if (voucher.minimumRentalAmount && bookingAmountPreTax < voucher.minimumRentalAmount &&
         (!voucher.allowedDaysOfWeek || voucher.allowedDaysOfWeek.length === 0)) {
       throw new Error(`Minimum booking amount of RM${voucher.minimumRentalAmount} required`)
     }
 
     // Check maximum amount
-    if (voucher.maximumRentalAmount && booking.price > voucher.maximumRentalAmount) {
+    if (voucher.maximumRentalAmount && bookingAmountPreTax > voucher.maximumRentalAmount) {
       throw new Error(`Maximum booking amount of RM${voucher.maximumRentalAmount} exceeded`)
     }
 
@@ -788,7 +795,7 @@ export const applyVoucher = async (req: Request, res: Response) => {
         throw new Error('Invalid booking time')
       }
 
-      const hourlyRate = booking.price / durationHours
+      const hourlyRate = bookingAmountPreTax / durationHours
       const eligibleAmount = hourlyRate * eligibleHours
 
       if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
@@ -797,20 +804,21 @@ export const applyVoucher = async (req: Request, res: Response) => {
         discountAmount = voucher.discountValue * eligibleHours
       }
 
-      discountAmount = Math.min(discountAmount, eligibleAmount, booking.price)
+      discountAmount = Math.min(discountAmount, eligibleAmount, bookingAmountPreTax)
     } else if (voucher.discountType === bookcarsTypes.VoucherDiscountType.Percentage) {
-      discountAmount = (booking.price * voucher.discountValue) / 100
+      discountAmount = (bookingAmountPreTax * voucher.discountValue) / 100
     } else {
-      discountAmount = Math.min(voucher.discountValue, booking.price)
+      discountAmount = Math.min(voucher.discountValue, bookingAmountPreTax)
     }
-    
-    discountAmount = Math.round(discountAmount * 100) / 100
+
+    discountAmount = roundToCurrency(discountAmount)
 
     // Update booking with voucher information
     booking.originalPrice = booking.price
     booking.voucher = voucher._id as any
     booking.voucherDiscount = discountAmount
-    booking.price = Math.max(0, booking.price - discountAmount)
+    const discountedPreTax = Math.max(0, bookingAmountPreTax - discountAmount)
+    booking.price = roundToCurrency(discountedPreTax * taxMultiplier)
 
     await booking.save({ session })
 

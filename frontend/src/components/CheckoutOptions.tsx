@@ -11,6 +11,7 @@ import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import { strings as csStrings } from '@/lang/cars'
 import { strings } from '@/lang/checkout'
+import env from '@/config/env.config'
 import * as helper from '@/utils/helper'
 import * as PaymentService from '@/services/PaymentService'
 
@@ -113,7 +114,14 @@ const CheckoutOptions = ({
         fullInsurance,
         additionalDriver,
       }
-      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from, to, car.supplier.priceChangeRate || 0, options))
+      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(
+        car,
+        from,
+        to,
+        car.supplier.priceChangeRate || 0,
+        options,
+        env.SST_TAX_RATE,
+      ))
 
       setCancellation(_cancellation)
       onCancellationChange(_cancellation)
@@ -132,7 +140,14 @@ const CheckoutOptions = ({
         fullInsurance,
         additionalDriver,
       }
-      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from, to, car.supplier.priceChangeRate || 0, options))
+      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(
+        car,
+        from,
+        to,
+        car.supplier.priceChangeRate || 0,
+        options,
+        env.SST_TAX_RATE,
+      ))
 
       setAmendments(_amendments)
       onAmendmentsChange(_amendments)
@@ -151,7 +166,14 @@ const CheckoutOptions = ({
         fullInsurance,
         additionalDriver,
       }
-      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from, to, car.supplier.priceChangeRate || 0, options))
+      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(
+        car,
+        from,
+        to,
+        car.supplier.priceChangeRate || 0,
+        options,
+        env.SST_TAX_RATE,
+      ))
 
       setTheftProtection(_theftProtection)
       onTheftProtectionChange(_theftProtection)
@@ -170,7 +192,14 @@ const CheckoutOptions = ({
         fullInsurance,
         additionalDriver,
       }
-      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from, to, car.supplier.priceChangeRate || 0, options))
+      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(
+        car,
+        from,
+        to,
+        car.supplier.priceChangeRate || 0,
+        options,
+        env.SST_TAX_RATE,
+      ))
 
       setCollisionDamageWaiver(_collisionDamageWaiver)
       onCollisionDamageWaiverChange(_collisionDamageWaiver)
@@ -189,7 +218,14 @@ const CheckoutOptions = ({
         fullInsurance: _fullInsurance,
         additionalDriver,
       }
-      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from, to, car.supplier.priceChangeRate || 0, options))
+      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(
+        car,
+        from,
+        to,
+        car.supplier.priceChangeRate || 0,
+        options,
+        env.SST_TAX_RATE,
+      ))
 
       setFullInsurance(_fullInsurance)
       onFullInsuranceChange(_fullInsurance)
@@ -208,7 +244,14 @@ const CheckoutOptions = ({
         fullInsurance,
         additionalDriver: _additionalDriver,
       }
-      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from, to, car.supplier.priceChangeRate || 0, options))
+      const _price = await PaymentService.convertPrice(bookcarsHelper.calculateTotalPrice(
+        car,
+        from,
+        to,
+        car.supplier.priceChangeRate || 0,
+        options,
+        env.SST_TAX_RATE,
+      ))
 
       setAdditionalDriver(_additionalDriver)
       onAdditionalDriverChange(_additionalDriver)

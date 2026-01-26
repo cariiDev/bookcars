@@ -76,6 +76,25 @@ const BAYARCASH_PAYMENT_CHANNEL = BAYARCASH_ALLOWED_CHANNELS.includes(bayarCashD
   ? bayarCashDefaultChannel
   : BAYARCASH_ALLOWED_CHANNELS[0]
 
+const normalizeRate = (raw: unknown, fallback: number) => {
+  const parsed = Number.parseFloat(String(raw))
+  if (Number.isNaN(parsed)) {
+    return fallback
+  }
+  return Math.min(1, Math.max(0, parsed))
+}
+
+const normalizeAmount = (raw: unknown, fallback: number) => {
+  const parsed = Number.parseFloat(String(raw))
+  if (Number.isNaN(parsed)) {
+    return fallback
+  }
+  return Math.max(0, parsed)
+}
+
+const SST_TAX_RATE = normalizeRate(import.meta.env.VITE_BC_SST_TAX_RATE || '0.08', 0.08)
+const BAYARCASH_ONLINE_BANKING_FEE = normalizeAmount(import.meta.env.VITE_BC_BAYARCASH_ONLINE_BANKING_FEE || '1', 1)
+
 const getPaymentGateway = () => {
   const paymentGateway = String(import.meta.env.VITE_BC_PAYMENT_GATEWAY || 'stripe').toUpperCase()
 
@@ -106,6 +125,7 @@ const env = {
   _LANGUAGES: LANGUAGES,
   DEFAULT_LANGUAGE: String(import.meta.env.VITE_BC_DEFAULT_LANGUAGE || 'en'),
   BASE_CURRENCY: String(import.meta.env.VITE_BC_BASE_CURRENCY || 'USD'),
+  SST_TAX_RATE,
   CURRENCIES,
   PAGE_SIZE: Number.parseInt(String(import.meta.env.VITE_BC_PAGE_SIZE), 10) || 30,
   CARS_PAGE_SIZE: Number.parseInt(String(import.meta.env.VITE_BC_CARS_PAGE_SIZE), 10) || 15,
@@ -149,6 +169,7 @@ const env = {
   PAYPAL_DEBUG: (import.meta.env.VITE_BC_PAYPAL_DEBUG && import.meta.env.VITE_BC_PAYPAL_DEBUG.toLowerCase()) === 'true',
   BAYARCASH_ALLOWED_CHANNELS,
   BAYARCASH_PAYMENT_CHANNEL,
+  BAYARCASH_ONLINE_BANKING_FEE,
   SET_LANGUAGE_FROM_IP: (import.meta.env.VITE_BC_SET_LANGUAGE_FROM_IP && import.meta.env.VITE_BC_SET_LANGUAGE_FROM_IP.toLowerCase()) === 'true',
   GOOGLE_ANALYTICS_ENABLED: (import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ENABLED && import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ENABLED.toLowerCase()) === 'true',
   GOOGLE_ANALYTICS_ID: String(import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ID),

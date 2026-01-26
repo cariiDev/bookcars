@@ -143,7 +143,14 @@ const CreateBooking = () => {
 
     try {
       // use bookcarsHelper.calculatePrice
-      const price = await bookcarsHelper.calculateTotalPrice(carObj, from!, to!, carObj.supplier.priceChangeRate || 0, options)
+      const price = await bookcarsHelper.calculateTotalPrice(
+        carObj,
+        from!,
+        to!,
+        carObj.supplier.priceChangeRate || 0,
+        options,
+        env.SST_TAX_RATE,
+      )
       booking.price = price
 
       const _booking = await BookingService.create({

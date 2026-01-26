@@ -18,6 +18,7 @@ import PushToken from '../models/PushToken'
 import AdditionalDriver from '../models/AdditionalDriver'
 import * as helper from '../utils/helper'
 import * as mailHelper from '../utils/mailHelper'
+import * as pricingHelper from '../utils/pricingHelper'
 import * as env from '../config/env.config'
 import * as logger from '../utils/logger'
 import stripeAPI from '../payment/stripe'
@@ -205,6 +206,22 @@ export const checkout = async (req: Request, res: Response) => {
     if (!supplier) {
       throw new Error(`Supplier ${body.booking.supplier} not found`)
     }
+
+    const car = await Car.findById(body.booking.car).populate('dateBasedPrices')
+    if (!car) {
+      throw new Error(`Car ${body.booking.car} not found`)
+    }
+
+    if (car.supplier.toString() !== supplier.id) {
+      throw new Error(`Car ${car.id} does not belong to supplier ${supplier.id}`)
+    }
+
+    // Recalculate price server-side to prevent client-side tampering.
+    body.booking.price = pricingHelper.calculateBookingPrice(
+      car,
+      supplier,
+      body.booking as unknown as env.Booking,
+    )
 
     if (driver) {
       const { license, studentIdDocument } = driver

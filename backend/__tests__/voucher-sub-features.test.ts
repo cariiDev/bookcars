@@ -285,8 +285,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 80,
         userId: USER_ID,
         carId: BEZZA_CAR_ID,
-        bookingStartTime: new Date(2025, 0, 15, 10, 0, 0).toISOString(),
-        bookingEndTime: new Date(2025, 0, 15, 20, 0, 0).toISOString(),
+        bookingStartTime: new Date(2025, 0, 15, 2, 0, 0).toISOString(), // 10:00 AM KL
+        bookingEndTime: new Date(2025, 0, 15, 12, 0, 0).toISOString(), // 8:00 PM KL
       }
 
       const res = await request(app)
@@ -306,8 +306,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 200,
         userId: USER_ID,
         carId: BMW_CAR_ID,
-        bookingStartTime: new Date(2025, 0, 15, 10, 0, 0).toISOString(),
-        bookingEndTime: new Date(2025, 0, 15, 20, 0, 0).toISOString(),
+        bookingStartTime: new Date(2025, 0, 15, 2, 0, 0).toISOString(), // 10:00 AM KL
+        bookingEndTime: new Date(2025, 0, 15, 12, 0, 0).toISOString(), // 8:00 PM KL
       }
 
       const res = await request(app)
@@ -335,8 +335,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 80,
         userId: USER_ID,
         carId: SAGA_CAR_ID,
-        bookingStartTime: new Date(2025, 0, 15, 10, 0, 0).toISOString(),
-        bookingEndTime: new Date(2025, 0, 15, 20, 0, 0).toISOString(),
+        bookingStartTime: new Date(2025, 0, 15, 2, 0, 0).toISOString(), // 10:00 AM KL
+        bookingEndTime: new Date(2025, 0, 15, 12, 0, 0).toISOString(), // 8:00 PM KL
       }
 
       const res = await request(app)
@@ -359,8 +359,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 160,
         userId: USER_ID,
         carId: BMW_CAR_ID,
-        bookingStartTime: new Date(2025, 0, 15, 10, 0, 0).toISOString(),
-        bookingEndTime: new Date(2025, 0, 15, 18, 0, 0).toISOString(),
+        bookingStartTime: new Date(2025, 0, 15, 2, 0, 0).toISOString(), // 10:00 AM KL
+        bookingEndTime: new Date(2025, 0, 15, 10, 0, 0).toISOString(), // 6:00 PM KL
       }
 
       const res = await request(app)
@@ -380,8 +380,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 160,
         userId: USER_ID,
         carId: BMW_CAR_ID,
-        bookingStartTime: new Date(2025, 0, 12, 10, 0, 0).toISOString(),
-        bookingEndTime: new Date(2025, 0, 12, 18, 0, 0).toISOString(),
+        bookingStartTime: new Date(2025, 0, 12, 2, 0, 0).toISOString(), // Sunday 10:00 AM KL
+        bookingEndTime: new Date(2025, 0, 12, 10, 0, 0).toISOString(), // Sunday 6:00 PM KL
       }
 
       const res = await request(app)
@@ -400,8 +400,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 80,
         userId: USER_ID,
         carId: BEZZA_CAR_ID,
-        bookingStartTime: new Date(2025, 0, 15, 10, 0, 0).toISOString(),
-        bookingEndTime: new Date(2025, 0, 15, 20, 0, 0).toISOString(),
+        bookingStartTime: new Date(2025, 0, 15, 2, 0, 0).toISOString(), // 10:00 AM KL
+        bookingEndTime: new Date(2025, 0, 15, 12, 0, 0).toISOString(), // 8:00 PM KL
       }
 
       const res = await request(app)
@@ -422,8 +422,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 200,
         userId: USER_ID,
         carId: BEZZA_CAR_ID,
-        bookingStartTime: new Date(2025, 0, 15, 9, 0, 0).toISOString(),
-        bookingEndTime: new Date(2025, 0, 15, 19, 0, 0).toISOString(),
+        bookingStartTime: new Date(2025, 0, 15, 1, 0, 0).toISOString(), // 9:00 AM KL
+        bookingEndTime: new Date(2025, 0, 15, 11, 0, 0).toISOString(), // 7:00 PM KL
       }
 
       const res = await request(app)
@@ -443,8 +443,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 200,
         userId: USER_ID,
         carId: BEZZA_CAR_ID,
-        bookingStartTime: new Date(2025, 0, 15, 9, 0, 0).toISOString(),
-        bookingEndTime: new Date(2025, 0, 15, 19, 0, 0).toISOString(),
+        bookingStartTime: new Date(2025, 0, 15, 1, 0, 0).toISOString(), // 9:00 AM KL
+        bookingEndTime: new Date(2025, 0, 15, 11, 0, 0).toISOString(), // 7:00 PM KL
       }
 
       const res = await request(app)
@@ -464,8 +464,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 80,
         userId: USER_ID,
         carId: BEZZA_CAR_ID,
-        bookingStartTime: new Date(2025, 0, 15, 9, 0, 0).toISOString(),
-        bookingEndTime: new Date(2025, 0, 15, 19, 0, 0).toISOString(),
+        bookingStartTime: new Date(2025, 0, 15, 1, 0, 0).toISOString(), // 9:00 AM KL
+        bookingEndTime: new Date(2025, 0, 15, 11, 0, 0).toISOString(), // 7:00 PM KL
       }
 
       const res = await request(app)
@@ -486,8 +486,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 30, // 3 hours at RM10/hour
         userId: USER_ID,
         carId: BEZZA_CAR_ID,
-        bookingStartTime: new Date(2026, 0, 12, 8, 0, 0).toISOString(),
-        bookingEndTime: new Date(2026, 0, 12, 11, 0, 0).toISOString(),
+        bookingStartTime: new Date(2026, 0, 12, 0, 0, 0).toISOString(), // 8:00 AM KL
+        bookingEndTime: new Date(2026, 0, 12, 3, 0, 0).toISOString(), // 11:00 AM KL
       }
 
       const res = await request(app)
@@ -506,8 +506,8 @@ describe('Voucher Sub-Features Tests (Percentage/Fixed Only)', () => {
         bookingAmount: 10,
         userId: USER_ID,
         carId: BEZZA_CAR_ID,
-        bookingStartTime: new Date(2026, 0, 12, 9, 30, 0).toISOString(),
-        bookingEndTime: new Date(2026, 0, 12, 10, 15, 0).toISOString(),
+        bookingStartTime: new Date(2026, 0, 12, 1, 30, 0).toISOString(), // 9:30 AM KL
+        bookingEndTime: new Date(2026, 0, 12, 2, 15, 0).toISOString(), // 10:15 AM KL
       }
 
       const res = await request(app)

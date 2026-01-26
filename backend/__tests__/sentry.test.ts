@@ -24,6 +24,8 @@ const {
   CDN_TEMP_CONTRACTS,
   CDN_LICENSES,
   CDN_TEMP_LICENSES,
+  CDN_STUDENT_IDS,
+  CDN_TEMP_STUDENT_IDS,
   DEFAULT_LANGUAGE,
 } = env
 
@@ -200,6 +202,8 @@ describe('Sentry initialization in app.ts', () => {
       CDN_TEMP_CONTRACTS,
       CDN_LICENSES,
       CDN_TEMP_LICENSES,
+      CDN_STUDENT_IDS,
+      CDN_TEMP_STUDENT_IDS,
       DEFAULT_LANGUAGE,
     }))
 

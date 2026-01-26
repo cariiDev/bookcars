@@ -299,8 +299,8 @@ describe('POST /api/validate-voucher', () => {
       code: VOUCHER_CODE,
       bookingAmount: 100,
       userId: USER_ID,
-      bookingStartTime: new Date(2025, 0, 15, 10, 0, 0).toISOString(), // Monday 10:00 AM
-      bookingEndTime: new Date(2025, 0, 15, 16, 0, 0).toISOString(), // Monday 4:00 PM
+      bookingStartTime: new Date(2025, 0, 15, 2, 0, 0).toISOString(), // 10:00 AM KL (UTC+8)
+      bookingEndTime: new Date(2025, 0, 15, 8, 0, 0).toISOString(), // 4:00 PM KL (UTC+8)
     }
 
     const res = await request(app)
@@ -335,8 +335,8 @@ describe('POST /api/validate-voucher', () => {
       code: VOUCHER_CODE,
       bookingAmount: 30, // Less than minimum 50
       userId: USER_ID,
-      bookingStartTime: new Date(2025, 0, 15, 10, 0, 0).toISOString(), // Wednesday 10:00 AM
-      bookingEndTime: new Date(2025, 0, 15, 16, 0, 0).toISOString(), // Wednesday 4:00 PM
+      bookingStartTime: new Date(2025, 0, 15, 2, 0, 0).toISOString(), // 10:00 AM KL (UTC+8)
+      bookingEndTime: new Date(2025, 0, 15, 8, 0, 0).toISOString(), // 4:00 PM KL (UTC+8)
     }
 
     const res = await request(app)
@@ -354,8 +354,8 @@ describe('POST /api/validate-voucher', () => {
       code: VOUCHER_CODE,
       bookingAmount: 100,
       userId: USER_ID,
-      bookingStartTime: new Date(2025, 0, 15, 8, 0, 0).toISOString(), // Monday 8:00 AM (before allowed)
-      bookingEndTime: new Date(2025, 0, 15, 12, 0, 0).toISOString(), // Monday 12:00 PM
+      bookingStartTime: new Date(2025, 0, 14, 23, 0, 0).toISOString(), // 7:00 AM KL (before allowed)
+      bookingEndTime: new Date(2025, 0, 15, 0, 0, 0).toISOString(), // 8:00 AM KL
     }
 
     const res = await request(app)
@@ -373,8 +373,8 @@ describe('POST /api/validate-voucher', () => {
       code: VOUCHER_CODE,
       bookingAmount: 100,
       userId: USER_ID,
-      bookingStartTime: new Date(2025, 0, 12, 10, 0, 0).toISOString(), // Sunday 10:00 AM (not allowed)
-      bookingEndTime: new Date(2025, 0, 12, 16, 0, 0).toISOString(), // Sunday 4:00 PM
+      bookingStartTime: new Date(2025, 0, 12, 2, 0, 0).toISOString(), // Sunday 10:00 AM KL (not allowed)
+      bookingEndTime: new Date(2025, 0, 12, 8, 0, 0).toISOString(), // Sunday 4:00 PM KL
     }
 
     const res = await request(app)
@@ -392,8 +392,8 @@ describe('POST /api/validate-voucher', () => {
       code: VOUCHER_CODE,
       bookingAmount: 100,
       userId: USER_ID,
-      bookingStartTime: new Date(2025, 0, 15, 9, 0, 0).toISOString(), // Monday 9:00 AM
-      bookingEndTime: new Date(2025, 0, 15, 17, 30, 0).toISOString(), // Monday 5:30 PM (8.5 hours > 8 hour limit)
+      bookingStartTime: new Date(2025, 0, 15, 1, 0, 0).toISOString(), // Monday 9:00 AM KL
+      bookingEndTime: new Date(2025, 0, 15, 9, 30, 0).toISOString(), // Monday 5:30 PM KL (8.5 hours > 8 hour limit)
     }
 
     const res = await request(app)
