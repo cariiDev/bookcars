@@ -94,6 +94,8 @@ const normalizeAmount = (raw: unknown, fallback: number) => {
 
 const SST_TAX_RATE = normalizeRate(import.meta.env.VITE_BC_SST_TAX_RATE || '0.08', 0.08)
 const BAYARCASH_ONLINE_BANKING_FEE = normalizeAmount(import.meta.env.VITE_BC_BAYARCASH_ONLINE_BANKING_FEE || '1', 1)
+const BAYARCASH_DUITNOW_QR_FEE_RATE = normalizeRate(import.meta.env.VITE_BC_BAYARCASH_DUITNOW_QR_FEE_RATE || '0.016', 0.016)
+const BAYARCASH_DUITNOW_QR_FEE_MIN = normalizeAmount(import.meta.env.VITE_BC_BAYARCASH_DUITNOW_QR_FEE_MIN || '0.15', 0.15)
 
 const getPaymentGateway = () => {
   const paymentGateway = String(import.meta.env.VITE_BC_PAYMENT_GATEWAY || 'stripe').toUpperCase()
@@ -170,6 +172,8 @@ const env = {
   BAYARCASH_ALLOWED_CHANNELS,
   BAYARCASH_PAYMENT_CHANNEL,
   BAYARCASH_ONLINE_BANKING_FEE,
+  BAYARCASH_DUITNOW_QR_FEE_RATE,
+  BAYARCASH_DUITNOW_QR_FEE_MIN,
   SET_LANGUAGE_FROM_IP: (import.meta.env.VITE_BC_SET_LANGUAGE_FROM_IP && import.meta.env.VITE_BC_SET_LANGUAGE_FROM_IP.toLowerCase()) === 'true',
   GOOGLE_ANALYTICS_ENABLED: (import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ENABLED && import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ENABLED.toLowerCase()) === 'true',
   GOOGLE_ANALYTICS_ID: String(import.meta.env.VITE_BC_GOOGLE_ANALYTICS_ID),

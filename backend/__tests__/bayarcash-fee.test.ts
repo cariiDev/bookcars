@@ -126,12 +126,12 @@ afterAll(async () => {
 })
 
 describe('POST /api/create-bayarcash-payment (fees)', () => {
-  it('should not add RM1 fee for FPX channel', async () => {
+  it('should add RM1 fee for FPX channel', async () => {
     jest.resetModules()
 
     const createPaymentIntentMock = jest.fn(async () => ({ id: 'pi-fpx', url: 'https://example.com/fpx' }))
     await jest.unstable_mockModule('../src/payment/bayarcash.js', () => ({
-      PAYMENT_CHANNELS: { FPX: 1, DUITNOW_BANKING: 5 },
+      PAYMENT_CHANNELS: { FPX: 1, DUITNOW_BANKING: 5, DUITNOW_QR: 6 },
       createPaymentIntent: createPaymentIntentMock,
       validateChecksum: jest.fn(() => true),
       generateChecksum: jest.fn(() => 'checksum'),
@@ -183,7 +183,7 @@ describe('POST /api/create-bayarcash-payment (fees)', () => {
 
     const createPaymentIntentMock = jest.fn(async () => ({ id: 'pi-duitnow', url: 'https://example.com/duitnow' }))
     await jest.unstable_mockModule('../src/payment/bayarcash.js', () => ({
-      PAYMENT_CHANNELS: { FPX: 1, DUITNOW_BANKING: 5 },
+      PAYMENT_CHANNELS: { FPX: 1, DUITNOW_BANKING: 5, DUITNOW_QR: 6 },
       createPaymentIntent: createPaymentIntentMock,
       validateChecksum: jest.fn(() => true),
       generateChecksum: jest.fn(() => 'checksum'),
@@ -220,6 +220,58 @@ describe('POST /api/create-bayarcash-payment (fees)', () => {
       expectedAmount,
       env.BASE_CURRENCY,
       5,
+      payload.payerName,
+      payload.payerEmail,
+      payload.name,
+      payload.description,
+      undefined,
+      expect.any(String),
+      expect.any(String),
+    )
+  })
+
+  it('should apply percentage fee with minimum for DuitNow QR channel', async () => {
+    jest.resetModules()
+
+    const createPaymentIntentMock = jest.fn(async () => ({ id: 'pi-duitnow-qr', url: 'https://example.com/duitnow-qr' }))
+    await jest.unstable_mockModule('../src/payment/bayarcash.js', () => ({
+      PAYMENT_CHANNELS: { FPX: 1, DUITNOW_BANKING: 5, DUITNOW_QR: 6 },
+      createPaymentIntent: createPaymentIntentMock,
+      validateChecksum: jest.fn(() => true),
+      generateChecksum: jest.fn(() => 'checksum'),
+    }))
+
+    const payload: bookcarsTypes.CreateBayarCashPayload = {
+      bookingId: BOOKING_ID,
+      amount: 1, // Intentionally wrong; server should override
+      currency: env.BASE_CURRENCY,
+      paymentChannel: 6,
+      payerName: 'DuitNow QR Tester',
+      payerEmail: 'duitnow-qr@test.bookcars.ma',
+      name: 'DuitNow QR Payment',
+      description: 'DuitNow QR fee test',
+    }
+
+    const res = await request(app)
+      .post('/api/create-bayarcash-payment')
+      .send(payload)
+
+    expect(res.statusCode).toBe(200)
+
+    const pricingContext = await pricingHelper.loadPricingContext(BOOKING_ID)
+    expect(pricingContext).not.toBeNull()
+    const expectedAmount = pricingHelper.calculateExpectedPaymentAmount(
+      pricingContext!.booking,
+      pricingContext!.car,
+      pricingContext!.supplier,
+      6,
+    )
+
+    expect(createPaymentIntentMock).toHaveBeenCalledWith(
+      BOOKING_ID,
+      expectedAmount,
+      env.BASE_CURRENCY,
+      6,
       payload.payerName,
       payload.payerEmail,
       payload.name,

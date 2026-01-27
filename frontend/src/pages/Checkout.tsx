@@ -176,9 +176,13 @@ const Checkout = () => {
     : 0
   const paymentAmount = payDeposit ? depositPrice : price
   const onlineBankingFee = (!payLater
-    && env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash
-    && bayarCashChannel === BayarCashService.PAYMENT_CHANNELS.DUITNOW_BANKING)
-    ? env.BAYARCASH_ONLINE_BANKING_FEE
+    && env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash)
+    ? (bayarCashChannel === BayarCashService.PAYMENT_CHANNELS.DUITNOW_QR
+      ? Math.max(paymentAmount * env.BAYARCASH_DUITNOW_QR_FEE_RATE, env.BAYARCASH_DUITNOW_QR_FEE_MIN)
+      : (bayarCashChannel === BayarCashService.PAYMENT_CHANNELS.FPX
+        || bayarCashChannel === BayarCashService.PAYMENT_CHANNELS.DUITNOW_BANKING
+        ? env.BAYARCASH_ONLINE_BANKING_FEE
+        : 0))
     : 0
   const totalPaymentAmount = paymentAmount + onlineBankingFee
 

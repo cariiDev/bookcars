@@ -153,9 +153,14 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
         const _description = `${car.name} - ${daysLabel} - ${pickupLocation._id === dropOffLocation._id ? pickupLocation.name : `${pickupLocation.name} - ${dropOffLocation.name}`}`
         const description = bookcarsHelper.truncateString(_description, BayarCashService.ORDER_DESCRIPTION_MAX_LENGTH)
         const paymentAmount = payDeposit ? depositPrice : price
-        const onlineBankingFee = selectedChannel === BayarCashService.PAYMENT_CHANNELS.DUITNOW_BANKING
-          ? env.BAYARCASH_ONLINE_BANKING_FEE
-          : 0
+        const onlineBankingFee = selectedChannel === BayarCashService.PAYMENT_CHANNELS.DUITNOW_QR
+          ? Math.max(paymentAmount * env.BAYARCASH_DUITNOW_QR_FEE_RATE, env.BAYARCASH_DUITNOW_QR_FEE_MIN)
+          : (
+            selectedChannel === BayarCashService.PAYMENT_CHANNELS.FPX
+            || selectedChannel === BayarCashService.PAYMENT_CHANNELS.DUITNOW_BANKING
+              ? env.BAYARCASH_ONLINE_BANKING_FEE
+              : 0
+          )
         const amount = paymentAmount + onlineBankingFee
         
         const bayarCashPayload: bookcarsTypes.CreateBayarCashPayload = {

@@ -4,7 +4,9 @@ import Car from '../models/Car'
 import User from '../models/User'
 import * as env from '../config/env.config'
 
+const FPX_BANKING_CHANNEL = 1
 const DUITNOW_BANKING_CHANNEL = 5
+const DUITNOW_QR_CHANNEL = 6
 
 export interface PricingContext {
   booking: env.Booking
@@ -189,6 +191,11 @@ export const calculateExpectedPaymentAmount = (
   paymentChannel?: number,
 ) => {
   const baseAmount = booking.isDeposit ? calculateDepositAmount(car, supplier) : booking.price
-  const bankingFee = paymentChannel === DUITNOW_BANKING_CHANNEL ? env.BAYARCASH_ONLINE_BANKING_FEE : 0
+  let bankingFee = 0
+  if (paymentChannel === FPX_BANKING_CHANNEL || paymentChannel === DUITNOW_BANKING_CHANNEL) {
+    bankingFee = env.BAYARCASH_ONLINE_BANKING_FEE
+  } else if (paymentChannel === DUITNOW_QR_CHANNEL) {
+    bankingFee = Math.max(baseAmount * env.BAYARCASH_DUITNOW_QR_FEE_RATE, env.BAYARCASH_DUITNOW_QR_FEE_MIN)
+  }
   return baseAmount + bankingFee
 }

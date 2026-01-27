@@ -415,6 +415,14 @@ export const BASE_CURRENCY = __env__('BC_BASE_CURRENCY', false, 'USD')
  * @type {number}
  */
 export const SST_TAX_RATE = normalizeRate(__env__('BC_SST_TAX_RATE', false, '0.08'), 0.08)
+/**
+ * DuitNow QR fee rate (e.g. 0.016 for 1.60%).
+ */
+export const BAYARCASH_DUITNOW_QR_FEE_RATE = normalizeRate(__env__('BC_BAYARCASH_DUITNOW_QR_FEE_RATE', false, '0.016'), 0.016)
+/**
+ * DuitNow QR minimum fee amount.
+ */
+export const BAYARCASH_DUITNOW_QR_FEE_MIN = normalizeAmount(__env__('BC_BAYARCASH_DUITNOW_QR_FEE_MIN', false, '0.15'), 0.15)
 
 /**
  * Default Minimum age for rental. Default is 21 years.
