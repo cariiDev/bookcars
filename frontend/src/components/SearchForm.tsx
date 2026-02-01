@@ -9,7 +9,7 @@ import {
   Checkbox,
   FormHelperText,
 } from '@mui/material'
-import { addHours } from 'date-fns'
+import { addHours, addMinutes } from 'date-fns'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import { strings as commonStrings } from '@/lang/common'
@@ -91,24 +91,19 @@ const SearchForm = ({
   useEffect(() => {
     if (settings) {
       let _from = new Date()
-      if (settings!.minPickupHours < 72) {
-        _from = addHours(_from, 3)
-      } else {
-        _from.setDate(_from.getDate() + Math.ceil(settings!.minPickupHours / 24) + 1)
-        _from.setHours(10)
+      const minPickupMinutes = settings!.minPickupHours * 60
+      const offsetMinutes = minPickupMinutes > 0 ? Math.max(30, minPickupMinutes) : 0
+      _from = addMinutes(_from, offsetMinutes)
+      _from.setSeconds(0)
+      _from.setMilliseconds(0)
+      const minutes = _from.getMinutes()
+      if (minutes > 30) {
+        _from.setHours(_from.getHours() + 1)
         _from.setMinutes(0)
-        _from.setSeconds(0)
-        _from.setMilliseconds(0)
+      } else if (minutes > 0) {
+        _from.setMinutes(30)
       }
-
-      let _to = new Date(_from)
-      if (settings!.minRentalHours < 72) {
-        // Add 1 day + 3 hours
-        _to.setDate(_to.getDate() + 1)
-        _to = addHours(_to, 3)
-      } else {
-        _to.setDate(_to.getDate() + Math.ceil(settings!.minRentalHours / 24) + 1)
-      }
+      const _to = addHours(_from, Math.max(3, settings!.minRentalHours))
 
       let __minDate = new Date()
       __minDate = addHours(__minDate, settings!.minRentalHours)

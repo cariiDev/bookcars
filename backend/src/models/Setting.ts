@@ -4,8 +4,8 @@ import * as env from '../config/env.config'
 const settingSchema = new Schema<env.Setting>({
   minPickupHours: {
     type: Number,
-    default: 1,
-    min: 1,
+    default: 0,
+    min: 0,
   },
   minRentalHours: {
     type: Number,

@@ -73,7 +73,7 @@ describe('GET /api/settings', () => {
     let res = await request(app)
       .get('/api/settings')
     expect(res.statusCode).toBe(200)
-    expect(res.body.minPickupHours).toBeGreaterThanOrEqual(1)
+    expect(res.body.minPickupHours).toBeGreaterThanOrEqual(0)
     expect(res.body.minRentalHours).toBeGreaterThanOrEqual(1)
     expect(res.body.minPickupDropoffHour).toBeGreaterThanOrEqual(0)
     expect(res.body.minPickupDropoffHour).toBeLessThanOrEqual(23)
