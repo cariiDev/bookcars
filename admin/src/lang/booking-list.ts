@@ -16,6 +16,9 @@ const strings = new LocalizedStrings({
     DELETE_BOOKINGS: 'Êtes-vous sûr de vouloir supprimer les réservations sélectionnées ?',
     EMPTY_LIST: 'Pas de réservations.',
     DAYS: 'Jours',
+    HOURS: 'Heures',
+    DAY: 'Jour',
+    HOUR: 'Heure',
     COST: 'Total',
   },
   en: {
@@ -32,6 +35,9 @@ const strings = new LocalizedStrings({
     DELETE_BOOKINGS: 'Are you sure you want to delete the selected bookings?',
     EMPTY_LIST: 'No bookings.',
     DAYS: 'Days',
+    HOURS: 'Hours',
+    DAY: 'Day',
+    HOUR: 'Hour',
     COST: 'COST',
   },
   es: {
@@ -48,6 +54,9 @@ const strings = new LocalizedStrings({
     DELETE_BOOKINGS: '¿Estás seguro de que quieres eliminar las reservas seleccionadas?',
     EMPTY_LIST: 'Sin reservas.',
     DAYS: 'Días',
+    HOURS: 'Horas',
+    DAY: 'Día',
+    HOUR: 'Hora',
     COST: 'Coste',
   },
 })

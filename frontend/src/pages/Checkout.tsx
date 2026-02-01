@@ -136,7 +136,11 @@ const Checkout = () => {
   const _format = _fr ? 'eee d LLL yyyy kk:mm' : 'eee, d LLL yyyy, p'
   const bookingDetailHeight = env.SUPPLIER_IMAGE_HEIGHT + 10
   const days = bookcarsHelper.days(from, to)
-  const daysLabel = from && to && `${helper.getDaysShort(days)} (${bookcarsHelper.capitalize(format(from, _format, { locale: _locale }))} - ${bookcarsHelper.capitalize(format(to, _format, { locale: _locale }))})`
+  const diffMs = from && to ? (new Date(to)).getTime() - (new Date(from)).getTime() : 0
+  const hours = Math.ceil(diffMs / (1000 * 3600))
+  const hasHourlyPrice = !!(car?.hourlyPrice || car?.discountedHourlyPrice)
+  const isHourly = hasHourlyPrice && hours > 0 && hours < 24
+  const daysLabel = from && to && `${isHourly ? helper.getHoursShort(hours) : helper.getDaysShort(days)} (${bookcarsHelper.capitalize(format(from, _format, { locale: _locale }))} - ${bookcarsHelper.capitalize(format(to, _format, { locale: _locale }))})`
 
   const schema = createSchema(car)
 
@@ -598,7 +602,9 @@ const Checkout = () => {
                       </div>
                       <div className="checkout-details">
                         <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
-                          <span className="checkout-detail-title">{strings.DAYS}</span>
+                          <span className="checkout-detail-title">
+                            {isHourly ? (hours === 1 ? strings.HOUR : strings.HOURS) : (days === 1 ? strings.DAY : strings.DAYS)}
+                          </span>
                           <div className="checkout-detail-value">
                             {daysLabel}
                           </div>
@@ -613,7 +619,9 @@ const Checkout = () => {
                         </div>
                         <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
                           <span className="checkout-detail-title">{strings.CAR}</span>
-                          <div className="checkout-detail-value">{`${car.name} (${bookcarsHelper.formatPrice(price / days, commonStrings.CURRENCY, language)}${commonStrings.DAILY})`}</div>
+                          <div className="checkout-detail-value">
+                            {`${car.name} (${bookcarsHelper.formatPrice(price / (isHourly ? hours : days), commonStrings.CURRENCY, language)}${isHourly ? commonStrings.HOURLY : commonStrings.DAILY})`}
+                          </div>
                         </div>
                         {!env.HIDE_SUPPLIERS && (
                           <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
@@ -1047,7 +1055,9 @@ const Checkout = () => {
                     <div className="payment-info">
                       <div className="payment-info-title">
                         {
-                          payDeposit ? strings.DEPOSIT : `${strings.PRICE_FOR} ${days} ${days > 1 ? strings.DAYS : strings.DAY}`
+                          payDeposit
+                            ? strings.DEPOSIT
+                            : `${strings.PRICE_FOR} ${isHourly ? hours : days} ${isHourly ? (hours === 1 ? strings.HOUR : strings.HOURS) : (days > 1 ? strings.DAYS : strings.DAY)}`
                         }
                       </div>
                       <div className="payment-info-price">

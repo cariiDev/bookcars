@@ -413,6 +413,10 @@ const UpdateBooking = () => {
   }
 
   const days = bookcarsHelper.days(from, to)
+  const diffMs = from && to ? (new Date(to)).getTime() - (new Date(from)).getTime() : 0
+  const hours = Math.ceil(diffMs / (1000 * 3600))
+  const hasHourlyPrice = !!(carObj?.hourlyPrice || carObj?.discountedHourlyPrice)
+  const isHourly = hasHourlyPrice && hours > 0 && hours < 24
 
   return (
     <Layout onLoad={onLoad} strict>
@@ -928,12 +932,16 @@ const UpdateBooking = () => {
           </div>
           <div className="col-2">
             {
-              days > 0 && (
+              (days > 0 || hours > 0) && (
                 <div className="col-2-header">
                   <div className="price">
-                    <span className="price-days">{helper.getDays(days)}</span>
+                    <span className="price-days">{isHourly ? helper.getHours(hours) : helper.getDays(days)}</span>
                     <span className="price-main">{bookcarsHelper.formatPrice(price as number, commonStrings.CURRENCY, language)}</span>
-                    <span className="price-day">{`${csStrings.PRICE_PER_DAY} ${bookcarsHelper.formatPrice((price as number) / days, commonStrings.CURRENCY, language)}`}</span>
+                    <span className="price-day">
+                      {isHourly
+                        ? `${csStrings.PRICE_PER_HOUR} ${bookcarsHelper.formatPrice((price as number) / hours, commonStrings.CURRENCY, language)}`
+                        : `${csStrings.PRICE_PER_DAY} ${bookcarsHelper.formatPrice((price as number) / days, commonStrings.CURRENCY, language)}`}
+                    </span>
                   </div>
                 </div>
               )

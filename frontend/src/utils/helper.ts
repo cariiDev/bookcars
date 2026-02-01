@@ -276,8 +276,9 @@ export const getMileageTooltip = (mileage: number, language: string) => {
  * @param {string} language
  * @returns {string}
  */
-export const getAdditionalDriver = async (additionalDriver: number, language: string, priceChangeRate: number) => {
+export const getAdditionalDriver = async (additionalDriver: number, language: string, priceChangeRate: number, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (additionalDriver === -1) {
     return `${strings.ADDITIONAL_DRIVER}${fr ? ' : ' : ': '}${strings.UNAVAILABLE}`
@@ -286,7 +287,7 @@ export const getAdditionalDriver = async (additionalDriver: number, language: st
   }
   let _additionalDriver = await PaymentService.convertPrice(additionalDriver)
   _additionalDriver += _additionalDriver * (priceChangeRate / 100)
-  return `${strings.ADDITIONAL_DRIVER}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(_additionalDriver, commonStrings.CURRENCY, language)}${commonStrings.DAILY}`
+  return `${strings.ADDITIONAL_DRIVER}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(_additionalDriver, commonStrings.CURRENCY, language)}${unit}`
 }
 
 /**
@@ -296,8 +297,9 @@ export const getAdditionalDriver = async (additionalDriver: number, language: st
  * @param {string} language
  * @returns {string}
  */
-export const getFullInsurance = async (fullInsurance: number, language: string, priceChangeRate: number) => {
+export const getFullInsurance = async (fullInsurance: number, language: string, priceChangeRate: number, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (fullInsurance === -1) {
     return `${strings.FULL_INSURANCE}${fr ? ' : ' : ': '}${strings.UNAVAILABLE}`
@@ -306,7 +308,7 @@ export const getFullInsurance = async (fullInsurance: number, language: string, 
   }
   let _fullInsurance = await PaymentService.convertPrice(fullInsurance)
   _fullInsurance += _fullInsurance * (priceChangeRate / 100)
-  return `${strings.FULL_INSURANCE}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(_fullInsurance, commonStrings.CURRENCY, language)}${commonStrings.DAILY}`
+  return `${strings.FULL_INSURANCE}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(_fullInsurance, commonStrings.CURRENCY, language)}${unit}`
 }
 
 /**
@@ -316,8 +318,9 @@ export const getFullInsurance = async (fullInsurance: number, language: string, 
  * @param {string} language
  * @returns {string}
  */
-export const getCollisionDamageWaiver = async (collisionDamageWaiver: number, language: string, priceChangeRate: number) => {
+export const getCollisionDamageWaiver = async (collisionDamageWaiver: number, language: string, priceChangeRate: number, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (collisionDamageWaiver === -1) {
     return `${strings.COLLISION_DAMAGE_WAVER}${fr ? ' : ' : ': '}${strings.UNAVAILABLE}`
@@ -326,7 +329,7 @@ export const getCollisionDamageWaiver = async (collisionDamageWaiver: number, la
   }
   let _collisionDamageWaiver = await PaymentService.convertPrice(collisionDamageWaiver)
   _collisionDamageWaiver += _collisionDamageWaiver * (priceChangeRate / 100)
-  return `${strings.COLLISION_DAMAGE_WAVER}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(_collisionDamageWaiver, commonStrings.CURRENCY, language)}${commonStrings.DAILY}`
+  return `${strings.COLLISION_DAMAGE_WAVER}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(_collisionDamageWaiver, commonStrings.CURRENCY, language)}${unit}`
 }
 
 /**
@@ -336,8 +339,9 @@ export const getCollisionDamageWaiver = async (collisionDamageWaiver: number, la
  * @param {string} language
  * @returns {string}
  */
-export const getTheftProtection = async (theftProtection: number, language: string, priceChangeRate: number) => {
+export const getTheftProtection = async (theftProtection: number, language: string, priceChangeRate: number, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (theftProtection === -1) {
     return `${strings.THEFT_PROTECTION}${fr ? ' : ' : ': '}${strings.UNAVAILABLE}`
@@ -346,7 +350,7 @@ export const getTheftProtection = async (theftProtection: number, language: stri
   }
   let _theftProtection = await PaymentService.convertPrice(theftProtection)
   _theftProtection += _theftProtection * (priceChangeRate / 100)
-  return `${strings.THEFT_PROTECTION}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(_theftProtection, commonStrings.CURRENCY, language)}${commonStrings.DAILY}`
+  return `${strings.THEFT_PROTECTION}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(_theftProtection, commonStrings.CURRENCY, language)}${unit}`
 }
 
 /**
@@ -462,12 +466,29 @@ export const getDays = (days: number) =>
   `${strings.PRICE_DAYS_PART_1} ${days} ${strings.PRICE_DAYS_PART_2}${days > 1 ? 's' : ''}`
 
 /**
+ * Get hours label
+ *
+ * @param {number} hours
+ * @returns {string}
+ */
+export const getHours = (hours: number) =>
+  `${strings.PRICE_HOURS_PART_1} ${hours} ${strings.PRICE_HOURS_PART_2}${hours > 1 ? 's' : ''}`
+
+/**
  * Get short days label.
  *
  * @param {number} days
  * @returns {string}
  */
 export const getDaysShort = (days: number) => `${days} ${strings.PRICE_DAYS_PART_2}${days > 1 ? 's' : ''}`
+
+/**
+ * Get short hours label.
+ *
+ * @param {number} hours
+ * @returns {string}
+ */
+export const getHoursShort = (hours: number) => `${hours} ${strings.PRICE_HOURS_PART_2}${hours > 1 ? 's' : ''}`
 
 /**
  * Get cancellation option label.
@@ -519,8 +540,9 @@ export const getAmendmentsOption = async (amendments: number, language: string, 
  * @param {number} priceChangeRate
  * @returns {string}
  */
-export const getTheftProtectionOption = async (theftProtection: number, days: number, language: string, priceChangeRate: number) => {
+export const getTheftProtectionOption = async (theftProtection: number, duration: number, language: string, priceChangeRate: number, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (theftProtection === -1) {
     return strings.UNAVAILABLE
@@ -529,7 +551,7 @@ export const getTheftProtectionOption = async (theftProtection: number, days: nu
   }
   let _theftProtection = await PaymentService.convertPrice(theftProtection)
   _theftProtection += _theftProtection * (priceChangeRate / 100)
-  return `+ ${bookcarsHelper.formatPrice(_theftProtection * days, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(_theftProtection, commonStrings.CURRENCY, language)}${commonStrings.DAILY})`
+  return `+ ${bookcarsHelper.formatPrice(_theftProtection * duration, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(_theftProtection, commonStrings.CURRENCY, language)}${unit})`
 }
 
 /**
@@ -541,8 +563,9 @@ export const getTheftProtectionOption = async (theftProtection: number, days: nu
  * @param {number} priceChangeRate
  * @returns {string}
  */
-export const getCollisionDamageWaiverOption = async (collisionDamageWaiver: number, days: number, language: string, priceChangeRate: number) => {
+export const getCollisionDamageWaiverOption = async (collisionDamageWaiver: number, duration: number, language: string, priceChangeRate: number, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (collisionDamageWaiver === -1) {
     return strings.UNAVAILABLE
@@ -551,7 +574,7 @@ export const getCollisionDamageWaiverOption = async (collisionDamageWaiver: numb
   }
   let _collisionDamageWaiver = await PaymentService.convertPrice(collisionDamageWaiver)
   _collisionDamageWaiver += _collisionDamageWaiver * (priceChangeRate / 100)
-  return `+ ${bookcarsHelper.formatPrice(_collisionDamageWaiver * days, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(_collisionDamageWaiver, commonStrings.CURRENCY, language)}${commonStrings.DAILY})`
+  return `+ ${bookcarsHelper.formatPrice(_collisionDamageWaiver * duration, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(_collisionDamageWaiver, commonStrings.CURRENCY, language)}${unit})`
 }
 
 /**
@@ -563,8 +586,9 @@ export const getCollisionDamageWaiverOption = async (collisionDamageWaiver: numb
  * @param {number} priceChangeRate
  * @returns {string}
  */
-export const getFullInsuranceOption = async (fullInsurance: number, days: number, language: string, priceChangeRate: number) => {
+export const getFullInsuranceOption = async (fullInsurance: number, duration: number, language: string, priceChangeRate: number, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (fullInsurance === -1) {
     return strings.UNAVAILABLE
@@ -573,7 +597,7 @@ export const getFullInsuranceOption = async (fullInsurance: number, days: number
   }
   let _fullInsurance = await PaymentService.convertPrice(fullInsurance)
   _fullInsurance += _fullInsurance * (priceChangeRate / 100)
-  return `+ ${bookcarsHelper.formatPrice(_fullInsurance * days, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(_fullInsurance, commonStrings.CURRENCY, language)}${commonStrings.DAILY})`
+  return `+ ${bookcarsHelper.formatPrice(_fullInsurance * duration, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(_fullInsurance, commonStrings.CURRENCY, language)}${unit})`
 }
 
 /**
@@ -585,7 +609,9 @@ export const getFullInsuranceOption = async (fullInsurance: number, days: number
  * @param {number} priceChangeRate
  * @returns {string}
  */
-export const getAdditionalDriverOption = async (additionalDriver: number, days: number, language: string, priceChangeRate: number) => {
+export const getAdditionalDriverOption = async (additionalDriver: number, duration: number, language: string, priceChangeRate: number, isHourly?: boolean) => {
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
+
   if (additionalDriver === -1) {
     return strings.UNAVAILABLE
   } if (additionalDriver === 0) {
@@ -593,7 +619,7 @@ export const getAdditionalDriverOption = async (additionalDriver: number, days: 
   }
   let _additionalDriver = await PaymentService.convertPrice(additionalDriver)
   _additionalDriver += _additionalDriver * (priceChangeRate / 100)
-  return `+ ${bookcarsHelper.formatPrice(_additionalDriver * days, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(_additionalDriver, commonStrings.CURRENCY, language)}${commonStrings.DAILY})`
+  return `+ ${bookcarsHelper.formatPrice(_additionalDriver * duration, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(_additionalDriver, commonStrings.CURRENCY, language)}${unit})`
 }
 
 /**

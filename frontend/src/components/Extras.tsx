@@ -31,6 +31,13 @@ const Extras = ({
         const language = UserService.getLanguage()
         const car = booking.car as bookcarsTypes.Car
         const priceChangeRate = (booking.supplier as bookcarsTypes.User).priceChangeRate || 0
+        const from = new Date(booking.from)
+        const to = new Date(booking.to)
+        const diffMs = to.getTime() - from.getTime()
+        const hours = Math.ceil(diffMs / (1000 * 3600))
+        const hasHourlyPrice = !!(car.hourlyPrice || car.discountedHourlyPrice)
+        const isHourly = hasHourlyPrice && hours > 0 && hours < 24
+        const duration = isHourly ? hours : days
 
         if (booking.cancellation) {
           setCancellationOption(await helper.getCancellationOption(car.cancellation, language, priceChangeRate))
@@ -39,16 +46,16 @@ const Extras = ({
           setAmendmentsOption(await helper.getAmendmentsOption(car.amendments, language, priceChangeRate))
         }
         if (booking.collisionDamageWaiver) {
-          setCollisionDamageWaiverOption(await helper.getCollisionDamageWaiverOption(car.collisionDamageWaiver, days, language, priceChangeRate))
+          setCollisionDamageWaiverOption(await helper.getCollisionDamageWaiverOption(car.collisionDamageWaiver, duration, language, priceChangeRate, isHourly))
         }
         if (booking.theftProtection) {
-          setTheftProtectionOption(await helper.getTheftProtectionOption(car.theftProtection, days, language, priceChangeRate))
+          setTheftProtectionOption(await helper.getTheftProtectionOption(car.theftProtection, duration, language, priceChangeRate, isHourly))
         }
         if (booking.fullInsurance) {
-          setFullInsuranceOption(await helper.getFullInsuranceOption(car.fullInsurance, days, language, priceChangeRate))
+          setFullInsuranceOption(await helper.getFullInsuranceOption(car.fullInsurance, duration, language, priceChangeRate, isHourly))
         }
         if (booking.additionalDriver) {
-          setAdditionalDriverOption(await helper.getAdditionalDriverOption(car.additionalDriver, days, language, priceChangeRate))
+          setAdditionalDriverOption(await helper.getAdditionalDriverOption(car.additionalDriver, duration, language, priceChangeRate, isHourly))
         }
         setLoading(false)
       }

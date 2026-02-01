@@ -496,6 +496,12 @@ const BookingList = ({
               const from = new Date(booking.from)
               const to = new Date(booking.to)
               const days = bookcarsHelper.days(from, to)
+              const diffMs = to.getTime() - from.getTime()
+              const hours = Math.ceil(diffMs / (1000 * 3600))
+              const bookingCar = booking.car as bookcarsTypes.Car
+              const hasHourlyPrice = !!(bookingCar.hourlyPrice || bookingCar.discountedHourlyPrice)
+              const isHourly = hasHourlyPrice && hours > 0 && hours < 24
+              const duration = isHourly ? hours : days
 
               return (
                 <div key={booking._id} className="booking-details">
@@ -515,9 +521,11 @@ const BookingList = ({
                     </div>
                   </div>
                   <div className="booking-detail" style={{ height: bookingDetailHeight }}>
-                    <span className="booking-detail-title">{strings.DAYS}</span>
+                    <span className="booking-detail-title">
+                      {isHourly ? (hours === 1 ? strings.HOUR : strings.HOURS) : (days === 1 ? strings.DAY : strings.DAYS)}
+                    </span>
                     <div className="booking-detail-value">
-                      {`${helper.getDaysShort(bookcarsHelper.days(from, to))} (${bookcarsHelper.capitalize(
+                      {`${isHourly ? helper.getHoursShort(hours) : helper.getDaysShort(days)} (${bookcarsHelper.capitalize(
                         format(from, _format, { locale: _locale }),
                       )} - ${bookcarsHelper.capitalize(format(to, _format, { locale: _locale }))})`}
                     </div>
@@ -564,7 +572,7 @@ const BookingList = ({
                           <div className="extra">
                             <CheckIcon className="extra-icon" />
                             <span className="extra-title">{csStrings.COLLISION_DAMAGE_WAVER}</span>
-                            <span className="extra-text">{helper.getCollisionDamageWaiverOption((booking.car as bookcarsTypes.Car).collisionDamageWaiver, days, language as string, true)}</span>
+                            <span className="extra-text">{helper.getCollisionDamageWaiverOption((booking.car as bookcarsTypes.Car).collisionDamageWaiver, duration, language as string, true, isHourly)}</span>
                           </div>
                         )}
 
@@ -572,7 +580,7 @@ const BookingList = ({
                           <div className="extra">
                             <CheckIcon className="extra-icon" />
                             <span className="extra-title">{csStrings.THEFT_PROTECTION}</span>
-                            <span className="extra-text">{helper.getTheftProtectionOption((booking.car as bookcarsTypes.Car).theftProtection, days, language as string, true)}</span>
+                            <span className="extra-text">{helper.getTheftProtectionOption((booking.car as bookcarsTypes.Car).theftProtection, duration, language as string, true, isHourly)}</span>
                           </div>
                         )}
 
@@ -580,7 +588,7 @@ const BookingList = ({
                           <div className="extra">
                             <CheckIcon className="extra-icon" />
                             <span className="extra-title">{csStrings.FULL_INSURANCE}</span>
-                            <span className="extra-text">{helper.getFullInsuranceOption((booking.car as bookcarsTypes.Car).fullInsurance, days, language as string, true)}</span>
+                            <span className="extra-text">{helper.getFullInsuranceOption((booking.car as bookcarsTypes.Car).fullInsurance, duration, language as string, true, isHourly)}</span>
                           </div>
                         )}
 
@@ -588,7 +596,7 @@ const BookingList = ({
                           <div className="extra">
                             <CheckIcon className="extra-icon" />
                             <span className="extra-title">{csStrings.ADDITIONAL_DRIVER}</span>
-                            <span className="extra-text">{helper.getAdditionalDriverOption((booking.car as bookcarsTypes.Car).additionalDriver, days, language as string, true)}</span>
+                            <span className="extra-text">{helper.getAdditionalDriverOption((booking.car as bookcarsTypes.Car).additionalDriver, duration, language as string, true, isHourly)}</span>
                           </div>
                         )}
                       </div>

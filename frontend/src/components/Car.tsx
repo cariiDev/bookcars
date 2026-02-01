@@ -110,12 +110,16 @@ const Car = ({
   useEffect(() => {
     const init = async () => {
       const priceChangeRate = car.supplier.priceChangeRate || 0
+      const diffMs = from && to ? (new Date(to)).getTime() - (new Date(from)).getTime() : 0
+      const _hours = Math.ceil(diffMs / (1000 * 3600))
+      const hasHourlyPrice = !!(car.hourlyPrice || car.discountedHourlyPrice)
+      const isHourly = hasHourlyPrice && _hours > 0 && _hours < 24
       const _cancellation = (car.cancellation > -1 && (await helper.getCancellation(car.cancellation, language, priceChangeRate))) || ''
       const _amendments = (car.amendments > -1 && (await helper.getAmendments(car.amendments, language, priceChangeRate))) || ''
-      const _theftProtection = (car.theftProtection > -1 && (await helper.getTheftProtection(car.theftProtection, language, priceChangeRate))) || ''
-      const _collisionDamageWaiver = (car.collisionDamageWaiver > -1 && (await helper.getCollisionDamageWaiver(car.collisionDamageWaiver, language, priceChangeRate))) || ''
-      const _fullInsurance = (car.fullInsurance > -1 && (await helper.getFullInsurance(car.fullInsurance, language, priceChangeRate))) || ''
-      const _additionalDriver = (car.additionalDriver > -1 && (await helper.getAdditionalDriver(car.additionalDriver, language, priceChangeRate))) || ''
+      const _theftProtection = (car.theftProtection > -1 && (await helper.getTheftProtection(car.theftProtection, language, priceChangeRate, isHourly))) || ''
+      const _collisionDamageWaiver = (car.collisionDamageWaiver > -1 && (await helper.getCollisionDamageWaiver(car.collisionDamageWaiver, language, priceChangeRate, isHourly))) || ''
+      const _fullInsurance = (car.fullInsurance > -1 && (await helper.getFullInsurance(car.fullInsurance, language, priceChangeRate, isHourly))) || ''
+      const _additionalDriver = (car.additionalDriver > -1 && (await helper.getAdditionalDriver(car.additionalDriver, language, priceChangeRate, isHourly))) || ''
 
       setCancellation(_cancellation)
       setAmendments(_amendments)
@@ -139,7 +143,7 @@ const Car = ({
     }
 
     init()
-  }, [hidePrice]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [car, from, to, language, hidePrice]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const getExtraIcon = (option: string, extra: number) => {
     let available = false
@@ -239,10 +243,10 @@ const Car = ({
             <div className="name">{car.name}</div>
             {!hidePrice && (
               <div className="price">
-                <span className="price-days">{helper.getDays(days)}</span>
+                <span className="price-days">{(car.hourlyPrice || car.discountedHourlyPrice) && hours < 24 ? helper.getHours(hours) : helper.getDays(days)}</span>
                 <span className="price-main">{bookcarsHelper.formatPrice(totalPrice, commonStrings.CURRENCY, language)}</span>
                 <span className="price-day">
-                  {hours < 24 ? (
+                  {(car.hourlyPrice || car.discountedHourlyPrice) && hours < 24 ? (
                     <>
                       <span>{`${strings.PRICE_PER_HOUR} `}</span>
                       <span className="price-day-value">{bookcarsHelper.formatPrice(totalPrice / hours, commonStrings.CURRENCY, language)}</span>

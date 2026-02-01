@@ -55,7 +55,14 @@ const CheckoutStatus = (
   const _fr = language === 'fr'
   const _locale = _fr ? fr : enUS
   const _format = _fr ? 'eee d LLL yyyy kk:mm' : 'eee, d LLL yyyy, p'
-  const days = (booking && bookcarsHelper.days(new Date(booking.from), new Date(booking.to))) || 0
+  const from = booking ? new Date(booking.from) : undefined
+  const to = booking ? new Date(booking.to) : undefined
+  const days = (from && to && bookcarsHelper.days(from, to)) || 0
+  const diffMs = from && to ? to.getTime() - from.getTime() : 0
+  const hours = Math.ceil(diffMs / (1000 * 3600))
+  const hasHourlyPrice = !!((booking?.car as bookcarsTypes.Car | undefined)?.hourlyPrice
+    || (booking?.car as bookcarsTypes.Car | undefined)?.discountedHourlyPrice)
+  const isHourly = hasHourlyPrice && hours > 0 && hours < 24
   const success = status === 'success'
 
   return booking && (
@@ -83,11 +90,15 @@ const CheckoutStatus = (
                 </div>
               </div>
               <div className="status-detail">
-                <span className="status-detail-title">{checkoutStrings.DAYS}</span>
+                <span className="status-detail-title">
+                  {isHourly
+                    ? (hours === 1 ? checkoutStrings.HOUR : checkoutStrings.HOURS)
+                    : (days === 1 ? checkoutStrings.DAY : checkoutStrings.DAYS)}
+                </span>
                 <div className="status-detail-value">
-                  {`${helper.getDaysShort(days)} (${bookcarsHelper.capitalize(
-                    format(new Date(booking.from), _format, { locale: _locale }),
-                  )} - ${bookcarsHelper.capitalize(format(new Date(booking.to), _format, { locale: _locale }))})`}
+                  {`${isHourly ? helper.getHoursShort(hours) : helper.getDaysShort(days)} (${bookcarsHelper.capitalize(
+                    format(from!, _format, { locale: _locale }),
+                  )} - ${bookcarsHelper.capitalize(format(to!, _format, { locale: _locale }))})`}
                 </div>
               </div>
               <div className="status-detail">

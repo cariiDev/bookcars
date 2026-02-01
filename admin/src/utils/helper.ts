@@ -276,15 +276,16 @@ export const getMileageTooltip = (mileage: number, language: string) => {
  * @param {string} language
  * @returns {string}
  */
-export const getAdditionalDriver = (additionalDriver: number, language: string) => {
+export const getAdditionalDriver = (additionalDriver: number, language: string, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (additionalDriver === -1) {
     return `${strings.ADDITIONAL_DRIVER}${fr ? ' : ' : ': '}${strings.UNAVAILABLE}`
   } if (additionalDriver === 0) {
     return `${strings.ADDITIONAL_DRIVER}${fr ? ' : ' : ': '}${strings.INCLUDED}`
   }
-  return `${strings.ADDITIONAL_DRIVER}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(additionalDriver, commonStrings.CURRENCY, language)}${commonStrings.DAILY}`
+  return `${strings.ADDITIONAL_DRIVER}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(additionalDriver, commonStrings.CURRENCY, language)}${unit}`
 }
 
 /**
@@ -294,15 +295,16 @@ export const getAdditionalDriver = (additionalDriver: number, language: string) 
  * @param {string} language
  * @returns {string}
  */
-export const getFullInsurance = (fullInsurance: number, language: string) => {
+export const getFullInsurance = (fullInsurance: number, language: string, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (fullInsurance === -1) {
     return `${strings.FULL_INSURANCE}${fr ? ' : ' : ': '}${strings.UNAVAILABLE}`
   } if (fullInsurance === 0) {
     return `${strings.FULL_INSURANCE}${fr ? ' : ' : ': '}${strings.INCLUDED}${fr ? 'e' : ''}`
   }
-  return `${strings.FULL_INSURANCE}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(fullInsurance, commonStrings.CURRENCY, language)}${commonStrings.DAILY}`
+  return `${strings.FULL_INSURANCE}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(fullInsurance, commonStrings.CURRENCY, language)}${unit}`
 }
 
 /**
@@ -312,15 +314,16 @@ export const getFullInsurance = (fullInsurance: number, language: string) => {
  * @param {string} language
  * @returns {string}
  */
-export const getCollisionDamageWaiver = (collisionDamageWaiver: number, language: string) => {
+export const getCollisionDamageWaiver = (collisionDamageWaiver: number, language: string, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (collisionDamageWaiver === -1) {
     return `${strings.COLLISION_DAMAGE_WAVER}${fr ? ' : ' : ': '}${strings.UNAVAILABLE}`
   } if (collisionDamageWaiver === 0) {
     return `${strings.COLLISION_DAMAGE_WAVER}${fr ? ' : ' : ': '}${strings.INCLUDED}${fr ? 'e' : ''}`
   }
-  return `${strings.COLLISION_DAMAGE_WAVER}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(collisionDamageWaiver, commonStrings.CURRENCY, language)}${commonStrings.DAILY}`
+  return `${strings.COLLISION_DAMAGE_WAVER}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(collisionDamageWaiver, commonStrings.CURRENCY, language)}${unit}`
 }
 
 /**
@@ -330,15 +333,16 @@ export const getCollisionDamageWaiver = (collisionDamageWaiver: number, language
  * @param {string} language
  * @returns {string}
  */
-export const getTheftProtection = (theftProtection: number, language: string) => {
+export const getTheftProtection = (theftProtection: number, language: string, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (theftProtection === -1) {
     return `${strings.THEFT_PROTECTION}${fr ? ' : ' : ': '}${strings.UNAVAILABLE}`
   } if (theftProtection === 0) {
     return `${strings.THEFT_PROTECTION}${fr ? ' : ' : ': '}${strings.INCLUDED}${fr ? 'e' : ''}`
   }
-  return `${strings.THEFT_PROTECTION}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(theftProtection, commonStrings.CURRENCY, language)}${commonStrings.DAILY}`
+  return `${strings.THEFT_PROTECTION}${fr ? ' : ' : ': '}${bookcarsHelper.formatPrice(theftProtection, commonStrings.CURRENCY, language)}${unit}`
 }
 
 /**
@@ -570,12 +574,29 @@ export const getDays = (days: number) =>
   `${strings.PRICE_DAYS_PART_1} ${days} ${strings.PRICE_DAYS_PART_2}${days > 1 ? 's' : ''}`
 
 /**
+ * Get hours label.
+ *
+ * @param {number} hours
+ * @returns {string}
+ */
+export const getHours = (hours: number) =>
+  `${strings.PRICE_HOURS_PART_1} ${hours} ${strings.PRICE_HOURS_PART_2}${hours > 1 ? 's' : ''}`
+
+/**
  * Get short days label.
  *
  * @param {number} days
  * @returns {string}
  */
 export const getDaysShort = (days: number) => `${days} ${strings.PRICE_DAYS_PART_2}${days > 1 ? 's' : ''}`
+
+/**
+ * Get short hours label.
+ *
+ * @param {number} hours
+ * @returns {string}
+ */
+export const getHoursShort = (hours: number) => `${hours} ${strings.PRICE_HOURS_PART_2}${hours > 1 ? 's' : ''}`
 
 /**
  * Get cancellation option label.
@@ -624,15 +645,16 @@ export const getAmendmentsOption = (amendments: number, language: string, hidePl
  * @param {boolean} hidePlus
  * @returns {string}
  */
-export const getCollisionDamageWaiverOption = (collisionDamageWaiver: number, days: number, language: string, hidePlus: boolean) => {
+export const getCollisionDamageWaiverOption = (collisionDamageWaiver: number, duration: number, language: string, hidePlus: boolean, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (collisionDamageWaiver === -1) {
     return strings.UNAVAILABLE
   } if (collisionDamageWaiver === 0) {
     return `${strings.INCLUDED}${fr ? 'e' : ''}`
   }
-  return `${hidePlus ? '' : '+ '}${bookcarsHelper.formatPrice(collisionDamageWaiver * days, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(collisionDamageWaiver, commonStrings.CURRENCY, language)}${commonStrings.DAILY})`
+  return `${hidePlus ? '' : '+ '}${bookcarsHelper.formatPrice(collisionDamageWaiver * duration, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(collisionDamageWaiver, commonStrings.CURRENCY, language)}${unit})`
 }
 
 /**
@@ -644,15 +666,16 @@ export const getCollisionDamageWaiverOption = (collisionDamageWaiver: number, da
  * @param {boolean} hidePlus
  * @returns {string}
  */
-export const getTheftProtectionOption = (theftProtection: number, days: number, language: string, hidePlus: boolean) => {
+export const getTheftProtectionOption = (theftProtection: number, duration: number, language: string, hidePlus: boolean, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (theftProtection === -1) {
     return strings.UNAVAILABLE
   } if (theftProtection === 0) {
     return `${strings.INCLUDED}${fr ? 'e' : ''}`
   }
-  return `${hidePlus ? '' : '+ '}${bookcarsHelper.formatPrice(theftProtection * days, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(theftProtection, commonStrings.CURRENCY, language)}${commonStrings.DAILY})`
+  return `${hidePlus ? '' : '+ '}${bookcarsHelper.formatPrice(theftProtection * duration, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(theftProtection, commonStrings.CURRENCY, language)}${unit})`
 }
 
 /**
@@ -664,15 +687,16 @@ export const getTheftProtectionOption = (theftProtection: number, days: number, 
  * @param {boolean} hidePlus
  * @returns {string}
  */
-export const getFullInsuranceOption = (fullInsurance: number, days: number, language: string, hidePlus: boolean) => {
+export const getFullInsuranceOption = (fullInsurance: number, duration: number, language: string, hidePlus: boolean, isHourly?: boolean) => {
   const fr = bookcarsHelper.isFrench(language)
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
 
   if (fullInsurance === -1) {
     return strings.UNAVAILABLE
   } if (fullInsurance === 0) {
     return `${strings.INCLUDED}${fr ? 'e' : ''}`
   }
-  return `${hidePlus ? '' : '+ '}${bookcarsHelper.formatPrice(fullInsurance * days, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(fullInsurance, commonStrings.CURRENCY, language)}${commonStrings.DAILY})`
+  return `${hidePlus ? '' : '+ '}${bookcarsHelper.formatPrice(fullInsurance * duration, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(fullInsurance, commonStrings.CURRENCY, language)}${unit})`
 }
 
 /**
@@ -684,13 +708,15 @@ export const getFullInsuranceOption = (fullInsurance: number, days: number, lang
  * @param {boolean} hidePlus
  * @returns {string}
  */
-export const getAdditionalDriverOption = (additionalDriver: number, days: number, language: string, hidePlus: boolean) => {
+export const getAdditionalDriverOption = (additionalDriver: number, duration: number, language: string, hidePlus: boolean, isHourly?: boolean) => {
+  const unit = isHourly ? commonStrings.HOURLY : commonStrings.DAILY
+
   if (additionalDriver === -1) {
     return strings.UNAVAILABLE
   } if (additionalDriver === 0) {
     return strings.INCLUDED
   }
-  return `${hidePlus ? '' : '+ '}${bookcarsHelper.formatPrice(additionalDriver * days, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(additionalDriver, commonStrings.CURRENCY, language)}${commonStrings.DAILY})`
+  return `${hidePlus ? '' : '+ '}${bookcarsHelper.formatPrice(additionalDriver * duration, commonStrings.CURRENCY, language)} (${bookcarsHelper.formatPrice(additionalDriver, commonStrings.CURRENCY, language)}${unit})`
 }
 
 /**

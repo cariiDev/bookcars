@@ -58,6 +58,15 @@ const CheckoutOptions = ({
     }
     return 0
   }, [from, to])
+  const hours = useMemo(() => {
+    if (from && to) {
+      const diffMs = to.getTime() - from.getTime()
+      return Math.ceil(diffMs / (1000 * 3600))
+    }
+    return 0
+  }, [from, to])
+  const hasHourlyPrice = !!(car.hourlyPrice || car.discountedHourlyPrice)
+  const isHourly = hasHourlyPrice && hours > 0 && hours < 24
   const [cancellation, setCancellation] = useState(false)
   const [amendments, setAmendments] = useState(false)
   const [theftProtection, setTheftProtection] = useState(false)
@@ -78,15 +87,16 @@ const CheckoutOptions = ({
       const priceChangeRate = car.supplier.priceChangeRate || 0
       setCancellationOption(await helper.getCancellationOption(car.cancellation, language, priceChangeRate))
       setAmendmentsOption(await helper.getAmendmentsOption(car.amendments, language, priceChangeRate))
-      setTheftProtectionOption(await helper.getTheftProtectionOption(car.theftProtection, days, language, priceChangeRate))
-      setCollisionDamageWaiverOption(await helper.getCollisionDamageWaiverOption(car.collisionDamageWaiver, days, language, priceChangeRate))
-      setFullInsuranceOption(await helper.getFullInsuranceOption(car.fullInsurance, days, language, priceChangeRate))
-      setAdditionalDriverOption(await helper.getAdditionalDriverOption(car.additionalDriver, days, language, priceChangeRate))
+      const duration = isHourly ? hours : days
+      setTheftProtectionOption(await helper.getTheftProtectionOption(car.theftProtection, duration, language, priceChangeRate, isHourly))
+      setCollisionDamageWaiverOption(await helper.getCollisionDamageWaiverOption(car.collisionDamageWaiver, duration, language, priceChangeRate, isHourly))
+      setFullInsuranceOption(await helper.getFullInsuranceOption(car.fullInsurance, duration, language, priceChangeRate, isHourly))
+      setAdditionalDriverOption(await helper.getAdditionalDriverOption(car.additionalDriver, duration, language, priceChangeRate, isHourly))
       setLoading(false)
     }
 
     fetchPrices()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [car, days, hours, isHourly, language]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (car) {

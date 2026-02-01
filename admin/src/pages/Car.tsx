@@ -199,7 +199,9 @@ const Car = () => {
                   <span className="car-supplier-info">{car.supplier.fullName}</span>
                 </div>
               </div>
-              <div className="price">{`${bookcarsHelper.formatPrice(car.dailyPrice, commonStrings.CURRENCY, language)}${commonStrings.DAILY}`}</div>
+              <div className="price">
+                {`${bookcarsHelper.formatPrice(car.hourlyPrice || car.dailyPrice, commonStrings.CURRENCY, language)}${car.hourlyPrice ? commonStrings.HOURLY : commonStrings.DAILY}`}
+              </div>
               <div className="car-info">
                 <ul className="car-info-list">
                   <li className="car-type">
@@ -286,37 +288,37 @@ const Car = () => {
                     </Tooltip>
                   </li>
                   <li>
-                    <Tooltip title={car.theftProtection > -1 ? strings.THEFT_PROTECTION_TOOLTIP : helper.getTheftProtection(car.theftProtection, language)} placement="left">
+                    <Tooltip title={car.theftProtection > -1 ? strings.THEFT_PROTECTION_TOOLTIP : helper.getTheftProtection(car.theftProtection, language, !!car.hourlyPrice)} placement="left">
                       <div className="car-info-list-item">
                         {car.theftProtection > -1 ? <CheckIcon /> : <UncheckIcon />}
-                        <span className="car-info-list-text">{helper.getTheftProtection(car.theftProtection, language)}</span>
+                        <span className="car-info-list-text">{helper.getTheftProtection(car.theftProtection, language, !!car.hourlyPrice)}</span>
                       </div>
                     </Tooltip>
                   </li>
                   <li>
                     <Tooltip
-                      title={car.collisionDamageWaiver > -1 ? strings.COLLISION_DAMAGE_WAVER_TOOLTIP : helper.getCollisionDamageWaiver(car.collisionDamageWaiver, language)}
+                      title={car.collisionDamageWaiver > -1 ? strings.COLLISION_DAMAGE_WAVER_TOOLTIP : helper.getCollisionDamageWaiver(car.collisionDamageWaiver, language, !!car.hourlyPrice)}
                       placement="left"
                     >
                       <div className="car-info-list-item">
                         {car.collisionDamageWaiver > -1 ? <CheckIcon /> : <UncheckIcon />}
-                        <span className="car-info-list-text">{helper.getCollisionDamageWaiver(car.collisionDamageWaiver, language)}</span>
+                        <span className="car-info-list-text">{helper.getCollisionDamageWaiver(car.collisionDamageWaiver, language, !!car.hourlyPrice)}</span>
                       </div>
                     </Tooltip>
                   </li>
                   <li>
-                    <Tooltip title={car.fullInsurance > -1 ? strings.FULL_INSURANCE_TOOLTIP : helper.getFullInsurance(car.fullInsurance, language)} placement="left">
+                    <Tooltip title={car.fullInsurance > -1 ? strings.FULL_INSURANCE_TOOLTIP : helper.getFullInsurance(car.fullInsurance, language, !!car.hourlyPrice)} placement="left">
                       <div className="car-info-list-item">
                         {car.fullInsurance > -1 ? <CheckIcon /> : <UncheckIcon />}
-                        <span className="car-info-list-text">{helper.getFullInsurance(car.fullInsurance, language)}</span>
+                        <span className="car-info-list-text">{helper.getFullInsurance(car.fullInsurance, language, !!car.hourlyPrice)}</span>
                       </div>
                     </Tooltip>
                   </li>
                   <li>
-                    <Tooltip title={helper.getAdditionalDriver(car.additionalDriver, language)} placement="left">
+                    <Tooltip title={helper.getAdditionalDriver(car.additionalDriver, language, !!car.hourlyPrice)} placement="left">
                       <div className="car-info-list-item">
                         {car.additionalDriver > -1 ? <CheckIcon /> : <UncheckIcon />}
-                        <span className="car-info-list-text">{helper.getAdditionalDriver(car.additionalDriver, language)}</span>
+                        <span className="car-info-list-text">{helper.getAdditionalDriver(car.additionalDriver, language, !!car.hourlyPrice)}</span>
                       </div>
                     </Tooltip>
                   </li>
