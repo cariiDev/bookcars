@@ -46,6 +46,7 @@ interface BayarCashButtonProps {
   onSuccess?: () => void
   onError?: (error: any) => void
   onChannelChange?: (channel: number) => void
+  priceSummary?: React.ReactNode
 }
 
 const BayarCashButton: React.FC<BayarCashButtonProps> = ({
@@ -68,6 +69,7 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
   isFormValid,
   onError,
   onChannelChange,
+  priceSummary,
 }) => {
   const [processing, setProcessing] = useState(false)
   const [selectedChannel, setSelectedChannel] = useState<number>(env.BAYARCASH_PAYMENT_CHANNEL)
@@ -202,6 +204,7 @@ const BayarCashButton: React.FC<BayarCashButtonProps> = ({
 
   return (
     <div className="payment-options-container">
+      {priceSummary}
       <FormControl fullWidth margin="normal" size="small" disabled={processing}>
         <InputLabel id="bayarcash-channel-label">{checkoutStrings.BAYARCASH_CHANNEL_LABEL}</InputLabel>
         <Select<number>

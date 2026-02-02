@@ -50,6 +50,7 @@ interface CarProps {
   hideSupplier?: boolean
   sizeAuto?: boolean
   hidePrice?: boolean
+  taxRate?: number
 }
 
 const Car = ({
@@ -64,6 +65,7 @@ const Car = ({
   hideSupplier,
   sizeAuto,
   hidePrice,
+  taxRate,
 }: CarProps) => {
   const navigate = useNavigate()
 
@@ -92,7 +94,7 @@ const Car = ({
           to as Date,
           car.supplier.priceChangeRate || 0,
           undefined,
-          env.SST_TAX_RATE,
+          taxRate ?? env.SST_TAX_RATE,
         ))
         setTotalPrice(_totalPrice)
         const _days = bookcarsHelper.days(from, to)
@@ -136,7 +138,7 @@ const Car = ({
           to as Date,
           car.supplier.priceChangeRate || 0,
           undefined,
-          env.SST_TAX_RATE,
+          taxRate ?? env.SST_TAX_RATE,
         ))
         setTotalPrice(_totalPrice)
       }

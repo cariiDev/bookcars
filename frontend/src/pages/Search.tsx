@@ -334,6 +334,7 @@ const Search = () => {
                 hideSupplier={env.HIDE_SUPPLIERS}
                 // includeAlreadyBookedCars
                 includeComingSoonCars
+                taxRate={0}
               />
             </div>
           </div>

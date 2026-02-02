@@ -44,6 +44,7 @@ interface CarListProps {
   distance?: string
   includeAlreadyBookedCars?: boolean
   includeComingSoonCars?: boolean
+  taxRate?: number
   onLoad?: bookcarsTypes.DataEvent<bookcarsTypes.Car>
 }
 
@@ -75,6 +76,7 @@ const CarList = ({
   distance,
   includeAlreadyBookedCars,
   includeComingSoonCars,
+  taxRate,
   onLoad,
 }: CarListProps) => {
   const [init, setInit] = useState(true)
@@ -257,6 +259,7 @@ const CarList = ({
                   hideSupplier={hideSupplier}
                   sizeAuto={sizeAuto}
                   hidePrice={hidePrice}
+                  taxRate={taxRate}
                 />
               ))}
             </>

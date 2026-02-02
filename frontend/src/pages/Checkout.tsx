@@ -179,6 +179,7 @@ const Checkout = () => {
     ? (price / taxMultiplier) * taxRate
     : 0
   const paymentAmount = payDeposit ? depositPrice : price
+  const paymentAmountPreTax = paymentAmount / taxMultiplier
   const onlineBankingFee = (!payLater
     && env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash)
     ? (bayarCashChannel === BayarCashService.PAYMENT_CHANNELS.DUITNOW_QR
@@ -189,6 +190,59 @@ const Checkout = () => {
         : 0))
     : 0
   const totalPaymentAmount = paymentAmount + onlineBankingFee
+  const priceSummary = (
+    <div className="checkout-details-container">
+      <div className="checkout-info">
+        <span>{strings.COST}</span>
+      </div>
+      <div className="checkout-details">
+        <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
+          <span className="checkout-detail-title">
+            {payDeposit
+              ? strings.DEPOSIT
+              : `${strings.PRICE_FOR} ${isHourly ? hours : days} ${isHourly ? (hours === 1 ? strings.HOUR : strings.HOURS) : (days > 1 ? strings.DAYS : strings.DAY)}`}
+          </span>
+          <div className="checkout-detail-value booking-price">
+            {bookcarsHelper.formatPrice(paymentAmountPreTax, commonStrings.CURRENCY, language)}
+          </div>
+        </div>
+        {(appliedVouchers.length > 0 || appliedVoucher) && originalPrice > 0 && (
+          <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
+            <span className="checkout-detail-title">{strings.VOUCHER_DISCOUNT}</span>
+            <div className="checkout-detail-value" style={{ color: 'green' }}>
+              -{bookcarsHelper.formatPrice(
+                appliedVouchers.length > 0
+                  ? vouchersDiscountWithTax
+                  : Math.max(0, originalPrice - price),
+                commonStrings.CURRENCY,
+                language
+              )}
+            </div>
+          </div>
+        )}
+        {price > 0 && (
+          <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
+            <span className="checkout-detail-title">{strings.SST_TAX}</span>
+            <div className="checkout-detail-value">
+              {bookcarsHelper.formatPrice(sstAmount, commonStrings.CURRENCY, language)}
+            </div>
+          </div>
+        )}
+        {onlineBankingFee > 0 && (
+          <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
+            <span className="checkout-detail-title">{strings.ONLINE_BANKING_FEE}</span>
+            <div className="checkout-detail-value">
+              {bookcarsHelper.formatPrice(onlineBankingFee, commonStrings.CURRENCY, language)}
+            </div>
+          </div>
+        )}
+        <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
+          <span className="checkout-detail-title">{strings.TOTAL_TO_PAY}</span>
+          <div className="checkout-detail-value booking-price">{bookcarsHelper.formatPrice(totalPaymentAmount, commonStrings.CURRENCY, language)}</div>
+        </div>
+      </div>
+    </div>
+  )
 
   const validateEmail = (email: string) => {
     return validator.isEmail(email)
@@ -620,7 +674,7 @@ const Checkout = () => {
                         <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
                           <span className="checkout-detail-title">{strings.CAR}</span>
                           <div className="checkout-detail-value">
-                            {`${car.name} (${bookcarsHelper.formatPrice(price / (isHourly ? hours : days), commonStrings.CURRENCY, language)}${isHourly ? commonStrings.HOURLY : commonStrings.DAILY})`}
+                            {car.name}
                           </div>
                         </div>
                         {!env.HIDE_SUPPLIERS && (
@@ -634,40 +688,6 @@ const Checkout = () => {
                             </div>
                           </div>
                         )}
-                        {(appliedVouchers.length > 0 || appliedVoucher) && originalPrice > 0 && (
-                          <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
-                            <span className="checkout-detail-title">{strings.VOUCHER_DISCOUNT}</span>
-                            <div className="checkout-detail-value" style={{ color: 'green' }}>
-                              -{bookcarsHelper.formatPrice(
-                                appliedVouchers.length > 0
-                                  ? vouchersDiscountWithTax
-                                  : Math.max(0, originalPrice - price),
-                                commonStrings.CURRENCY,
-                                language
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        {price > 0 && (
-                          <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
-                            <span className="checkout-detail-title">{strings.SST_TAX}</span>
-                            <div className="checkout-detail-value">
-                              {bookcarsHelper.formatPrice(sstAmount, commonStrings.CURRENCY, language)}
-                            </div>
-                          </div>
-                        )}
-                        {onlineBankingFee > 0 && (
-                          <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
-                            <span className="checkout-detail-title">{strings.ONLINE_BANKING_FEE}</span>
-                            <div className="checkout-detail-value">
-                              {bookcarsHelper.formatPrice(onlineBankingFee, commonStrings.CURRENCY, language)}
-                            </div>
-                          </div>
-                        )}
-                        <div className="checkout-detail" style={{ height: bookingDetailHeight }}>
-                          <span className="checkout-detail-title">{strings.COST}</span>
-                          <div className="checkout-detail-value booking-price">{bookcarsHelper.formatPrice(price, commonStrings.CURRENCY, language)}</div>
-                        </div>
                       </div>
                     </div>
 
@@ -1052,102 +1072,92 @@ const Checkout = () => {
                       </div>
                     </div>
 
-                    <div className="payment-info">
-                      <div className="payment-info-title">
-                        {
-                          payDeposit
-                            ? strings.DEPOSIT
-                            : `${strings.PRICE_FOR} ${isHourly ? hours : days} ${isHourly ? (hours === 1 ? strings.HOUR : strings.HOURS) : (days > 1 ? strings.DAYS : strings.DAY)}`
-                        }
-                      </div>
-                      <div className="payment-info-price">
-                        {
-                          bookcarsHelper.formatPrice(totalPaymentAmount, commonStrings.CURRENCY, language)
-                        }
-                      </div>
-                    </div>
-
                     {(!car.supplier.payLater || !payLater) && (
-                      env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.Stripe
-                        ? (
-                          clientSecret && (
-                            <div className="payment-options-container">
-                              <EmbeddedCheckoutProvider
-                                stripe={stripePromise}
-                                options={{ clientSecret }}
-                              >
-                                <EmbeddedCheckout />
-                              </EmbeddedCheckoutProvider>
-                            </div>
+                      <>
+                        {env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.Stripe
+                          ? (
+                            clientSecret && (
+                              <div className="payment-options-container">
+                                {priceSummary}
+                                <EmbeddedCheckoutProvider
+                                  stripe={stripePromise}
+                                  options={{ clientSecret }}
+                                >
+                                  <EmbeddedCheckout />
+                                </EmbeddedCheckoutProvider>
+                              </div>
+                            )
                           )
-                        )
-                        : env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.PayPal && payPalLoaded ? (
-                          <div className="payment-options-container">
-                            <PayPalButtons
-                              createOrder={async () => {
-                                const name = bookcarsHelper.truncateString(car.name, PayPalService.ORDER_NAME_MAX_LENGTH)
-                                const _description = `${car.name} - ${daysLabel} - ${pickupLocation._id === dropOffLocation._id ? pickupLocation.name : `${pickupLocation.name} - ${dropOffLocation.name}`}`
-                                const description = bookcarsHelper.truncateString(_description, PayPalService.ORDER_DESCRIPTION_MAX_LENGTH)
-                                const amount = totalPaymentAmount
-                                const orderId = await PayPalService.createOrder(bookingId!, amount, PaymentService.getCurrency(), name, description)
-                                return orderId
-                              }}
-                              onApprove={async (data, actions) => {
-                                try {
-                                  setPayPalProcessing(true)
-                                  await actions.order?.capture()
-                                  const { orderID } = data
-                                  const status = await PayPalService.checkOrder(bookingId!, orderID)
+                          : env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.PayPal && payPalLoaded ? (
+                            <div className="payment-options-container">
+                              {priceSummary}
+                              <PayPalButtons
+                                createOrder={async () => {
+                                  const name = bookcarsHelper.truncateString(car.name, PayPalService.ORDER_NAME_MAX_LENGTH)
+                                  const _description = `${car.name} - ${daysLabel} - ${pickupLocation._id === dropOffLocation._id ? pickupLocation.name : `${pickupLocation.name} - ${dropOffLocation.name}`}`
+                                  const description = bookcarsHelper.truncateString(_description, PayPalService.ORDER_DESCRIPTION_MAX_LENGTH)
+                                  const amount = totalPaymentAmount
+                                  const orderId = await PayPalService.createOrder(bookingId!, amount, PaymentService.getCurrency(), name, description)
+                                  return orderId
+                                }}
+                                onApprove={async (data, actions) => {
+                                  try {
+                                    setPayPalProcessing(true)
+                                    await actions.order?.capture()
+                                    const { orderID } = data
+                                    const status = await PayPalService.checkOrder(bookingId!, orderID)
 
-                                  if (status === 200) {
-                                    setVisible(false)
-                                    setSuccess(true)
-                                  } else {
-                                    setPaymentFailed(true)
+                                    if (status === 200) {
+                                      setVisible(false)
+                                      setSuccess(true)
+                                    } else {
+                                      setPaymentFailed(true)
+                                    }
+                                  } catch (err) {
+                                    helper.error(err)
+                                  } finally {
+                                    setPayPalProcessing(false)
                                   }
-                                } catch (err) {
-                                  helper.error(err)
-                                } finally {
+                                }}
+                                onInit={() => {
+                                  setPayPalInit(true)
+                                }}
+                                onCancel={() => {
                                   setPayPalProcessing(false)
-                                }
+                                }}
+                                onError={() => {
+                                  setPayPalProcessing(false)
+                                }}
+                              />
+                            </div>
+                          ) : env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash && bayarCashLoaded ? (
+                            <BayarCashButton
+                              car={car}
+                              user={user}
+                              pickupLocation={pickupLocation}
+                              dropOffLocation={dropOffLocation}
+                              from={from}
+                              to={to}
+                              authenticated={authenticated}
+                              price={price}
+                              depositPrice={depositPrice}
+                              payDeposit={payDeposit || false}
+                              daysLabel={daysLabel || ''}
+                              license={license}
+                              studentIdDocument={studentIdDocument}
+                              additionalDriver={additionalDriver}
+                              formData={getValues()}
+                              additionalDriverRequired={adRequired}
+                              isFormValid={isValid}
+                              onChannelChange={setBayarCashChannel}
+                              onError={(error) => {
+                                helper.error(error)
+                                setBayarCashProcessing(false)
                               }}
-                              onInit={() => {
-                                setPayPalInit(true)
-                              }}
-                              onCancel={() => {
-                                setPayPalProcessing(false)
-                              }}
-                              onError={() => {
-                                setPayPalProcessing(false)
-                              }}
+                              priceSummary={priceSummary}
                             />
-                          </div>
-                        ) : env.PAYMENT_GATEWAY === bookcarsTypes.PaymentGateway.BayarCash && bayarCashLoaded ? (
-                          <BayarCashButton
-                            car={car}
-                            user={user}
-                            pickupLocation={pickupLocation}
-                            dropOffLocation={dropOffLocation}
-                            from={from}
-                            to={to}
-                            authenticated={authenticated}
-                            price={price}
-                            depositPrice={depositPrice}
-                            payDeposit={payDeposit || false}
-                            daysLabel={daysLabel || ''}
-                            license={license}
-                            studentIdDocument={studentIdDocument}
-                            additionalDriver={additionalDriver}
-                            formData={getValues()}
-                            additionalDriverRequired={adRequired}
-                            isFormValid={isValid}
-                            onChannelChange={setBayarCashChannel}
-                            onError={(error) => {
-                              helper.error(error)
-                              setBayarCashProcessing(false)
-                            }}
-                          />
-                        ) : null
+                          ) : null}
+                      </>
                     )}
                     <div className="checkout-buttons">
                       {(
